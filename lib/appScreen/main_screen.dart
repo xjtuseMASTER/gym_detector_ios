@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home_page.dart';
-import 'profile_page.dart';
 import 'app_page.dart';
+import 'profile_page.dart';
 
 class MainScreen extends StatefulWidget {
   @override
