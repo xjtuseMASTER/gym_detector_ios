@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gym_detector_ios/appScreen/upload_page.dart';
+import 'package:gym_detector_ios/appScreen/AppPage/upload_page.dart';
 
-class ProfilePage extends StatelessWidget {
+class AppPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,7 +45,7 @@ class ProfilePage extends StatelessWidget {
               child: ListView(
                 children: [
                   // 9 个图片
-                  for (int index = 0; index < 10; index++)
+                  for (int index = 0; index < 9; index++)
                     GestureDetector(
                       onTap: () {
                         // 点击图片时跳转到详情页面

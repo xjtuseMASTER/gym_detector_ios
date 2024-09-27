@@ -29,6 +29,9 @@ flutter:
     - assets/images/
     - assets/gymplan_images/
     - assets/user_images/
+    - assets/dynamic_images/
+    - assets/bar_images/
+
 
   fonts:
     - family: Poppins

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart';
-import 'app_page.dart';
-import 'profile_page.dart';
+import 'HomePage/home_page.dart';
+import 'AppPage/app_page.dart';
+import 'ProfilePage/profile_page.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -10,7 +10,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-  final List<Widget> _pages = [HomePage(), ProfilePage(), AppPage()];
+  final List<Widget> _pages = [HomePage(), AppPage(),ProfilePage()];
 
   void _onItemTapped(int index) {
     setState(() {
