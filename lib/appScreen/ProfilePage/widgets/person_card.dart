@@ -1,10 +1,11 @@
-//个人信息展示类
+//简要个人信息展示类
 
 import 'package:flutter/material.dart';
+import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/person_widgets/person_details.dart';
 import 'package:gym_detector_ios/module/person.dart';
-class PersonInfo extends StatelessWidget{
+class PersonCard extends StatelessWidget{
   Person person;
-  PersonInfo({required this.person});
+  PersonCard({required this.person});
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +24,14 @@ class PersonInfo extends StatelessWidget{
             offset: const Offset(0, 5), // 阴影偏移量，可以控制阴影的位置
           ),
         ],
+         gradient: LinearGradient( //设置渐变效果
+            begin: Alignment.bottomLeft, // 左下角
+            end: Alignment.topRight,     // 右上角
+            colors: [
+              const Color.fromARGB(255, 176, 205, 245).withOpacity(0.5), // 渐变的起始颜色
+              const Color.fromARGB(255, 229, 151, 242).withOpacity(0.5), // 渐变的终止颜色
+            ],
+          ),
         ),
         child: Column(
           children: [
@@ -59,12 +68,22 @@ class PersonInfo extends StatelessWidget{
                     )
                   ],
                 ),
-                ClipRRect(
+                GestureDetector(
+                  onTap: (){
+                    Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PersonDetailsPage(
+                                  person: person,
+                                    )));
+                  },              
+                child:ClipRRect(
                   borderRadius: BorderRadius.circular(50),
                   child: Image.asset(
                     person.profile_photo,//用户头像
                     width: 80,
                   ),
+                )
                 )
               ],
             ),
@@ -79,7 +98,7 @@ class PersonInfo extends StatelessWidget{
                   children: [
                     const Icon(Icons.favorite, color: Color.fromARGB(255, 224, 89, 89)), //累计点赞数
                     Text(
-                      person.likes,
+                      person.likes.toString(),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,

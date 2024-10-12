@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'package:gym_detector_ios/module/person.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, required this.controller});
   final PageController controller;
@@ -126,9 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 56,
                     child: ElevatedButton(
                       onPressed: () {
-                        //登录逻辑的
-                        //await Sign()
-                        // 登录成功后进行页面跳转
+                        
                         Navigator.pushReplacementNamed(context, '/main');
                       },  
                       style: ElevatedButton.styleFrom(
@@ -199,5 +198,11 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
       ),
     );
+  }
+  Future<void> saveUserData(Person person) async {
+  final prefs = await SharedPreferences.getInstance();
+  // 假设用户对象中有一个ID属性
+  await prefs.setString('user_id', person.ID);
+  // 你可以根据需要保存更多的用户信息
   }
 }

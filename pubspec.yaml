@@ -12,13 +12,18 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  flutter_timer_countdown: ^1.0.5
+  flutter_timer_countdown: ^1.0.5 # 倒计时器 
+  image_picker: ^0.8.5+3 # 照片采取器
+  dotted_border: ^2.0.0
+  video_thumbnail: ^0.5.1 # 视频压缩图
+  shared_preferences: ^2.3.2 # 暂存用户偏好数据
+
+
   
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^2.0.0
 
 flutter:
@@ -31,6 +36,7 @@ flutter:
     - assets/user_images/
     - assets/dynamic_images/
     - assets/bar_images/
+    - assets/bodydata_images/
 
 
   fonts:

@@ -1,24 +1,29 @@
+//个人主页身体数据页面的导航栏
 import 'package:flutter/material.dart';
-import 'package:gym_detector_ios/appScreen/ProfilePage/record_dynamic_page.dart';
+import 'package:gym_detector_ios/appScreen/ProfilePage/Muscledata_view.dart';
+import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/body_widgets/bodydata_page.dart';
+import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/body_widgets/history_upload_page.dart';
 import 'package:gym_detector_ios/module/person.dart';
-class DynamiclistView extends StatelessWidget {
+
+class BodylistView extends StatelessWidget {
+
+// ignore: non_constant_identifier_names
+  final List<String> Data_bar_Name = ['Bodydata', 'Muscledata', 'History'];
   // ignore: non_constant_identifier_names
-  final List<String> Dynamic_bar_Name = ['Likes', 'Release', 'Collects'];
-  // ignore: non_constant_identifier_names
-  final List<String> Dynamic_bar_Images = [
-    'assets/bar_images/tbar1.png',
-    'assets/bar_images/tbar2.png',
-    'assets/bar_images/tabr3.png',
+  final List<String> Data_bar_Images = [
+    'assets/bar_images/btn1.png',
+    'assets/bar_images/btn2.png',
+    'assets/bar_images/btn3.png',
   ];
   // ignore: non_constant_identifier_names
-  final List<String> Dynamic_bar_Desciption = [
-    'Used To Like ',
-    'Used To Release',
-    'Used To Collect',
+  final List<String> Data_bar_Desciption = [
+    'Upload your own bodydata ',
+    'Examine your muscle data ',
+    'Check your historical upload data',
   ];
   final List<bool> foodHighlights = [true, true, true]; // 示例
   final Person getperson;//目标访问用户
-  DynamiclistView({required this.getperson});
+  BodylistView({super.key, required this.getperson});
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +33,26 @@ class DynamiclistView extends StatelessWidget {
         padding: EdgeInsets.zero,
         itemBuilder: (context, index) => GestureDetector(
           onTap: () {
-           Navigator.push(
-              context,
-             MaterialPageRoute(builder: (context)=>RecordDynamicPage(index: index, title: Dynamic_bar_Desciption[index],getperson: getperson,)));
+            if(index==0)
+            {
+              //跳转到Bodydata
+              Navigator.push(context,
+               MaterialPageRoute(builder: (context)=>BodydataPage())
+               );
+            }
+            else if(index==1)
+            {
+              //跳转到Muscledata
+              Navigator.push(context,
+               MaterialPageRoute(builder: (context)=>MuscledataView())
+               );
+            }
+            else{
+              //跳转到History
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context)=>HistoryUploadPage()));
+            }
           },
          child: Container(
             height: 110,
@@ -48,9 +70,9 @@ class DynamiclistView extends StatelessWidget {
                gradient: LinearGradient(
                 begin: Alignment.bottomLeft, // 左下角
                 end: Alignment.topRight,     // 右上角
-                colors: [
-                   const Color.fromARGB(255, 205, 139, 217).withOpacity(0.4), // 渐变的终止颜色
+                colors: [ 
                   const Color.fromARGB(255, 183, 209, 230).withOpacity(0.4), // 渐变的起始颜色
+                   const Color.fromARGB(255, 205, 139, 217).withOpacity(0.4),// 渐变的终止颜色
                 ],
               ),
             ),
@@ -67,7 +89,7 @@ class DynamiclistView extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle, // 设置为圆形
                     image: DecorationImage(
-                      image: AssetImage(Dynamic_bar_Images[index]),
+                      image: AssetImage(Data_bar_Images[index]),
                       fit: BoxFit.cover, // 图片填充方式
                     ),
                   ),
@@ -83,7 +105,7 @@ class DynamiclistView extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              Dynamic_bar_Name[index],
+                              Data_bar_Name[index],
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -97,7 +119,7 @@ class DynamiclistView extends StatelessWidget {
                           ],
                         ),
                         Text(
-                          Dynamic_bar_Desciption[index],
+                          Data_bar_Desciption[index],
                           style: TextStyle(
                             color: foodHighlights[index]
                                 ? const Color.fromARGB(255, 198, 127, 229) // 使用高亮颜色
@@ -115,7 +137,7 @@ class DynamiclistView extends StatelessWidget {
         separatorBuilder: (_, index) => const SizedBox(
           height: 15,
         ),
-        itemCount: Dynamic_bar_Name.length,
+        itemCount: Data_bar_Name.length,
       ),
     );
   }

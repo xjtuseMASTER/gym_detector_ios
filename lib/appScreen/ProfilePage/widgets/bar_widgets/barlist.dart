@@ -6,15 +6,14 @@ import 'package:flutter/material.dart';
 class BarList extends StatelessWidget{
   final int? selected;
   final Function? callback;
-  const BarList({
-    Key? key,
-    this.selected,
-    this.callback,
-  }) : super(key: key);
+  final bool? isOneself;
+  BarList({required this.selected,
+          required this.callback,
+          required this.isOneself});
 
   @override
   Widget build(BuildContext context) {
-    final catagory = ["Body Data","Dynamic","Preferences"];
+    final catagory = isOneself!?["Body Data","Dynamic","Preferences"]:["Dynamic"];
     return Container(
       height: 100,
       padding: const EdgeInsets.symmetric(vertical: 30),

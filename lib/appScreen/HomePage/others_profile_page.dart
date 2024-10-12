@@ -1,25 +1,24 @@
+// 点击头像查看别人的个人主页
 import 'package:flutter/material.dart';
-import 'package:gym_detector_ios/appScreen/ProfilePage/bodylist_view.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/dynamiclist_view.dart';
-import 'package:gym_detector_ios/appScreen/ProfilePage/preferences_view.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/bar_widgets/barlist.dart';
-import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/news_widgets/news_page.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/person_widgets/person_card.dart';
 import 'package:gym_detector_ios/module/person.dart';
 import 'package:gym_detector_ios/widgets/Leadline_bar.dart';
-class ProfilePage extends StatefulWidget {
-  var selected = 0;
-  ProfilePage({
-    required this.selected
-  });
-  
+import 'package:gym_detector_ios/widgets/reminder_dialog.dart';
 
-  @override
-  State<ProfilePage> createState() => _ProflieState();
+// ignore: must_be_immutable
+class OthersProfilePage  extends StatefulWidget{
+  final bool isOneself=false;
+  final Person person;
+  bool isFollowed=false;//是否已经关注此人进入这个界面之后拿去数据
+  OthersProfilePage({required this.person}); 
+_OthersProfilePageState createState()=>_OthersProfilePageState();
+
 }
-class _ProflieState extends State<ProfilePage>{
 
-  
+class _OthersProfilePageState extends State<OthersProfilePage>{
+  var selected = 0;
   final pageController = PageController();
   final person=Person.personGenerator();//当前模拟，以后由后端直接返回一个person对象
   @override
@@ -37,34 +36,36 @@ class _ProflieState extends State<ProfilePage>{
               children: [
                 GestureDetector(
                   onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder:(context)=>NewsPage()));
+                    Navigator.pop(context);
                   },
-                  child: LeadlineBar(geticon: Icons.email,getcolor: Color.fromARGB(255, 206, 163, 219))
+                  child: LeadlineBar(geticon: Icons.arrow_back,getcolor: Color.fromARGB(255, 206, 163, 219))
+                ),
+                GestureDetector(
+                  onTap: (){
+                    getFollow();
+                  },
+                  child: LeadlineBar(geticon: widget.isFollowed?Icons.done:Icons.add,getcolor: Color.fromARGB(255, 206, 163, 219))
                 ),
               ],
             ),
           ),
-          PersonCard(person: person,isOneself: true),
+          PersonCard(person: person,isOneself: false),
            BarList(
-            selected: widget.selected,
+            selected: selected,
             callback: (int index) {
               setState(() {
-                widget.selected = index;
+                selected = index;
               });
               pageController.jumpToPage(index);
             },
-            isOneself: true,
+            isOneself: false,
           ),
           Expanded(
             child: IndexedStack(
-              index: widget.selected,
+              index: selected,
               children: [
                 // 显示第一个选项的内容
-                BodylistView(getperson: person),
-                // 显示第二个选项的内容
                 DynamiclistView(getperson: person),
-                // 显示第三个选项内容
-                PreferencesView()
               ],
             ) 
           
@@ -73,4 +74,15 @@ class _ProflieState extends State<ProfilePage>{
       )
     );
   }
-}
+  void getFollow(){
+    ReminderDialog(Oncomfirm:comfirmFollow,information:widget.isFollowed? 'Do you want you unfollow him?':'Do you want you follow him?').show(context);//显示弹窗
+
+  }
+  void comfirmFollow(){
+     // 这里的Oncomfirm为代传入的向后端更新数据的接口
+     setState(() {
+      widget.isFollowed=!widget.isFollowed;//改为关注状态并进行状态更新
+    });
+  }
+
+  }
