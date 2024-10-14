@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 class SingUpScreen extends StatefulWidget {
-  const SingUpScreen({super.key, required this.controller});
+  const SingUpScreen({super.key, required this.controller,required this.onSubmitData});
   final PageController controller;
+  final Function(String) onSubmitData;
   @override
   State<SingUpScreen> createState() => _SingUpScreenState();
 }
@@ -11,6 +12,7 @@ class _SingUpScreenState extends State<SingUpScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
   final TextEditingController _repassController = TextEditingController();
+  
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +97,7 @@ class _SingUpScreenState extends State<SingUpScreen> {
                       height: 56,
                       child: TextField(
                         controller: _passController,
+                        obscureText: true, // 隐藏输入的内容
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: Color(0xFF393939),
@@ -139,6 +142,7 @@ class _SingUpScreenState extends State<SingUpScreen> {
                       height: 56,
                       child: TextField(
                         controller: _repassController,
+                        obscureText: true, // 隐藏输入的内容
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: Color(0xFF393939),
@@ -181,7 +185,20 @@ class _SingUpScreenState extends State<SingUpScreen> {
                   ],
                 ),
                 const SizedBox(
-                  height: 25,
+                  height: 3,
+                ),
+                const Text(
+                      ' Password must be at least 8 characters long',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFF837E93),
+                        fontSize: 13,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                const SizedBox(
+                  height: 18,
                 ),
                 ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -190,9 +207,36 @@ class _SingUpScreenState extends State<SingUpScreen> {
                     height: 56,
                     child: ElevatedButton(
                       onPressed: () {
-                        widget.controller.animateToPage(2,
-                            duration: const Duration(milliseconds: 500),
-                            curve: Curves.ease);
+                        //先检查邮箱是否符合规范
+                        if(isEmailValid()){
+                          //再判断两遍输入的密码相不相同
+                          if(_passController.text==_repassController.text){
+                            //再判断密码格式规不规范
+                            if(isPasswordValid(_passController.text))
+                            {
+                               widget.onSubmitData(_emailController.text);
+                               widget.controller.animateToPage(4,
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.ease);
+                            }
+                            else{
+                               ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Please input valid password')),
+                            );
+                            }
+                          }
+                          else{
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Please comfirm your password!')),
+                            );
+                          }
+                        }
+                        else{
+                           ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Please input valid E-mail')),
+                            );
+                        }
+
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF9F7BFF),
@@ -229,7 +273,7 @@ class _SingUpScreenState extends State<SingUpScreen> {
                     ),
                     InkWell(
                       onTap: () {
-                        widget.controller.animateToPage(0,
+                        widget.controller.animateToPage(2,
                             duration: const Duration(milliseconds: 500),
                             curve: Curves.ease);
                       },
@@ -252,4 +296,19 @@ class _SingUpScreenState extends State<SingUpScreen> {
       ),
     );
   }
+  bool isEmailValid() {
+  String email = _emailController.text; // 获取用户输入，不去除空格
+  String emailPattern =
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'; // 正则表达式不允许空格
+  RegExp regex = RegExp(emailPattern);
+
+  return regex.hasMatch(email); // 如果匹配则返回 true，表示邮箱格式有效
+}
+bool isPasswordValid(String password) {
+  // 检查密码是否包含空格，长度是否大于等于8
+  if (password.contains(' ') || password.length < 8) {
+    return false; // 格式不合理
+  }
+  return true; // 格式合理
+}
 }

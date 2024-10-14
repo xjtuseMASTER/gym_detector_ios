@@ -8,7 +8,6 @@ class Post {
   String? postId;//帖子id
   Person? author; //帖子作者
   int? likescount;//帖子点赞数
-  bool? isLike;//用户是否喜欢这条视频
   List<String>? images;//帖子的照片组
   int ?currentImageIndex;//当前展示哪张照片
   String? title;//帖子标题
@@ -17,12 +16,12 @@ class Post {
   List<Comment>? comments;//评论表
   String? time;//发表时间
 
+
   
   Post({
     required this.postId,
     required this.author,
     required this.likescount,
-    required this.isLike,
     required this.images,
     required this.currentImageIndex,
     required this.title,

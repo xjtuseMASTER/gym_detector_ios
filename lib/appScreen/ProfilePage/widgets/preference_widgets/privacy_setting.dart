@@ -2,10 +2,11 @@
 
 import 'package:flutter/material.dart';
 
-class NotificationDialog {
+class PrivacySetting {
   static void show(BuildContext context) {
-    bool _inAppnotificationEnabled = false; // 用于控制开关状态
-    bool _outAppnotificationEnabled = false; // 第二个开关的状态
+    bool _notification1Enabled = false; // 喜欢视频是否可见
+    bool _notification2Enabled = false; // 发布视频是否可见
+    bool _notification3Enabled = false; // 收藏视频是否可见
 
     showDialog(
       context: context,
@@ -16,8 +17,8 @@ class NotificationDialog {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20), // 圆角设计
               ),
-              title: Text(
-                'Notification Settings',
+              title: const Text(
+                'Privacy Settings',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF755DC1),
@@ -26,29 +27,42 @@ class NotificationDialog {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  // 第一行：是否打开消息通知 1
+                  // 喜欢视频是否可见
                   SwitchListTile(
-                    title: Text(
-                      'In-app notification',
+                    title: const Text(
+                      'Likes visible',
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
-                    value: _inAppnotificationEnabled,
+                    value: _notification1Enabled,
                     onChanged: (bool value) {
                       setState(() {
-                        _inAppnotificationEnabled = value; // 切换开关状态
+                        _notification1Enabled = value; // 切换开关状态
                       });
                     },
                   ),
-                  // 第二行：是否打开消息通知 2
+                  // 发布视频是否可见
                   SwitchListTile(
-                    title: Text(
-                      'In-app notification',
+                    title: const Text(
+                      'Release visible',
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
-                    value: _outAppnotificationEnabled,
+                    value: _notification2Enabled,
                     onChanged: (bool value) {
                       setState(() {
-                        _outAppnotificationEnabled = value; // 切换开关状态
+                        _notification2Enabled = value; // 切换开关状态
+                      });
+                    },
+                  ),
+                   // 收藏视频是否可见
+                  SwitchListTile(
+                    title: const Text(
+                      'Collects visible',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    value: _notification3Enabled,
+                    onChanged: (bool value) {
+                      setState(() {
+                         _notification3Enabled = value; // 切换开关状态
                       });
                     },
                   ),

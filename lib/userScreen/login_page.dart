@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gym_detector_ios/module/global_module/global_user.dart';
+import 'package:gym_detector_ios/module/global_module/global_user_preferences.dart';
 import 'package:gym_detector_ios/module/person.dart';
+import 'package:gym_detector_ios/module/user_preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, required this.controller});
@@ -87,6 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextField(
                   controller: _passController,
                   textAlign: TextAlign.center,
+                  obscureText: true,
                   style: const TextStyle(
                     color: Color(0xFF393939),
                     fontSize: 13,
@@ -127,7 +131,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 56,
                     child: ElevatedButton(
                       onPressed: () {
-                        
+                        // 实现登录验证逻辑
+
+                        //后端返回用户对象
+                        //person
+
+                        //存储全局用户对象
+                        //GlobalUser().setUser(person);
+
+                        //后端返回用户偏好设置对象
+                        //userPreferences
+
+                        //存储全局用户偏好设置
+                        //GlobalUserPreferences().setUserPreferences(userpreferences);
+                        //本地存储用户数据登录时间
                         Navigator.pushReplacementNamed(context, '/main');
                       },  
                       style: ElevatedButton.styleFrom(
@@ -164,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     InkWell(  //可点击文本
                       onTap: () {
-                        widget.controller.animateToPage(1,
+                        widget.controller.animateToPage(3,
                             duration: const Duration(milliseconds: 500),
                             curve: Curves.ease);
                       },
@@ -183,15 +200,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(
                   height: 15,
                 ),
-                const Text(
-                  'Forget Password?',
-                  style: TextStyle(
-                    color: Color(0xFF755DC1),
-                    fontSize: 13,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                InkWell(  //可点击文本
+                      onTap: () {
+                        widget.controller.animateToPage(1,
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.ease);
+                      },
+                      child: const Text(
+                        'Forget Password?',
+                        style: TextStyle(
+                          color: Color(0xFF755DC1),
+                          fontSize: 13,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
               ],
             ),
           ),
@@ -201,8 +225,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
   Future<void> saveUserData(Person person) async {
   final prefs = await SharedPreferences.getInstance();
-  // 假设用户对象中有一个ID属性
+  //保存登录者id
   await prefs.setString('user_id', person.ID);
-  // 你可以根据需要保存更多的用户信息
+  // 保存登录时间
+  int currentTime = DateTime.now().millisecondsSinceEpoch;
+  await prefs.setInt('login_time', currentTime);
   }
+
 }

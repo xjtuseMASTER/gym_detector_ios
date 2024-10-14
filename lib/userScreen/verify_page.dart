@@ -5,7 +5,8 @@ import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
 import '../widgets/otp_form.dart';
 
 class VerifyScreen extends StatefulWidget {
-  const VerifyScreen({super.key, required this.controller});
+  final email;
+  const VerifyScreen({super.key, required this.controller,required this.email});
   final PageController controller;
   @override
   State<VerifyScreen> createState() => _VerifyScreenState();
@@ -87,7 +88,11 @@ class _VerifyScreenState extends State<VerifyScreen> {
                     height: 56,
                     child: ElevatedButton(
                       //实现验证码核对机制
-                      onPressed: () {},
+                      onPressed: () {
+                        widget.controller.animateToPage(2,
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.ease);
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF9F7BFF),
                       ),
@@ -146,20 +151,34 @@ class _VerifyScreenState extends State<VerifyScreen> {
                   ],
                 ),
                 const SizedBox(
-                  height: 37,
+                  height: 15,
                 ),
               ],
             ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25),
-            child: InkWell(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                InkWell(
               onTap: () {
-                widget.controller.animateToPage(1,
+                widget.controller.animateToPage(3,
                     duration: const Duration(milliseconds: 500),
                     curve: Curves.ease);
               },
               child: const Text(
+                        'Back',
+                        style: TextStyle(
+                          color: Color(0xFF755DC1),
+                          fontSize: 13,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      )
+              ),
+              const SizedBox(height: 3),
+              const Text(
                 'A 6-digit verification code has been sent to info@aidendesign.com',
                 style: TextStyle(
                   color: Color(0xFF837E93),
@@ -167,8 +186,9 @@ class _VerifyScreenState extends State<VerifyScreen> {
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.w400,
                 ),
-              ),
-            ),
+              )
+              ],
+            )
           ),
         ],
       ),

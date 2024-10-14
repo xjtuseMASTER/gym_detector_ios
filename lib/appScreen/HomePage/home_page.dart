@@ -14,25 +14,25 @@ class _HomePageState extends State<HomePage>{
   // 模拟动态数据
   final List<Map<String, dynamic>> posts = [
     {
-      'image': 'assets/dynamic_images/sample9.jpg',
+      'image': 'assets/dynamic_images/sample1.jpg',
       'text': '171 50kg 不计成本的修炼自己！',
       'views': 123,
       'likes': 45
     },
     {
-      'image': 'assets/dynamic_images/sample10.jpg',
+      'image': 'assets/dynamic_images/sample2.jpg',
       'text': '小猫',
       'views': 6220,
       'likes': 89
     },
     {
-      'image': 'assets/dynamic_images/sample11.jpg',
+      'image': 'assets/dynamic_images/sample3.jpg',
       'text': '秀出好身材',
       'views': 5310,
       'likes': 105
     },
     {
-      'image': 'assets/dynamic_images/sample12.jpg',
+      'image': 'assets/dynamic_images/sample4.jpg',
       'text': '普拉提时刻！',
       'views': 4310,
       'likes': 105
@@ -62,25 +62,25 @@ class _HomePageState extends State<HomePage>{
       'likes': 1005
     },
     {
-      'image': 'assets/dynamic_images/sample1.jpg',
+      'image': 'assets/dynamic_images/sample9.jpg',
       'text': '身高156，这是我健身四五年的身材！',
       'views': 3100,
       'likes': 1005
     },
      {
-      'image': 'assets/dynamic_images/sample2.jpg',
+      'image': 'assets/dynamic_images/sample10.jpg',
       'text': '今天练习了引体向上',
       'views': 6220,
       'likes': 89
     },
     {
-      'image': 'assets/dynamic_images/sample3.jpg',
+      'image': 'assets/dynamic_images/sample11.jpg',
       'text': '完美的俯卧撑！',
       'views': 5310,
       'likes': 105
     },
     {
-      'image': 'assets/dynamic_images/sample4.jpg',
+      'image': 'assets/dynamic_images/sample12.jpg',
       'text': '借着月光思念你！',
       'views': 4310,
       'likes': 105

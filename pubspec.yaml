@@ -17,6 +17,8 @@ dependencies:
   dotted_border: ^2.0.0
   video_thumbnail: ^0.5.1 # 视频压缩图
   shared_preferences: ^2.3.2 # 暂存用户偏好数据
+  fl_chart:   #绘制曲线图
+  http:  # http请求
 
 
   

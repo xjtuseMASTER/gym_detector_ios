@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widgets/Notification_dialog.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widgets/about_us_page.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widgets/account_security_page.dart';
-import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widgets/language_dialog.dart';
+import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widgets/privacy_setting.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widgets/theme_dialog.dart';
 class PreferencesView extends StatelessWidget {
   // ignore: non_constant_identifier_names
-  final List<String> preferences_bar_Name = ['Account and security', 'News and Reminders', 'Theme','Language setting','About Us','Logout'];
+  final List<String> preferences_bar_Name = ['Account and security', 'News and Reminders', 'Theme','Privacy Setting','About Us','Logout'];
   final List<bool> foodHighlights = [true, true, true]; // 示例
 
   PreferencesView({Key? key}) : super(key: key);
@@ -37,8 +37,8 @@ class PreferencesView extends StatelessWidget {
               ThemeDialog.show(context);
             }
             else if(index ==3){
-              LanguageDialog.show(context);
-              //选择Language setting
+             PrivacySetting.show(context);
+              //选择Privacy Setting
             }
             else if(index==4){
               //选择About Us
