@@ -1,9 +1,10 @@
 //提供修改密码页面
 import 'package:flutter/material.dart';
+import 'package:gym_detector_ios/module/global_module/global_user.dart';
+import 'package:gym_detector_ios/module/person.dart';
 
 class AccountSecurityPage extends StatelessWidget {
-  final String email = "1192597201.com"; // 当前用户的邮箱
-  final String username = "1192597201";   // 当前用户的账号
+  final Person user =GlobalUser().getUser()!;
 
   @override
   Widget build(BuildContext context) {
@@ -16,9 +17,9 @@ class AccountSecurityPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text("Email: $email", style: TextStyle(fontSize: 20,fontWeight:FontWeight.w600)),
+            Text("Email: ${user.email}", style: TextStyle(fontSize: 20,fontWeight:FontWeight.w600)),
             SizedBox(height: 10),
-            Text("Username: $username", style: TextStyle(fontSize: 20,fontWeight:FontWeight.w600)),
+            Text("Username: ${user.ID}", style: TextStyle(fontSize: 20,fontWeight:FontWeight.w600)),
             SizedBox(height: 30),
             Center(
               child: ElevatedButton(

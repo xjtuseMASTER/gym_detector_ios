@@ -17,6 +17,17 @@ class UserPreferences {
       required this.isCollectsVisible,
       required this.isLikesVisible
     });
+
+  factory UserPreferences.fromJson(Map<String, dynamic> json) {
+  return UserPreferences(
+    isInApp_Reminder: json['isInApp_Reminder'],
+    outInApp_Reminder: json['outInApp_Reminder'],
+    isLightTheme: json['isLightTheme'],
+    isLikesVisible: json['isLikesVisible'],
+    isReleaseVisible: json['isReleaseVisible'],
+    isCollectsVisible: json['isCollectsVisible']
+  );
+}
     
     
 

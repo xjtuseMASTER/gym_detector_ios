@@ -1,11 +1,16 @@
 // 主题更换弹窗
 // 提供语言更换窗口
 import 'package:flutter/material.dart';
+import 'package:gym_detector_ios/module/global_module/global_user_preferences.dart';
+import 'package:gym_detector_ios/module/user_preferences.dart';
 
 class ThemeDialog {
-  static String _currentTheme='Light Theme';
+  
   // 显示语言选择弹窗
   static void show(BuildContext context) {
+    UserPreferences userPreferences=GlobalUserPreferences().getUserPreferences()!;
+    bool isLightTheme=userPreferences.isLightTheme!;
+    String currentTheme=isLightTheme? 'Light Theme':'Dark Theme';
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -25,10 +30,10 @@ class ThemeDialog {
                       fontWeight: FontWeight.w600, // 字体稍微粗一点
                     ),
                   ),
-                  tileColor: _currentTheme == 'Dark Theme' ? const Color.fromARGB(255, 232, 220, 250) : null, // 当前语言为英文时背景为灰色
+                  tileColor: currentTheme == 'Dark Theme' ? const Color.fromARGB(255, 232, 220, 250) : null, // 当前语言为英文时背景为灰色
                 onTap: () {
                   // 切换到深色主题
-                  _currentTheme='Dark Theme';
+                  currentTheme='Dark Theme';
                   Navigator.pop(context);
                 },
               ),
@@ -40,10 +45,10 @@ class ThemeDialog {
                       fontWeight: FontWeight.w600, // 字体稍微粗一点
                     ),
                   ),
-                   tileColor: _currentTheme == 'Light Theme' ?const Color.fromARGB(255, 232, 220, 250) : null, // 当前语言为英文时背景为灰色
+                   tileColor: currentTheme == 'Light Theme' ?const Color.fromARGB(255, 232, 220, 250) : null, // 当前语言为英文时背景为灰色
                 onTap: () {
                   // 切换到浅色主题
-                  _currentTheme='Light Theme';
+                  currentTheme='Light Theme';
                   Navigator.pop(context);
                 },
               ),

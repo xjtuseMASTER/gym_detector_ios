@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widgets/Notification_dialog.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widgets/about_us_page.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widgets/account_security_page.dart';
+import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widgets/logout_dialog.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widgets/privacy_setting.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widgets/theme_dialog.dart';
 class PreferencesView extends StatelessWidget {
@@ -48,7 +49,8 @@ class PreferencesView extends StatelessWidget {
               );
             }
             else{
-              //选择Logout
+              LogoutDialog.show(context);
+                //选择Logout
             }
           },
          child: Container(

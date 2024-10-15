@@ -3,6 +3,8 @@ import 'package:gym_detector_ios/appScreen/HomePage/create_post_page.dart';
 import 'package:gym_detector_ios/appScreen/HomePage/feedback_page.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/profile_page.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widgets/account_security_page.dart';
+import 'package:gym_detector_ios/module/global_module/global_user.dart';
+import 'package:gym_detector_ios/module/person.dart';
 import 'package:gym_detector_ios/widgets/post_gridview.dart';
 
 class HomePage extends StatefulWidget {
@@ -10,6 +12,7 @@ class HomePage extends StatefulWidget {
  _HomePageState createState()=>_HomePageState();
 }
 class _HomePageState extends State<HomePage>{
+  final Person user =GlobalUser().getUser()!;
 
   // 模拟动态数据
   final List<Map<String, dynamic>> posts = [
@@ -93,8 +96,8 @@ class _HomePageState extends State<HomePage>{
         leading: Builder(
           builder: (BuildContext context) {
             return IconButton(
-              icon: const CircleAvatar(
-                backgroundImage: AssetImage('assets/user_images/user-1.png'),//用户头像
+              icon: CircleAvatar(
+                backgroundImage: NetworkImage(user.profile_photo)
               ),
               onPressed: () {
                 // 点击头像，打开侧边栏
@@ -134,10 +137,10 @@ class _HomePageState extends State<HomePage>{
          child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            const DrawerHeader(
+            DrawerHeader(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                    image: AssetImage('assets/user_images/user-1.png'), // 替换为用户头像
+                    image: NetworkImage(user.profile_photo), // 替换为用户头像
                     fit: BoxFit.cover, // 使图片填充整个区域
                   ),
                   color: Colors.white, // 叠加的白色背景

@@ -84,10 +84,13 @@ class PersonCard extends StatelessWidget{
                   }},              
                 child:ClipRRect(
                   borderRadius: BorderRadius.circular(50),
-                  child: Image.asset(
-                    person.profile_photo,//用户头像
+                  child: Image.network(
+                    person.profile_photo, // 用户头像的 URL
                     width: 80,
-                  ),
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(Icons.error); // 如果加载图片失败，显示一个错误图标
+                    },
+                  )
                 )
                 )
               ],

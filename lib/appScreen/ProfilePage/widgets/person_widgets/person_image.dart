@@ -82,12 +82,12 @@ class _PersonImageState extends State<PersonImage> {
                  Container(
                     width: 220,
                     height: 220,
-                    decoration: BoxDecoration(
+                   decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       image: DecorationImage(
                         image: _imageFile != null
-                            ? FileImage(_imageFile!) as ImageProvider<Object>  // Correctly wrap the File with FileImage
-                            : AssetImage(widget.person.profile_photo),  // Use AssetImage if no file is selected
+                            ? FileImage(_imageFile!) as ImageProvider<Object> // 如果用户上传了图片，使用本地文件
+                            : NetworkImage(widget.person.profile_photo), // 如果没有本地文件，使用网络图片
                         fit: BoxFit.cover,
                       ),
                     ),

@@ -31,20 +31,20 @@ Person({
  //  预留的后端接口
  // 将JSON数据转换为person实例
   factory Person.fromJson(Map<String, dynamic> json) {
-    return Person(
-      name: json['name'],
-      sign_name: json['sign_name'],
-      sex: json['sex'],
-      ID: json['ID'],
-      code: json['code'],
-      email: json['email'],
-      birthdate:json['birthdate'],
-      profile_photo: json['profile_photo'],
-      likes: json['likses'],
-      follow: json['follow'],
-      fans: json['fans']
-    );
-  }
+  return Person(
+    ID: json['id'],
+    name: json['name'],
+    email: json['email'],
+    sign_name: json['sign_name'],
+    sex: json['sex'],
+    profile_photo: json['profile_photo'],
+    code: json['code'],
+    likes: json['likes'],
+    birthdate: json['birthdate'],
+    follow: json['follow'],
+    fans: json['fans'],
+  );
+}
 
 
   //测试阶段实例生成的Person对象

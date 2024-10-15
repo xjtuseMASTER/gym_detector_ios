@@ -5,6 +5,7 @@ import 'package:gym_detector_ios/appScreen/ProfilePage/preferences_view.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/bar_widgets/barlist.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/news_widgets/news_page.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/person_widgets/person_card.dart';
+import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/person.dart';
 import 'package:gym_detector_ios/widgets/Leadline_bar.dart';
 class ProfilePage extends StatefulWidget {
@@ -21,7 +22,7 @@ class _ProflieState extends State<ProfilePage>{
 
   
   final pageController = PageController();
-  final person=Person.personGenerator();//当前模拟，以后由后端直接返回一个person对象
+  final person=GlobalUser().getUser();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +45,7 @@ class _ProflieState extends State<ProfilePage>{
               ],
             ),
           ),
-          PersonCard(person: person,isOneself: true),
+          PersonCard(person:person! ,isOneself: true),
            BarList(
             selected: widget.selected,
             callback: (int index) {
@@ -60,9 +61,9 @@ class _ProflieState extends State<ProfilePage>{
               index: widget.selected,
               children: [
                 // 显示第一个选项的内容
-                BodylistView(getperson: person),
+                BodylistView(getperson: person!),
                 // 显示第二个选项的内容
-                DynamiclistView(getperson: person),
+                DynamiclistView(getperson: person!),
                 // 显示第三个选项内容
                 PreferencesView()
               ],

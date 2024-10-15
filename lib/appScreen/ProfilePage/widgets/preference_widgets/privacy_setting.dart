@@ -1,12 +1,15 @@
 // 消息通知弹窗
 
 import 'package:flutter/material.dart';
+import 'package:gym_detector_ios/module/global_module/global_user_preferences.dart';
+import 'package:gym_detector_ios/module/user_preferences.dart';
 
 class PrivacySetting {
   static void show(BuildContext context) {
-    bool _notification1Enabled = false; // 喜欢视频是否可见
-    bool _notification2Enabled = false; // 发布视频是否可见
-    bool _notification3Enabled = false; // 收藏视频是否可见
+    UserPreferences userPreferences=GlobalUserPreferences().getUserPreferences()!;
+    bool _notification1Enabled = userPreferences.isLikesVisible!; // 喜欢视频是否可见
+    bool _notification2Enabled = userPreferences.isReleaseVisible!; // 发布视频是否可见
+    bool _notification3Enabled = userPreferences.isCollectsVisible!; // 收藏视频是否可见
 
     showDialog(
       context: context,

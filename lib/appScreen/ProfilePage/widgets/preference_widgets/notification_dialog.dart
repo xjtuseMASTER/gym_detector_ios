@@ -1,11 +1,14 @@
 // 消息通知弹窗
 
 import 'package:flutter/material.dart';
+import 'package:gym_detector_ios/module/global_module/global_user_preferences.dart';
+import 'package:gym_detector_ios/module/user_preferences.dart';
 
 class NotificationDialog {
   static void show(BuildContext context) {
-    bool _inAppnotificationEnabled = false; // 用于控制开关状态
-    bool _outAppnotificationEnabled = false; // 第二个开关的状态
+    UserPreferences userPreferences=GlobalUserPreferences().getUserPreferences()!;
+    bool _inAppnotificationEnabled = userPreferences.isInApp_Reminder!; // 用于控制开关状态
+    bool _outAppnotificationEnabled = userPreferences.outInApp_Reminder!; // 第二个开关的状态
 
     showDialog(
       context: context,
