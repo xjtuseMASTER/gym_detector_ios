@@ -1,15 +1,20 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/appScreen/HomePage/create_post_page.dart';
 import 'package:gym_detector_ios/appScreen/HomePage/feedback_page.dart';
+import 'package:gym_detector_ios/appScreen/HomePage/widgets/square_post_view.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/profile_page.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widgets/account_security_page.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/person.dart';
-import 'package:gym_detector_ios/widgets/post_gridview.dart';
+import 'package:gym_detector_ios/widgets/used_post_gridview.dart';
+ import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
-  
+  List<Map<String, dynamic>> initialPosts;
  _HomePageState createState()=>_HomePageState();
+ HomePage({required this.initialPosts});
 }
 class _HomePageState extends State<HomePage>{
   final Person user =GlobalUser().getUser()!;
@@ -242,7 +247,7 @@ class _HomePageState extends State<HomePage>{
       children: [  
       posts.isEmpty
           ? Center(child: CircularProgressIndicator())
-          : PostGridview(posts: posts),//瀑布流展示widget
+          : SquarePostView(initialPosts: widget.initialPosts, person: user,fetchMorePosts: fetchMorePosts,fetchNewPosts: fetchNewPosts,),//瀑布流展示widget
             Positioned( //右下角放置用户发布动态按钮
               right: 16,
               bottom: 16,
@@ -264,4 +269,42 @@ class _HomePageState extends State<HomePage>{
       )
     );
   }
+  //分页从后端拿数据
+  Future<List<Map<String, dynamic>>> fetchMorePosts( String user_id,int Pagenumber) async {
+  // 模拟从后端获取 JSON 响应，实际上你会用 http.get 等获取真实数据
+  final responseJson = await http.get(Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/post/stream'));
+  // 检查请求是否成功
+  if (responseJson.statusCode==200) {
+    final jsonResponse=json.decode(responseJson.body);
+    // 获取 postList
+    final List<dynamic> postList = jsonResponse['data']['postList'];
+    
+    // 转换为 List<Map<String, dynamic>>
+    return postList.map((post) => post as Map<String, dynamic>).toList();
+  } else {
+    throw Exception('Failed to load posts');
+  }
+
+}
+
+//刷新数据
+  Future<List<Map<String, dynamic>>> fetchNewPosts() async {
+  // 模拟从后端获取 JSON 响应，实际上你会用 http.get 等获取真实数据
+  final responseJson = await http.get(Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/post/stream'));
+  // 检查请求是否成功
+  if (responseJson.statusCode==200) {
+    final jsonResponse=json.decode(responseJson.body);
+    // 获取 postList
+    final List<dynamic> postList = jsonResponse['data']['postList'];
+    
+    // 转换为 List<Map<String, dynamic>>
+    return postList.map((post) => post as Map<String, dynamic>).toList();
+  } else {
+    throw Exception('Failed to load posts');
+  }
+
+}
+
+
+
 }

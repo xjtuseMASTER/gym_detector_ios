@@ -1,7 +1,10 @@
 //点赞，收藏，发布的记录界面
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/module/person.dart';
-import 'package:gym_detector_ios/widgets/post_gridview.dart';
+import 'package:gym_detector_ios/widgets/used_post_gridview.dart';
+ import 'package:http/http.dart' as http;
 
 class RecordDynamicPage extends StatefulWidget{
   final int index;//决定显示哪个页面
@@ -115,12 +118,40 @@ class _RecordDynamicPageState extends State<RecordDynamicPage>{
       Stack(
       children: [  
       posts.isEmpty
-          ? Center(child: CircularProgressIndicator())
-          : PostGridview(posts: posts),
+          ? Center(child: CircularProgressIndicator()):UsedPostGridview(person: widget.getperson,fetchMorePosts: fetchMorePosts)
       ]
       )
     );
   }
+  //分页从后端拿数据
+  Future<List<Map<String, dynamic>>> fetchMorePosts( String user_id,int Pagenumber) async {
+  final responseJson;
+  if(widget.index==0){
+    //拿去喜欢的数据
+    responseJson = await http.get(Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/post/stream'));
+  }
+  else if(widget.index==1)
+  {
+    //拿去发布数据
+    responseJson = await http.get(Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/post/stream'));
+  }  
+  else{
+    //拿去收藏数据
+    responseJson = await http.get(Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/post/stream'));
+  }
+  
+  // 检查请求是否成功
+  if (responseJson.statusCode==200) {
+    final jsonResponse=json.decode(responseJson.body);
+    // 获取 postList
+    final List<dynamic> postList = jsonResponse['data']['postList'];
+    
+    // 转换为 List<Map<String, dynamic>>
+    return postList.map((post) => post as Map<String, dynamic>).toList();
+  } else {
+    throw Exception('Failed to load posts');
+  }
 
+}
 
 }

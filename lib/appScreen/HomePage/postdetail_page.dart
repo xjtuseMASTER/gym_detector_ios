@@ -40,6 +40,9 @@ class DetailPage extends StatefulWidget {
       },
       ]
   };
+  final String  postId;//帖子Id
+  final String  autherId;//作者Id
+  DetailPage({required this.postId, required this.autherId});
  @override
   _DetailPage createState() => _DetailPage();
 }

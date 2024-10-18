@@ -279,5 +279,4 @@ Future<void> fetchUser() async {
     print('Error fetching user: $e');
   }
 }
-
 }
