@@ -13,12 +13,17 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.2
   flutter_timer_countdown: ^1.0.5 # 倒计时器 
-  image_picker: ^0.8.5+3 # 照片采取器
+  image_picker: ^0.8.5+3 # 单图片照片采取器
   dotted_border: ^2.0.0
   video_thumbnail: ^0.5.1 # 视频压缩图
   shared_preferences: ^2.3.2 # 暂存用户偏好数据
   fl_chart:   #绘制曲线图
   http:  # http请求
+  provider: ^6.0.5 #监听器
+  cloudinary_public: ^0.23.1 #图片云床
+  flutter_screenutil: ^5.6.1 # 屏幕自适应
+  multi_image_picker_view: ^1.1.0 #多图片采取器
+  video_player: ^2.9.2 #视频时长获取
 
 
   

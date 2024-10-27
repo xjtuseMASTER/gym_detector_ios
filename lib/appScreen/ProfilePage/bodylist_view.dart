@@ -22,8 +22,7 @@ class BodylistView extends StatelessWidget {
     'Check your historical upload data',
   ];
   final List<bool> foodHighlights = [true, true, true]; // 示例
-  final Person getperson;//目标访问用户
-  BodylistView({super.key, required this.getperson});
+  BodylistView({super.key});
 
   @override
   Widget build(BuildContext context) {

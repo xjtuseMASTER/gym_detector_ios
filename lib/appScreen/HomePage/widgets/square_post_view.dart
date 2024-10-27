@@ -1,3 +1,5 @@
+//废弃
+
 // 广场帖子瀑布流widget
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/appScreen/HomePage/postdetail_page.dart';
@@ -51,7 +53,7 @@ class _SquarePostViewState extends State<SquarePostView> {
       _isLoadingMore = true;
     });
     Pagenumber=Pagenumber+20;
-    List<Map<String, dynamic>> morePosts = await widget.fetchMorePosts(widget.person.ID,Pagenumber); // 获取更多的数据
+    List<Map<String, dynamic>> morePosts = await widget.fetchMorePosts(widget.person.user_id,Pagenumber); // 获取更多的数据
     setState(() {
       _posts.addAll(morePosts); // 加载更多时追加数据
       _isLoadingMore = false;
@@ -64,102 +66,95 @@ class _SquarePostViewState extends State<SquarePostView> {
       _loadMorePosts(); // 当滚动到底部时加载更多
     }
   }
+Widget build(BuildContext context) {
+  return RefreshIndicator(
+    onRefresh: _refreshPosts, // 下拉刷新
+    child: GridView.builder(
+      controller: _scrollController, // 绑定滚动控制器
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2, // 一共两列
+        crossAxisSpacing: 4.0,
+        mainAxisSpacing: 6.0,
+        childAspectRatio: 0.68, // 长宽比为0.68
+      ),
+      itemCount: _posts.length + (_isLoadingMore ? 1 : 0), // 数据长度 + 加载更多指示器
+      itemBuilder: (context, index) {
+        if (index == _posts.length && _isLoadingMore) {
+          // 显示加载指示器
+          return Center(child: CircularProgressIndicator());
+        }
 
-  Widget build(BuildContext context) {
-          return RefreshIndicator(
-            onRefresh: _refreshPosts, // 下拉刷新
-            child: GridView.builder(
-              controller: _scrollController, // 绑定滚动控制器
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // 一共两列
-                crossAxisSpacing: 6.0,
-                mainAxisSpacing: 6.0,
-                childAspectRatio: 0.68, // 长宽比为0.68
-              ),
-              itemCount: _posts.length + (_isLoadingMore ? 1 : 0), // 数据长度 + 加载更多指示器
-              itemBuilder: (context, index) {
-                if (index == _posts.length && _isLoadingMore) {
-                  // 显示加载指示器
-                  return Center(child: CircularProgressIndicator());
-                }
-
-                final post = _posts[index]; // 当前帖子数据
-                return Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ), // 修剪图片为圆角半径10
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DetailPage(postId: post['postId'],autherId: post['autherId']), // 传递post数据到详情页
-                            ),
-                          );
-                        },
-                        child: Flexible(
-                          flex: 8,
-                          child: ClipRRect(
-                            borderRadius:
-                                BorderRadius.vertical(top: Radius.circular(10)),
-                            child: Image.network(
-                              post['picList'][0]['picUrl'], // 显示第一张图片
-                              fit: BoxFit.cover,
-                              height: 205,
-                              width: double.infinity,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Flexible(
-                        flex: 1,
-                        child: Padding(
-                          padding: const EdgeInsets.all(6.0),
-                          child: Text(
-                            post['title'].length > 8
-                                ? '${post['title'].substring(0, 8)}...'
-                                : post['title'],
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      ),
-                      Flexible(
-                        flex: 1,
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 2, top: 5),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.star_border_outlined,
-                                      size: 14, color: Colors.yellow),
-                                  const SizedBox(width: 4),
-                                  Text('${post['collectsNum']}'),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  const Icon(Icons.favorite,
-                                      size: 14, color: Colors.red),
-                                  const SizedBox(width: 4),
-                                  Text('${post['likesNum']}'),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+        final post = _posts[index]; // 当前帖子数据
+        return Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ), // 修剪图片为圆角半径10
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailPage(
+                          postId: post['postId'], authorId: post['authorId']),
+                    ),
+                  );
+                },
+                child: ClipRRect(
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(10)),
+                  child: Image.network(
+                    post['picList'][0]['picUrl'], // 显示第一张图片
+                    fit: BoxFit.cover,
+                    height: 205,
+                    width: double.infinity,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Image.asset('assets/images/NetworkError.png');
+                    },
                   ),
-                );
-              },
-            ),
-          );
-  }
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: Text(
+                  post['title'].length > 8
+                      ? '${post['title'].substring(0, 8)}...'
+                      : post['title'],
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 2, top: 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.star_rate_outlined,
+                            size: 14, color: Colors.yellow),
+                        const SizedBox(width: 4),
+                        Text('${post['collectsNum']}'),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Icon(Icons.favorite, size: 14, color: Colors.red),
+                        const SizedBox(width: 4),
+                        Text('${post['likesNum']}'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    ),
+  );
+}
 }

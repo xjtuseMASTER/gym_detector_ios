@@ -1,7 +1,13 @@
+import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:flutter/material.dart';
+import 'package:gym_detector_ios/main.dart';
+import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/person.dart';
+import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:provider/provider.dart';
 
 class PersonImage extends StatefulWidget {
   final Person person;
@@ -13,26 +19,74 @@ class PersonImage extends StatefulWidget {
 
 class _PersonImageState extends State<PersonImage> {
   File? _imageFile;
-
-  // 选择照片的函数
+  CloudinaryPublic ?cloudinary;
+  @override
+  void initState() {
+    super.initState();
+    cloudinary = Provider.of<CloudinaryPublic>(context, listen: false); // 在 initState 中获取实例
+  }
+  // 选择照片并上传
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
       });
-      // 调用后端接口上传图片
-      _uploadProfilePhoto(_imageFile!);
+    try {
+        CloudinaryResponse response = await cloudinary!.uploadFile(
+            CloudinaryFile.fromFile(pickedFile.path, resourceType: CloudinaryResourceType.Image),
+        );
+          print(response.secureUrl);
+          GlobalUser().user!.setAvatar(response.secureUrl);
+          print(GlobalUser().user!.avatar);
+          await _uploadProfilePhoto(GlobalUser().user!.user_id,response.url);
+      } on CloudinaryException catch (e) {
+       CustomSnackBar.showFailure(context, 'Network Error!');
+      }
     }
   }
+  // 将secureurl返回给后端
+  Future<void> _uploadProfilePhoto(String user_id,String secureurl) async {
+  try {
+    // 显示加载对话框
+    LoadingDialog.show(context, 'uploading...');
 
-  // 上传头像到后端的函数
-  Future<void> _uploadProfilePhoto(File imageFile) async {
-    // 这里是上传文件到后端的逻辑
-    // 可以通过 HTTP 请求把图片文件上传到服务器
-    // 例如使用 dio 或 http 库实现上传
-    print("Uploading photo to backend...");
+    // 发送请求
+    final response = await customHttpClient.get(
+        Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/user/changeprofile_photo').replace(
+          queryParameters: {
+            'user_id': user_id, // 传入 user_id 参数
+            'sucure_url':secureurl 
+          },
+        ),
+      );
+
+    if (response.statusCode == 200) {
+      LoadingDialog.hide(context);
+      CustomSnackBar.showSuccess(context, 'Upload Successfully');
+    } else {
+      // 请求失败，根据状态码显示不同的错误提示
+      String errorMessage;
+      if (response.statusCode == 404) {
+        errorMessage = 'Resource not found';
+      } else if (response.statusCode == 500) {
+        errorMessage = 'Server error';
+      } else if (response.statusCode == 403) {
+        errorMessage = 'Permission denied';
+      } else {
+        errorMessage = 'Unknown error';
+      }
+
+      // 隐藏加载对话框，显示错误提示框
+      LoadingDialog.hide(context);
+       CustomSnackBar.showFailure(context,errorMessage);
+    }
+  } catch (e) {
+    // 捕获网络异常，如超时或其他错误
+    LoadingDialog.hide(context);
+     CustomSnackBar.showFailure(context,'Network Error: Cannot upload data');
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +141,7 @@ class _PersonImageState extends State<PersonImage> {
                       image: DecorationImage(
                         image: _imageFile != null
                             ? FileImage(_imageFile!) as ImageProvider<Object> // 如果用户上传了图片，使用本地文件
-                            : NetworkImage(widget.person.profile_photo), // 如果没有本地文件，使用网络图片
+                            : NetworkImage(widget.person.avatar), // 如果没有本地文件，使用网络图片
                         fit: BoxFit.cover,
                       ),
                     ),

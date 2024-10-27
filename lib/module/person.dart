@@ -1,70 +1,54 @@
-//用户对象
+
+
+// 用户对象
 class Person {
+  String user_name; // 用户名
+  String selfInfo; // 个性签名
+  String gender; // 性别
+  String avatar; // 头像
+  String user_id; // uuid
+  String email; // 邮箱
+  String password; // 密码
+  int likes_num; // 累计获点赞数
+  String birthday; // 出生年月
+  int collects_num; // 关注数
+  int followers_num; // 粉丝数
 
-String name; //用户名
-String sign_name;//个性签名
-String sex;//性别
-String profile_photo;//头像
-String ID; //uuid
-String email ;// 邮箱
-String code ; //密码
-int likes;//累计获点赞数
-String birthdate;//出生年月
-int follow;// 关注数
-int fans;//粉丝数
+  Person({
+    required this.user_name,
+    required this.selfInfo,
+    required this.gender,
+    required this.avatar,
+    required this.user_id,
+    required this.password,
+    required this.email,
+    required this.likes_num,
+    required this.birthday,
+    required this.collects_num,
+    required this.followers_num,
+  });
 
-Person({
-  required this.name,
-  required this.sign_name,
-  required this.sex,
-  required this.profile_photo,
-  required this.ID,
-  required this.code,
-  required this.email,
-  required this.likes,
-  required this.birthdate,
-  required this.follow,
-  required this.fans
-});
-
-
- //  预留的后端接口
- // 将JSON数据转换为person实例
-  factory Person.fromJson(Map<String, dynamic> json) {
-  return Person(
-    ID: json['id'],
-    name: json['name'],
-    email: json['email'],
-    sign_name: json['sign_name'],
-    sex: json['sex'],
-    profile_photo: json['profile_photo'],
-    code: json['code'],
-    likes: json['likes'],
-    birthdate: json['birthdate'],
-    follow: json['follow'],
-    fans: json['fans'],
-  );
-}
-
-
-  //测试阶段实例生成的Person对象
-  static personGenerator(){
-    return Person(
-      name: "XE_Man",
-      sign_name: "I can do every thing!",
-      sex: "Man",
-      ID: "1192597201",
-      code: "clt123456",
-      email: "1192597201@qq.com",
-      profile_photo: "assets/user_images/user-1.jpg",
-      likes: 10000,
-      birthdate: "2003-4-15",
-      follow: 300,
-      fans: 900
-    );
+  void setUserName(String name) {
+    this.user_name = name;
   }
 
+  void setSelfIntro(String selfIntro) {
+    this.selfInfo = selfIntro;
+  }
 
+  void setGender(String gender) {
+    this.gender = gender;
+  }
 
+  void setAvatar(String avatar) {
+    this.avatar = avatar;
+  }
 
+  void setPassword(String password) {
+    this.password = password;
+  }
+
+  void setBirthday(String birthday) {
+    this.birthday = birthday;
+  }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 class SingUpScreen extends StatefulWidget {
   const SingUpScreen({super.key, required this.controller,required this.onSubmitData});
   final PageController controller;
@@ -25,112 +25,112 @@ class _SingUpScreenState extends State<SingUpScreen> {
             padding: const EdgeInsets.only(top: 0),
             child: Image.asset(
               "assets/images/vector-2.png",
-              width: 428,
-              height: 457,
+              width: 428.w,
+              height: 457.h,
             ),
           ),
-          const SizedBox(
-            height: 18,
+          SizedBox(
+            height: 18.h,
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 50),
+            padding:  EdgeInsets.symmetric(horizontal: 50.w),
             child: Column(
               textDirection: TextDirection.ltr,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                 Text(
                   'Sign up',
                   style: TextStyle(
                     color: Color(0xFF755DC1),
-                    fontSize: 27,
+                    fontSize: 27.sp,
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(
-                  height: 40,
+                 SizedBox(
+                  height: 40.h,
                 ),
                 SizedBox(
-                  height: 56,
+                  height: 56.h,
                   child: TextField(
                     controller: _emailController,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color(0xFF393939),
-                      fontSize: 13,
+                      fontSize: 13.sp,
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w400,
                     ),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Email',
                       labelStyle: TextStyle(
                         color: Color(0xFF755DC1),
-                        fontSize: 15,
+                        fontSize: 15.sp,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w600,
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                         borderSide: BorderSide(
-                          width: 1,
+                          width: 1.w,
                           color: Color(0xFF837E93),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                         borderSide: BorderSide(
-                          width: 1,
+                          width: 1.w,
                           color: Color(0xFF9F7BFF),
                         ),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(
-                  height: 17,
+                 SizedBox(
+                  height: 17.h,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     SizedBox(
-                      width: 147,
-                      height: 56,
+                      width: 147.w,
+                      height: 56.h,
                       child: TextField(
                         controller: _passController,
                         obscureText: true, // 隐藏输入的内容
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style:  TextStyle(
                           color: Color(0xFF393939),
-                          fontSize: 13,
+                          fontSize: 13.sp,
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w400,
                         ),
-                        decoration: const InputDecoration(
+                        decoration:  InputDecoration(
                           labelText: 'Password',
                           hintText: 'Create Password',
                           hintStyle: TextStyle(
                             color: Color(0xFF837E93),
-                            fontSize: 10,
+                            fontSize: 10.sp,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w400,
                           ),
                           labelStyle: TextStyle(
                             color: Color(0xFF755DC1),
-                            fontSize: 15,
+                            fontSize: 15.sp,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w600,
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                             borderSide: BorderSide(
-                              width: 1,
+                              width: 1.w,
                               color: Color(0xFF837E93),
                             ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                             borderSide: BorderSide(
-                              width: 1,
+                              width: 1.w,
                               color: Color(0xFF9F7BFF),
                             ),
                           ),
@@ -138,44 +138,44 @@ class _SingUpScreenState extends State<SingUpScreen> {
                       ),
                     ),
                     SizedBox(
-                      width: 147,
-                      height: 56,
+                      width: 147.w,
+                      height: 56.h,
                       child: TextField(
                         controller: _repassController,
                         obscureText: true, // 隐藏输入的内容
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style:  TextStyle(
                           color: Color(0xFF393939),
-                          fontSize: 13,
+                          fontSize: 13.sp,
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w400,
                         ),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Password',
                           hintText: 'Confirm Password',
                           hintStyle: TextStyle(
                             color: Color(0xFF837E93),
-                            fontSize: 10,
+                            fontSize: 10.sp,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w400,
                           ),
                           labelStyle: TextStyle(
                             color: Color(0xFF755DC1),
-                            fontSize: 15,
+                            fontSize: 15.sp,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w600,
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                             borderSide: BorderSide(
-                              width: 1,
+                              width: 1.w,
                               color: Color(0xFF837E93),
                             ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                             borderSide: BorderSide(
-                              width: 1,
+                              width: 1.w,
                               color: Color(0xFF9F7BFF),
                             ),
                           ),
@@ -184,27 +184,27 @@ class _SingUpScreenState extends State<SingUpScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 3,
+                SizedBox(
+                  height: 3.h,
                 ),
-                const Text(
+                 Text(
                       ' Password must be at least 8 characters long',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Color(0xFF837E93),
-                        fontSize: 13,
+                        fontSize: 13.sp,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                const SizedBox(
-                  height: 18,
+                SizedBox(
+                  height: 18.h,
                 ),
                 ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  borderRadius: BorderRadius.all(Radius.circular(10.r)),
                   child: SizedBox(
-                    width: 329,
-                    height: 56,
+                    width: 329.w,
+                    height: 56.h,
                     child: ElevatedButton(
                       onPressed: () {
                         //先检查邮箱是否符合规范
@@ -241,11 +241,11 @@ class _SingUpScreenState extends State<SingUpScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF9F7BFF),
                       ),
-                      child: const Text(
+                      child:  Text(
                         'Create account',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 15,
+                          fontSize: 15.sp,
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w500,
                         ),
@@ -253,23 +253,23 @@ class _SingUpScreenState extends State<SingUpScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(
-                  height: 15,
+                SizedBox(
+                  height: 15.h,
                 ),
                 Row(
                   children: [
-                    const Text(
+                    Text(
                       ' have an account?',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Color(0xFF837E93),
-                        fontSize: 13,
+                        fontSize: 13.sp,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(
-                      width: 2.5,
+                     SizedBox(
+                      width: 2.5.w,
                     ),
                     InkWell(
                       onTap: () {
@@ -277,11 +277,11 @@ class _SingUpScreenState extends State<SingUpScreen> {
                             duration: const Duration(milliseconds: 500),
                             curve: Curves.ease);
                       },
-                      child: const Text(
+                      child: Text(
                         'Log In ',
                         style: TextStyle(
                           color: Color(0xFF755DC1),
-                          fontSize: 13,
+                          fontSize: 13.sp,
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w500,
                         ),

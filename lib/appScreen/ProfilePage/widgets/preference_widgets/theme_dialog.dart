@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/module/global_module/global_user_preferences.dart';
 import 'package:gym_detector_ios/module/user_preferences.dart';
+import 'package:gym_detector_ios/provider/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 class ThemeDialog {
   
@@ -11,6 +13,7 @@ class ThemeDialog {
     UserPreferences userPreferences=GlobalUserPreferences().getUserPreferences()!;
     bool isLightTheme=userPreferences.isLightTheme!;
     String currentTheme=isLightTheme? 'Light Theme':'Dark Theme';
+    ThemeProvider themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -33,6 +36,8 @@ class ThemeDialog {
                   tileColor: currentTheme == 'Dark Theme' ? const Color.fromARGB(255, 232, 220, 250) : null, // 当前语言为英文时背景为灰色
                 onTap: () {
                   // 切换到深色主题
+                  themeProvider.toggleTheme(false); // 切换到深色
+                  GlobalUserPreferences().userPreferences!.setisLightTheme(false); // 保存到用户偏好中
                   currentTheme='Dark Theme';
                   Navigator.pop(context);
                 },
@@ -48,6 +53,8 @@ class ThemeDialog {
                    tileColor: currentTheme == 'Light Theme' ?const Color.fromARGB(255, 232, 220, 250) : null, // 当前语言为英文时背景为灰色
                 onTap: () {
                   // 切换到浅色主题
+                  themeProvider.toggleTheme(true); 
+                  GlobalUserPreferences().userPreferences!.setisLightTheme(true); // 保存到用户偏好中
                   currentTheme='Light Theme';
                   Navigator.pop(context);
                 },

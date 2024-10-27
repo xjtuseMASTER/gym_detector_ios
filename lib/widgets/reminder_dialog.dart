@@ -31,8 +31,8 @@ class ReminderDialog {
            actionsAlignment: MainAxisAlignment.center, // 使取消按钮居中
           actions: <Widget>[
             ElevatedButton(
-              onPressed: () {
-                Oncomfirm();
+              onPressed: () async{
+                await Oncomfirm();
                 Navigator.of(context).pop(); // 关闭弹窗
               },
               style: ElevatedButton.styleFrom(

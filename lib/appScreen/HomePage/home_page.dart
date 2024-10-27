@@ -3,106 +3,163 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/appScreen/HomePage/create_post_page.dart';
 import 'package:gym_detector_ios/appScreen/HomePage/feedback_page.dart';
-import 'package:gym_detector_ios/appScreen/HomePage/widgets/square_post_view.dart';
+import 'package:gym_detector_ios/appScreen/HomePage/postdetail_page.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/profile_page.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widgets/account_security_page.dart';
+import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/person.dart';
-import 'package:gym_detector_ios/widgets/used_post_gridview.dart';
- import 'package:http/http.dart' as http;
+import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 
 class HomePage extends StatefulWidget {
   List<Map<String, dynamic>> initialPosts;
  _HomePageState createState()=>_HomePageState();
  HomePage({required this.initialPosts});
 }
-class _HomePageState extends State<HomePage>{
+class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
   final Person user =GlobalUser().getUser()!;
+  int PageNumber=2;//页码
+  List<Map<String, dynamic>> _posts = []; // 保存获取到的数据作为真正的数据源
+  ScrollController _scrollController = ScrollController();
+  bool _isLoadingMore = false;//是否加载
+  bool _isRefreshing = false;//是否刷新
+  @override
+  void initState() {
+    super.initState();
+    _posts=widget.initialPosts;
+    _scrollController.addListener(_onScroll);
+  }
+   @override
+  bool get wantKeepAlive => true; // 确保页面状态保持
 
-  // 模拟动态数据
-  final List<Map<String, dynamic>> posts = [
-    {
-      'image': 'assets/dynamic_images/sample1.jpg',
-      'text': '171 50kg 不计成本的修炼自己！',
-      'views': 123,
-      'likes': 45
-    },
-    {
-      'image': 'assets/dynamic_images/sample2.jpg',
-      'text': '小猫',
-      'views': 6220,
-      'likes': 89
-    },
-    {
-      'image': 'assets/dynamic_images/sample3.jpg',
-      'text': '秀出好身材',
-      'views': 5310,
-      'likes': 105
-    },
-    {
-      'image': 'assets/dynamic_images/sample4.jpg',
-      'text': '普拉提时刻！',
-      'views': 4310,
-      'likes': 105
-    },
-    {
-      'image': 'assets/dynamic_images/sample5.jpg',
-      'text': '带我出门应该会有安全感吧',
-      'views': 3310,
-      'likes': 1305
-    },
-    {
-      'image': 'assets/dynamic_images/sample6.jpg',
-      'text': '你不发怎么回你信息',
-      'views': 11310,
-      'likes': 1205
-    },
-    {
-      'image': 'assets/dynamic_images/sample7.jpg',
-      'text': '也许当年冬天她很爱你,但现在是2024年了',
-      'views': 1310,
-      'likes': 1205
-    },
-    {
-      'image': 'assets/dynamic_images/sample8.jpg',
-      'text': '身高156，这是我健身四五年的身材！',
-      'views': 3100,
-      'likes': 1005
-    },
-    {
-      'image': 'assets/dynamic_images/sample9.jpg',
-      'text': '身高156，这是我健身四五年的身材！',
-      'views': 3100,
-      'likes': 1005
-    },
-     {
-      'image': 'assets/dynamic_images/sample10.jpg',
-      'text': '今天练习了引体向上',
-      'views': 6220,
-      'likes': 89
-    },
-    {
-      'image': 'assets/dynamic_images/sample11.jpg',
-      'text': '完美的俯卧撑！',
-      'views': 5310,
-      'likes': 105
-    },
-    {
-      'image': 'assets/dynamic_images/sample12.jpg',
-      'text': '借着月光思念你！',
-      'views': 4310,
-      'likes': 105
-    },
-  ];
+   //跳转回调
+    void _navigateToRelease(BuildContext context) async {
+    final NewPost = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreatePostPage(),
+      ),
+    );
+    // 检查返回的值并更新状态
+    if (NewPost != null) {
+      setState(() {
+        _posts.insert(0, NewPost);//将新发的帖子放在第一条
+      });
+    }
+  }
+   // 下拉刷新功能
+  Future<void> _refreshPosts() async {
+    setState(() {
+      _isRefreshing = true;
+    });
+    PageNumber++;
+    List<Map<String, dynamic>> newPosts = await fetchNewPosts(user.user_id,PageNumber); // 获取最新的数据
+    setState(() {
+      if(newPosts.isEmpty){
+        _posts=_posts;//不刷新
+      }
+      else{
+       List<Map<String, dynamic>> temp_list=[];
+       //做一遍去重遍历
+       for(var newPost in newPosts){
+        bool postExits=_posts.any((post)=>post['postId']==newPost['postId']);
+        if(!postExits)
+        {
+          temp_list.add(newPost);
+        }
+       }
+      _posts = temp_list; // 刷新时替换数据
+      }
+      _isRefreshing = false;
+    });
+  }
+
+  // 上拉加载更多功能
+  Future<void> _loadMorePosts() async {
+    if (_isLoadingMore) return; // 防止重复请求
+    setState(() {
+      _isLoadingMore = true;
+    });
+    PageNumber++;
+    List<Map<String, dynamic>> morePosts = await fetchNewPosts(user.user_id,PageNumber); // 获取更多的数据
+    setState(() {
+      // 遍历新的帖子列表
+      for (var newPost in morePosts) {
+        // 判断 _posts 列表中是否已经存在相同 postId 的帖子
+        bool postExists = _posts.any((post) => post['postId'] == newPost['postId']);
+        
+        // 如果帖子不存在，则将其加入 _posts 列表
+        if (!postExists) {
+          _posts.add(newPost);
+        }
+      }
+      _isLoadingMore = false;
+    });
+  }
+  // 监听滚动事件，判断是否需要加载更多
+  void _onScroll() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !_isLoadingMore) {
+      _loadMorePosts(); // 当滚动到底部时加载更多
+    }
+  }  
+
+  //从后端拿新数据
+Future<List<Map<String, dynamic>>> fetchNewPosts(String user_id,int Pagenumber) async {
+ try {
+    // 发送请求
+    final response = await customHttpClient.get(
+      Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/post/stream').replace(
+        queryParameters: {
+          'user_id': user_id,
+          'pageNumber': Pagenumber.toString(), // 确保 pageNumber 为字符串
+        },
+      ),
+    );
+
+    if (response.statusCode == 200) {
+      // 请求成功
+      // 提取 data 部分
+      final jsonResponse = json.decode(response.body);
+      final List<dynamic> postList = jsonResponse['data']['postList'];
+      return postList.map((post) => post as Map<String, dynamic>).toList();
+    } else {
+      // 请求失败，根据状态码显示不同的错误提示
+      String errorMessage;
+      if (response.statusCode == 404) {
+        errorMessage = 'Resource not found';
+      } else if (response.statusCode == 500) {
+        errorMessage = 'Server error';
+      } else if (response.statusCode == 403) {
+        errorMessage = 'Permission denied';
+      } else {
+        errorMessage = 'Unknown error';
+      }
+
+      //显示错误提示框
+      CustomSnackBar.showFailure(context, errorMessage);
+
+      // 返回一个空列表
+      return [];
+    }
+  } catch (e) {
+    // 捕获网络异常，如超时或其他错误
+    CustomSnackBar.showFailure(context, 'Network Error: Cannot fetch data');
+    // 返回一个空列表
+    return [];
+  }
+
+}
    @override
   Widget build(BuildContext context) {
+    print(widget.initialPosts.length);
+    super.build(context); 
     return Scaffold(
       appBar: AppBar(
         leading: Builder(
           builder: (BuildContext context) {
             return IconButton(
               icon: CircleAvatar(
-                backgroundImage: NetworkImage(user.profile_photo)
+                backgroundImage: NetworkImage(user.avatar)
               ),
               onPressed: () {
                 // 点击头像，打开侧边栏
@@ -145,7 +202,7 @@ class _HomePageState extends State<HomePage>{
             DrawerHeader(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                    image: NetworkImage(user.profile_photo), // 替换为用户头像
+                    image: NetworkImage(user.avatar), // 替换为用户头像
                     fit: BoxFit.cover, // 使图片填充整个区域
                   ),
                   color: Colors.white, // 叠加的白色背景
@@ -245,21 +302,105 @@ class _HomePageState extends State<HomePage>{
       body: 
       Stack(
       children: [  
-      posts.isEmpty
+      widget.initialPosts.isEmpty
           ? Center(child: CircularProgressIndicator())
-          : SquarePostView(initialPosts: widget.initialPosts, person: user,fetchMorePosts: fetchMorePosts,fetchNewPosts: fetchNewPosts,),//瀑布流展示widget
+          // : SquarePostView(initialPosts: widget.initialPosts, person: user,fetchMorePosts: fetchMorePosts,fetchNewPosts: fetchNewPosts,),//瀑布流展示widget
+          :RefreshIndicator(
+              onRefresh: _refreshPosts, // 下拉刷新
+              child: GridView.builder(
+                controller: _scrollController, // 绑定滚动控制器
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, // 一共两列
+                  crossAxisSpacing: 4.0,
+                  mainAxisSpacing: 6.0,
+                  childAspectRatio: 0.68, // 长宽比为0.68
+                ),
+                itemCount: _posts.length + (_isLoadingMore ? 1 : 0), // 数据长度 + 加载更多指示器
+                itemBuilder: (context, index) {
+                  if (index == _posts.length && _isLoadingMore) {
+                    // 显示加载指示器
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  final post = _posts[index]; // 当前帖子数据
+                  return Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ), // 修剪图片为圆角半径10
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DetailPage(
+                                    postId: post['postId'], authorId: post['authorId']),
+                              ),
+                            );
+                          },
+                          child: ClipRRect(
+                            borderRadius:
+                                BorderRadius.vertical(top: Radius.circular(10)),
+                            child: Image.network(
+                              post['picList'][0]['picUrl'], // 显示第一张图片
+                              fit: BoxFit.cover,
+                              height: 205,
+                              width: double.infinity,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset('assets/images/NetworkError.png');
+                              },
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(6.0),
+                          child: Text(
+                            post['title'].length > 8
+                                ? '${post['title'].substring(0, 8)}...'
+                                : post['title'],
+                            style: const TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 2, top: 5),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.star_rate_outlined,
+                                      size: 14, color: Colors.yellow),
+                                  const SizedBox(width: 4),
+                                  Text('${post['collectsNum']}'),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Icon(Icons.favorite, size: 14, color: Colors.red),
+                                  const SizedBox(width: 4),
+                                  Text('${post['likesNum']}'),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
             Positioned( //右下角放置用户发布动态按钮
               right: 16,
               bottom: 16,
               child: FloatingActionButton(
                 backgroundColor:  Color.fromARGB(255, 142, 127, 192),
                 onPressed: (){
-                  Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CreatePostPage(), 
-                            ),
-                 );
+                  _navigateToRelease(context);//跳转到发布动态页面
                 },
                 child: Icon(Icons.add),                
               )
@@ -269,42 +410,4 @@ class _HomePageState extends State<HomePage>{
       )
     );
   }
-  //分页从后端拿数据
-  Future<List<Map<String, dynamic>>> fetchMorePosts( String user_id,int Pagenumber) async {
-  // 模拟从后端获取 JSON 响应，实际上你会用 http.get 等获取真实数据
-  final responseJson = await http.get(Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/post/stream'));
-  // 检查请求是否成功
-  if (responseJson.statusCode==200) {
-    final jsonResponse=json.decode(responseJson.body);
-    // 获取 postList
-    final List<dynamic> postList = jsonResponse['data']['postList'];
-    
-    // 转换为 List<Map<String, dynamic>>
-    return postList.map((post) => post as Map<String, dynamic>).toList();
-  } else {
-    throw Exception('Failed to load posts');
-  }
-
-}
-
-//刷新数据
-  Future<List<Map<String, dynamic>>> fetchNewPosts() async {
-  // 模拟从后端获取 JSON 响应，实际上你会用 http.get 等获取真实数据
-  final responseJson = await http.get(Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/post/stream'));
-  // 检查请求是否成功
-  if (responseJson.statusCode==200) {
-    final jsonResponse=json.decode(responseJson.body);
-    // 获取 postList
-    final List<dynamic> postList = jsonResponse['data']['postList'];
-    
-    // 转换为 List<Map<String, dynamic>>
-    return postList.map((post) => post as Map<String, dynamic>).toList();
-  } else {
-    throw Exception('Failed to load posts');
-  }
-
-}
-
-
-
 }

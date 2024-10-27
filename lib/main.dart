@@ -1,57 +1,81 @@
 
 import 'dart:convert';
 
+import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gym_detector_ios/custom_http_client.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/global_module/global_user_preferences.dart';
 import 'package:gym_detector_ios/module/person.dart';
 import 'package:gym_detector_ios/module/user_preferences.dart';
+import 'package:gym_detector_ios/provider/theme_provider.dart';
 import 'package:gym_detector_ios/userScreen/main_view.dart';
+import 'package:provider/provider.dart';
 import 'appScreen/main_screen.dart'; // 替换为你的主页面文件路径
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+// 初始化全局的 CustomHttpClient 实例
+final CustomHttpClient customHttpClient = CustomHttpClient();
 
 void main() {
   final PageController _pageController = PageController();
+  final cloudinary = CloudinaryPublic('dqfncgtzx', 'FiformAi', cache: false);
 
-  runApp(MyApp(controller: _pageController));
+  runApp(
+     MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()), // 提供ThemeProvider
+        Provider<CloudinaryPublic>.value(value: cloudinary), // 注入 CloudinaryPublic 实例
+      ],
+      child: MyApp(controller: _pageController),
+    ),
+   );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key, required this.controller}) : super(key: key);
 
   final PageController controller;
+  
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: FutureBuilder(
-        future: checkLoginStatus(), // 检查登录状态
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // 显示加载指示器
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            // 处理错误
-            return MainView();
-          } else {
-            final bool isLoggedIn = snapshot.data as bool;
-            if (isLoggedIn) {
-              return MainScreen(); // 登录状态有效，导航到主页面
-            } else {
-              return MainView(); // 登录状态无效，导航到登录页面
-            }
-          }
-        },
-      ),
-      routes: {
-        '/main': (context) => MainScreen(),  // 登录成功后进入主页面
+     // 使用 Provider 来获取 ThemeProvider 实例
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    return ScreenUtilInit(
+      designSize: const Size(402, 920),
+      minTextAdapt: true,
+      builder: (context,child){
+        return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Flutter App',
+            theme: ThemeData.light(),
+            darkTheme: ThemeData.dark(),
+            themeMode: themeProvider.currentTheme, // 根据用户偏好渲染主
+            home: FutureBuilder(
+              future: checkLoginStatus(), // 检查登录状态
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  // 显示加载指示器
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  // 处理错误
+                  return MainView();
+                } else {
+                  final bool isLoggedIn = snapshot.data as bool;
+                  if (isLoggedIn) {
+                    return MainScreen(); // 登录状态有效，导航到主页面
+                  } else {
+                    return MainView(); // 登录状态无效，导航到登录页面
+                  }
+                }
+              },
+            ),
+            routes: {
+              '/main': (context) => MainScreen(),  // 登录成功后进入主页面
+            },
+          );
       },
     );
   }
@@ -80,16 +104,18 @@ class MyApp extends StatelessWidget {
   }
   // 登录逻辑获取用户信息
 Future<Person> fetchUserFromBackend(String user_email) async {
-  final response = await http.get(
+  final response = await customHttpClient.get(
       Uri.parse('http://127.0.0.1:4523/m2/5245288-4913049-default/222467509'));
 
   if (response.statusCode == 200) {
     // 如果服务器返回200 OK，解析 JSON 数据
     final jsonResponse = json.decode(response.body);
-
+     final person=Person(user_name: jsonResponse['data']['user_name'], selfInfo: jsonResponse['data']['selfInfo'], gender: jsonResponse['data']['gender'],
+          avatar: jsonResponse['data']['avatar'], user_id:  jsonResponse['data']['user_id'], password:  jsonResponse['data']['password'], email:  jsonResponse['data']['email'], likes_num:  jsonResponse['data']['likes_num'], 
+          birthday:  jsonResponse['data']['birthday'], collects_num:  jsonResponse['data']['collects_num'], followers_num:  jsonResponse['data']['followers_num']);
     // 提取 data 部分
     final data = jsonResponse['data'];
-    return Person.fromJson(data);
+    return person;
   } else {
     //处理错误
     // 如果请求失败，抛出异常
@@ -98,7 +124,7 @@ Future<Person> fetchUserFromBackend(String user_email) async {
 }
 //获取用户偏好设置
 Future<UserPreferences> fetchUserPreferencesFromBackend(String user_email) async{
-  final response= await http.get(Uri.parse('http://127.0.0.1:4523/m2/5245288-4913049-default/222919194?apifoxApiId=222919194'));
+  final response= await customHttpClient.get(Uri.parse('http://127.0.0.1:4523/m2/5245288-4913049-default/222919194?apifoxApiId=222919194'));
   if(response.statusCode==200){
     //解析jsonshuju
     final jsonResponse=json.decode(response.body);

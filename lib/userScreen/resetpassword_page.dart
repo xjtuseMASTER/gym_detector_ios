@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 class ResetpasswordPage extends StatefulWidget {
   const ResetpasswordPage({super.key, required this.controller,required this.user_email});
   final PageController controller;
@@ -22,127 +22,127 @@ class _ResetpasswordPageState extends State<ResetpasswordPage> {
             padding: const EdgeInsets.only(top: 0),
             child: Image.asset(
               "assets/images/vector-5.png",
-              width: 428,
-              height: 457,
+              width: 428.w,
+              height: 457.h,
             ),
           ),
-          const SizedBox(
-            height: 18,
+          SizedBox(
+            height: 18.h,
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 50),
+            padding:  EdgeInsets.symmetric(horizontal: 50.w),
             child: Column(
               textDirection: TextDirection.ltr,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                 Text(
                   'Reset Your Password',
                   style: TextStyle(
                     color: Color(0xFF755DC1),
-                    fontSize: 27,
+                    fontSize: 27.sp,
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(
-                  height: 40,
+                SizedBox(
+                  height: 40.h,
                 ),
                 SizedBox(//新密码输入
-                  height: 56,
+                  height: 56.h,
                   child: TextField(
                     controller: _newpasswordController,
                     obscureText: true, // 隐藏输入的内容
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color(0xFF393939),
-                      fontSize: 13,
+                      fontSize: 13.sp,
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w400,
                     ),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'password',
                       labelStyle: TextStyle(
                         color: Color(0xFF755DC1),
-                        fontSize: 15,
+                        fontSize: 15.sp,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w600,
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                         borderSide: BorderSide(
-                          width: 1,
+                          width: 1.w,
                           color: Color(0xFF837E93),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                         borderSide: BorderSide(
-                          width: 1,
+                          width: 1.w,
                           color: Color(0xFF9F7BFF),
                         ),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(
-                  height: 17,
+                SizedBox(
+                  height: 17.h,
                 ),
                SizedBox(//确认新密码输入
-                  height: 56,
+                  height: 56.h,
                   child: TextField(
                     controller: _renewpasswordController,
                     textAlign: TextAlign.center,
                     obscureText: true, // 隐藏输入的内容
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color(0xFF393939),
-                      fontSize: 13,
+                      fontSize: 13.sp,
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w400,
                     ),
-                    decoration: const InputDecoration(
+                    decoration:  InputDecoration(
                       labelText: 'comfirm password',
                       labelStyle: TextStyle(
                         color: Color(0xFF755DC1),
-                        fontSize: 15,
+                        fontSize: 15.sp,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w600,
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: BorderRadius.all(Radius.circular(10.r)),
                         borderSide: BorderSide(
-                          width: 1,
+                          width: 1.w,
                           color: Color(0xFF837E93),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: BorderRadius.all(Radius.circular(10.r)),
                         borderSide: BorderSide(
-                          width: 1,
+                          width: 1.w,
                           color: Color(0xFF9F7BFF),
                         ),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 3),
-                const Text(
+                 SizedBox(height: 3.h),
+                 Text(
                       ' Password must be at least 8 characters long',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Color(0xFF837E93),
-                        fontSize: 13,
+                        fontSize: 13.sp,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                const SizedBox(
-                  height: 18,
+                SizedBox(
+                  height: 18.h,
                 ),
                 ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  borderRadius:  BorderRadius.all(Radius.circular(10.r)),
                   child: SizedBox(
-                    width: 329,
-                    height: 56,
+                    width: 329.w,
+                    height: 56.h,
                     child: ElevatedButton(
                       onPressed: () {
                         //先检查两次密码相不相同
@@ -175,11 +175,11 @@ class _ResetpasswordPageState extends State<ResetpasswordPage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF9F7BFF),
                       ),
-                      child: const Text(
+                      child:  Text(
                         'Comfirm',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 15,
+                          fontSize: 15.sp,
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w500,
                         ),
@@ -187,8 +187,8 @@ class _ResetpasswordPageState extends State<ResetpasswordPage> {
                     ),
                   ),
                 ),
-                const SizedBox(
-                  height: 15,
+                SizedBox(
+                  height: 15.h,
                 ),
               ],
             ),
@@ -206,12 +206,12 @@ class _ResetpasswordPageState extends State<ResetpasswordPage> {
   }
   void showSuccessSnackBar(BuildContext context) {
   final snackBar = SnackBar(
-    content: const Text(
+    content:  Text(
       'Reset successfui,Return to Login!',
       style: TextStyle(
         color: Colors.white,
         fontFamily: 'Poppins',
-        fontSize: 16,
+        fontSize: 16.sp,
         fontWeight: FontWeight.w600,
       ),
     ),
@@ -219,9 +219,9 @@ class _ResetpasswordPageState extends State<ResetpasswordPage> {
     duration: Duration(seconds: 2), // 显示2秒后自动消失
     behavior: SnackBarBehavior.floating, // 悬浮显示效果
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10), // 圆角
+      borderRadius: BorderRadius.circular(10.r), // 圆角
     ),
-    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // 控制SnackBar位置
+    margin:  EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h), // 控制SnackBar位置
   );
 
   ScaffoldMessenger.of(context).showSnackBar(snackBar);

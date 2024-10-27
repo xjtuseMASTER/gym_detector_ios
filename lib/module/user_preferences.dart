@@ -29,6 +29,25 @@ class UserPreferences {
   );
 }
     
+    void setisInApp_Reminder(bool isInApp_Reminder){
+      this.isInApp_Reminder=isInApp_Reminder;
     
+  }
+   void setoutInApp_Reminder(bool isInApp_Reminder){
+      this.outInApp_Reminder=isInApp_Reminder;
+    
+  }
+   void setisLightTheme(bool isInApp_Reminder){
+      this.isLightTheme=isInApp_Reminder;
+    
+  }
+   void setisReleaseVisible(bool isInApp_Reminder){
+      this.isReleaseVisible=isInApp_Reminder;
+    
+  }
+  void setisLikesVisible(bool isInApp_Reminder){
+      this.isLikesVisible=isInApp_Reminder;
+    
+  }
 
 }

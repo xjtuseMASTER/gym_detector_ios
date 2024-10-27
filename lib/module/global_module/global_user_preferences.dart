@@ -27,4 +27,8 @@ class GlobalUserPreferences {
   void clearUserPreferences() {
     userPreferences = null;
   }
+   // 获取用户的主题偏好
+  bool? getThemePreference() {
+    return userPreferences?.isLightTheme;
+  }
 }

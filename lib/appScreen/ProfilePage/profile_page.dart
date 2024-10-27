@@ -6,14 +6,12 @@ import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/bar_widgets/barli
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/news_widgets/news_page.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/person_widgets/person_card.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
-import 'package:gym_detector_ios/module/person.dart';
 import 'package:gym_detector_ios/widgets/Leadline_bar.dart';
 class ProfilePage extends StatefulWidget {
   var selected = 0;
   ProfilePage({
     required this.selected
   });
-  
 
   @override
   State<ProfilePage> createState() => _ProflieState();
@@ -36,23 +34,17 @@ class _ProflieState extends State<ProfilePage>{
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder:(context)=>NewsPage()));
-                  },
-                  child: LeadlineBar(geticon: Icons.email,getcolor: Color.fromARGB(255, 206, 163, 219))
-                ),
+                SizedBox(height: 10,)
               ],
             ),
           ),
-          PersonCard(person:person! ,isOneself: true),
+          PersonCard(person1:person! ,isOneself: true),
            BarList(
             selected: widget.selected,
             callback: (int index) {
               setState(() {
                 widget.selected = index;
               });
-              pageController.jumpToPage(index);
             },
             isOneself: true,
           ),
@@ -61,7 +53,7 @@ class _ProflieState extends State<ProfilePage>{
               index: widget.selected,
               children: [
                 // 显示第一个选项的内容
-                BodylistView(getperson: person!),
+                BodylistView(),
                 // 显示第二个选项的内容
                 DynamiclistView(getperson: person!),
                 // 显示第三个选项内容

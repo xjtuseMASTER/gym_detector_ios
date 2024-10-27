@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
+import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'HomePage/home_page.dart';
 import 'AppPage/app_page.dart';
 import 'ProfilePage/profile_page.dart';
-import 'package:http/http.dart' as http;
 class MainScreen extends StatefulWidget {
   MainScreen(); // 构造函数
 
@@ -21,7 +23,7 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     // 异步获取首次数据
-    _futurePosts = fetchMorePosts(GlobalUser().getUser()!.ID, 20);
+    _futurePosts = fetchMorePosts(GlobalUser().getUser()!.user_id);
   }
 
   void _onItemTapped(int index) {
@@ -66,16 +68,32 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  // 异步获取帖子数据
-  Future<List<Map<String, dynamic>>> fetchMorePosts(String userId, int pageNumber) async {
-    final response = await http.get(Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/post/stream'));
-    
+  // 首次获取帖子数据
+  Future<List<Map<String, dynamic>>> fetchMorePosts(String userId) async {
+   try {
+    // 发送请求
+    final response = await customHttpClient.get(
+        Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/post/stream').replace(
+          queryParameters: {
+            'user_id':userId,
+            'pageNumber':'1'
+          },
+        ),
+      );
+
     if (response.statusCode == 200) {
-      final jsonResponse = json.decode(response.body);
-      final List<dynamic> postList = jsonResponse['data']['postList'];
-      return postList.map((post) => post as Map<String, dynamic>).toList();
-    } else {
-      throw Exception('Failed to load posts');
+      // 请求成功
+      //  提取 data 部分
+    final jsonResponse = json.decode(response.body);
+    final List<dynamic> postList = jsonResponse['data']['postList'];
+    return postList.map((post) => post as Map<String, dynamic>).toList();
+    } 
+    else{
+      return [];
     }
+  } catch (e) {
+    return[];
+ 
   }
+}
 }

@@ -19,7 +19,7 @@ class AccountSecurityPage extends StatelessWidget {
           children: [
             Text("Email: ${user.email}", style: TextStyle(fontSize: 20,fontWeight:FontWeight.w600)),
             SizedBox(height: 10),
-            Text("Username: ${user.ID}", style: TextStyle(fontSize: 20,fontWeight:FontWeight.w600)),
+            Text("Username: ${user.user_id}", style: TextStyle(fontSize: 20,fontWeight:FontWeight.w600)),
             SizedBox(height: 30),
             Center(
               child: ElevatedButton(

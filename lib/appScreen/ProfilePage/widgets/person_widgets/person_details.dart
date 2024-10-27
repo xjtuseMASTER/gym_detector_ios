@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/person_widgets/person_image.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/person_widgets/person_info.dart';
+import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/person.dart';
 import 'package:gym_detector_ios/widgets/Leadline_bar.dart';
 class PersonDetailsPage extends StatelessWidget {
@@ -40,7 +41,7 @@ class PersonDetailsPage extends StatelessWidget {
                   children: [
                     GestureDetector(
                       onTap: (){
-                        Navigator.pop(context);
+                        Navigator.pop(context,GlobalUser().getUser());
                       },
                       child: LeadlineBar(geticon: Icons.arrow_back,getcolor:Colors.white)
                     )

@@ -1,3 +1,4 @@
+//别人的个人卡片
 //简要个人信息展示类
 
 import 'package:flutter/material.dart';
@@ -5,32 +6,16 @@ import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/person_widgets/pe
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/person.dart';
 // ignore: must_be_immutable
-class PersonCard extends StatefulWidget{
+class OtherPersonCard extends StatefulWidget{
   Person person1;//不使用
-  bool isOneself;
-  PersonCard({required this.person1,required this.isOneself});
-  _PersonCardState createState()=>_PersonCardState();
+  OtherPersonCard({required this.person1});
+  _OtherPersonCardState createState()=>_OtherPersonCardState();
 }
 
-class _PersonCardState extends State<PersonCard>{
-  Person? person=GlobalUser().getUser();
-    //跳转回调
-    void _navigateToDetails(BuildContext context) async {
-    final updatedPerson = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PersonDetailsPage(person: person!),
-      ),
-    );
-    // 检查返回的值并更新状态
-    if (updatedPerson != null) {
-      setState(() {
-        person = updatedPerson; // 更新 person 对象
-      });
-    }
-  }
+class _OtherPersonCardState extends State<OtherPersonCard>{
   @override
   Widget build(BuildContext context) {
+    Person? person=widget.person1;
     return Container(
         height: 200,
          margin: const EdgeInsets.only(top: 20,left: 8,right: 8),//外边距
@@ -94,9 +79,7 @@ class _PersonCardState extends State<PersonCard>{
                 ),
                 GestureDetector(
                   onTap: (){
-                    if(widget.isOneself){ //只有用户本身才能点击进入详细个人主页
-                    _navigateToDetails(context);
-                  }},              
+                },              
                 child:ClipRRect(
                   borderRadius: BorderRadius.circular(50),
                   child: 
