@@ -37,14 +37,15 @@ class _OthersProfilePageState extends State<OthersProfilePage>{
   Future<Person?> fetchUserData() async {
     try {
       // 获取数据
-      final Response = await customHttpClient.get(Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/user/get_user').replace(
+      final Response = await customHttpClient.get(Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/user/getuser').replace(
          queryParameters: {
-            'user_id': widget.user_id
+            'user_id': widget.user_id,
+            'own_id':GlobalUser().user!.user_id
           }
       ));
       if (Response.statusCode == 200) {
          final jsonResponse = json.decode(Response.body);
-         final person=Person(user_name: jsonResponse['data']['user_name'], selfInfo: jsonResponse['data']['selfInfo'], gender: jsonResponse['data']['gender'],
+         final person=Person(user_name: jsonResponse['data']['user_name'], selfInfo: jsonResponse['data']['selfIntro'], gender: jsonResponse['data']['gender'],
           avatar: jsonResponse['data']['avatar'], user_id:  jsonResponse['data']['user_id'], password:  jsonResponse['data']['password'], email:  jsonResponse['data']['email'], likes_num:  jsonResponse['data']['likes_num'], 
           birthday:  jsonResponse['data']['birthday'], collects_num:  jsonResponse['data']['collects_num'], followers_num:  jsonResponse['data']['followers_num']);
           print(person.user_name);
@@ -52,8 +53,21 @@ class _OthersProfilePageState extends State<OthersProfilePage>{
 
          //widget.isFollowed=
       } else {
-        throw Exception('Failed to fetch Comment data');
+      // 根据不同状态码显示错误信息
+      String errorMessage;
+      if (Response.statusCode == 404) {
+        errorMessage = 'Resource not found';
+      } else if (Response.statusCode == 500) {
+        errorMessage = 'Server error';
+      } else if (Response.statusCode == 403) {
+        errorMessage = 'Permission denied';
+      } else {
+        errorMessage = 'Unknown error';
       }
+
+     
+      CustomSnackBar.showFailure(context, errorMessage);
+    }
     } catch (e) {
       return null ;
     }
@@ -108,7 +122,6 @@ class _OthersProfilePageState extends State<OthersProfilePage>{
                     setState(() {
                       selected = index;
                     });
-                    pageController.jumpToPage(index);
                   },
                   isOneself: false,
                 ),
@@ -117,7 +130,7 @@ class _OthersProfilePageState extends State<OthersProfilePage>{
                     index: selected,
                     children: [
                       // 显示第一个选项的内容
-                      DynamiclistView(getperson: person),
+                      DynamiclistView(getperson: person,isOneself: false),
                     ],
                   ) 
                 
@@ -149,7 +162,7 @@ class _OthersProfilePageState extends State<OthersProfilePage>{
         Uri.parse(widget.isFollowed?'http://127.0.0.1:4523/m1/5245288-4913049-default/follower/unfollow':'http://127.0.0.1:4523/m1/5245288-4913049-default/follower/follow').replace(
           queryParameters: {
             'user_id': GlobalUser().getUser()!.user_id, // 关注者id
-            'usered_id':widget.user_id //被关注者id
+            'to_user_id':widget.user_id //被关注者id
           },
         ),
       );

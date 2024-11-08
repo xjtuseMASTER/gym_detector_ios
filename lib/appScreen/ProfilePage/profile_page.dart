@@ -55,7 +55,7 @@ class _ProflieState extends State<ProfilePage>{
                 // 显示第一个选项的内容
                 BodylistView(),
                 // 显示第二个选项的内容
-                DynamiclistView(getperson: person!),
+                DynamiclistView(getperson: person!,isOneself: true),
                 // 显示第三个选项内容
                 PreferencesView()
               ],

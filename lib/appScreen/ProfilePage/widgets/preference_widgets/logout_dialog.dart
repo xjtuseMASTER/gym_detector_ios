@@ -36,17 +36,19 @@ class LogoutDialog {
           actionsAlignment: MainAxisAlignment.center, // 使按钮居中
           actions: <Widget>[
             ElevatedButton(
-              onPressed: () async{
-                //登出逻辑
-                //清除数据
+            onPressed: () async {
+                // 清除用户数据
                 await clearUserData();
-                 // 关闭弹窗
+
+                // 关闭弹窗
                 Navigator.of(context).pop();
-                //导航至登陆页面
-                Navigator.push(
+
+                // 导航至登录页面并清空导航栈，防止左滑返回
+                Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context)=>MainView())
-                  );
+                  MaterialPageRoute(builder: (context) => MainView()),
+                  (Route<dynamic> route) => false, // 清空导航栈
+                );
               },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),

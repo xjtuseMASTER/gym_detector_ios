@@ -20,12 +20,12 @@ class UserPreferences {
 
   factory UserPreferences.fromJson(Map<String, dynamic> json) {
   return UserPreferences(
-    isInApp_Reminder: json['isInApp_Reminder'],
-    outInApp_Reminder: json['outInApp_Reminder'],
-    isLightTheme: json['isLightTheme'],
-    isLikesVisible: json['isLikesVisible'],
-    isReleaseVisible: json['isReleaseVisible'],
-    isCollectsVisible: json['isCollectsVisible']
+    isInApp_Reminder: json['isInApp_Reminder']==0?false:true,
+    outInApp_Reminder: json['outInApp_Reminder']==0?false:true,
+    isLightTheme: json['isLightTheme']==0?false:true,
+    isLikesVisible: json['isLikesVisible']==0?false:true,
+    isReleaseVisible: json['isReleaseVisible']==0?false:true,
+    isCollectsVisible: json['isCollectsVisible']==0?false:true
   );
 }
     

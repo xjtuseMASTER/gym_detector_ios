@@ -24,6 +24,8 @@ dependencies:
   flutter_screenutil: ^5.6.1 # 屏幕自适应
   multi_image_picker_view: ^1.1.0 #多图片采取器
   video_player: ^2.9.2 #视频时长获取
+  crypto: ^3.0.6  #哈希加密密码
+  bcrypt: ^1.1.3
 
 
   

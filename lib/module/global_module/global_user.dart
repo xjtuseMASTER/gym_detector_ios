@@ -13,15 +13,23 @@ class GlobalUser {
   GlobalUser._internal(); //阻止外部创建新实例
 
   Person? user; // 可变的用户对象
+  String token='';//jwt
 
   // 设置用户信息
   void setUser(Person person) {
     user = person;
   }
+  void setToken(String token){
+    this.token=token;
+  }
 
   // 获取用户信息
   Person? getUser() {
     return user;
+  }
+  //获取token
+  String? getToken(){
+    return token;
   }
 
   // 清除用户信息

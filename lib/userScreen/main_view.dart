@@ -53,16 +53,12 @@ class _MainViewState extends State<MainView> {
           else if (index==3){
             return SingUpScreen(
               controller: controller, 
-              onSubmitData:(data){
-                setState(() {
-                  user_email=data;
-                });
-              });
+             );
           }
           else if (index==4){
             return VerifyScreen(
               controller: controller, 
-              email: user_email);
+              );
           }
         },
       ),

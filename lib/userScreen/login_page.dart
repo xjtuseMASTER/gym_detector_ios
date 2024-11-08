@@ -6,7 +6,9 @@ import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/global_module/global_user_preferences.dart';
 import 'package:gym_detector_ios/module/person.dart';
 import 'package:gym_detector_ios/module/user_preferences.dart';
+import 'package:gym_detector_ios/password_util.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -142,7 +144,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 56.h,
                     child: ElevatedButton(
                                             onPressed: () async {
-                          await _fetchUserFromBackend(context, _emailController.text);
+                        if(_emailController.text.isEmpty || _passController.text.isEmpty){
+                           CustomSnackBar.showFailure(context, 'Please input correct Account and Password!');
+                        }
+                        else{
+                        await _fetchUserFromBackend(context);
                           //多一道检查用户初始化数据的保险
                         if (GlobalUser().getUser() != null) {
                              Navigator.pushReplacementNamed(context, '/main'); // 导航到主页面
@@ -150,6 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           else{
                           CustomSnackBar.showFailure(context, 'Description User initialization failed! Try Again!');
                           }
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF9F7BFF),
@@ -238,19 +245,18 @@ class _LoginScreenState extends State<LoginScreen> {
   await prefs.setInt('login_time', currentTime);
   }
  // 登录逻辑获取用户信息
-Future<void> _fetchUserFromBackend(BuildContext context,  String user_email) async {
+Future<void> _fetchUserFromBackend(BuildContext context) async {
   try {
     // 显示加载对话框
     LoadingDialog.show(context, 'Logining...');
-
+     final queryParameters= {
+            'email': _emailController.text, // 传入 user_id 参数
+            'password': PasswordUtil.hashPassword(_passController.text)//密码
+          };
     // 发送请求
-    final response = await customHttpClient.get(
-        Uri.parse('http://127.0.0.1:4523/m2/5245288-4913049-default/222467509').replace(
-          queryParameters: {
-            'user_emial': user_email, // 传入 user_id 参数
-            'password':_passController.text //密码
-          },
-        ),
+    final response = await customHttpClient.post(
+        Uri.parse('${Http.httphead}/auth/login'),
+        body: jsonEncode(queryParameters)
       );
 
     if (response.statusCode == 200) {
@@ -259,15 +265,26 @@ Future<void> _fetchUserFromBackend(BuildContext context,  String user_email) asy
       final jsonResponse=json.decode(response.body);
       final data = jsonResponse['data'];
       //保存登陆状态
-      final person=Person(user_name: jsonResponse['data']['user_name'], selfInfo: jsonResponse['data']['selfInfo'], gender: jsonResponse['data']['gender'],
-          avatar: jsonResponse['data']['avatar'], user_id:  jsonResponse['data']['user_id'], password:  jsonResponse['data']['password'], email:  jsonResponse['data']['email'], likes_num:  jsonResponse['data']['likes_num'], 
-          birthday:  jsonResponse['data']['birthday'], collects_num:  jsonResponse['data']['collects_num'], followers_num:  jsonResponse['data']['followers_num']);
+     final person = Person(
+      user_name: jsonResponse['data']['user_name'] ?? "", // 默认为空字符串
+      selfInfo: jsonResponse['data']['selfIntro'] ?? "", // 默认为空字符串
+      gender: jsonResponse['data']['gender'] ?? "", // 默认为空字符串
+      avatar: jsonResponse['data']['avatar'] ?? "", // 默认为空字符串
+      user_id: jsonResponse['data']['user_id'] ?? "", // 默认为空字符串
+      email: jsonResponse['data']['email'] ?? "", // 默认为空字符串
+      password: jsonResponse['data']['password'] ?? "", // 默认为空字符串
+      likes_num: jsonResponse['data']['likes_num'] ?? 0, // 默认为0
+      birthday: jsonResponse['data']['birthday'] ?? "", // 默认为空字符串
+      collects_num: jsonResponse['data']['collects_num'] ?? 0, // 默认为0
+      followers_num: jsonResponse['data']['followers_num'] ?? 0 // 默认为0
+    );
       saveUserData(person);
       //保存全局变量
       GlobalUser().setUser(person);
+      GlobalUser().setToken(jsonResponse['data']['token']);
       //获取用户偏好设置信息
-      UserPreferences userPreferences= await fetchUserPreferencesFromBackend(_emailController.text);
-      GlobalUserPreferences().setUserPreferences(userPreferences);
+      // UserPreferences userPreferences= await fetchUserPreferencesFromBackend(_emailController.text);
+      // GlobalUserPreferences().setUserPreferences(userPreferences);
       LoadingDialog.hide(context);
       CustomSnackBar.showSuccess(context, 'Login Successfully');
     } else {
@@ -279,7 +296,10 @@ Future<void> _fetchUserFromBackend(BuildContext context,  String user_email) asy
         errorMessage = 'Server error';
       } else if (response.statusCode == 403) {
         errorMessage = 'Permission denied';
-      } else {
+      } else if (response.statusCode == 400) {
+        errorMessage = 'account ，password incorrect！';
+      }
+      else {
         errorMessage = 'Unknown error';
       }
       // 隐藏加载对话框，显示错误提示框
@@ -296,7 +316,7 @@ Future<void> _fetchUserFromBackend(BuildContext context,  String user_email) asy
    
 //获取用户偏好设置
 Future<UserPreferences> fetchUserPreferencesFromBackend(String user_email) async{
-  final response= await customHttpClient.get(Uri.parse('http://127.0.0.1:4523/m2/5245288-4913049-default/222919194?apifoxApiId=222919194').replace(
+  final response= await customHttpClient.get(Uri.parse('${Http.httphead}/user_preference/getpreferences').replace(
           queryParameters: {
             'user_emial': user_email, // 传入 user_id 参数
           },

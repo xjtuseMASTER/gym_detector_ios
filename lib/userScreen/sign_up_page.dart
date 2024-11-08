@@ -1,9 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gym_detector_ios/main.dart';
+import 'package:gym_detector_ios/module/global_module/global_temp_user.dart';
+import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/http.dart';
+import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 class SingUpScreen extends StatefulWidget {
-  const SingUpScreen({super.key, required this.controller,required this.onSubmitData});
+  const SingUpScreen({super.key, required this.controller});
   final PageController controller;
-  final Function(String) onSubmitData;
   @override
   State<SingUpScreen> createState() => _SingUpScreenState();
 }
@@ -13,7 +19,55 @@ class _SingUpScreenState extends State<SingUpScreen> {
   final TextEditingController _passController = TextEditingController();
   final TextEditingController _repassController = TextEditingController();
   
+  Future<void> _submitEmail() async {
+  try {
+    // 显示加载对话框
+    LoadingDialog.show(context, 'Submitting...');
 
+    // 发送请求
+    final response = await customHttpClient.get(
+        Uri.parse('${Http.httphead}/auth/email').replace(
+          queryParameters: {
+            'email': _emailController.text, // 传入 user_id 参数
+          },
+        ),
+      );
+
+    if (response.statusCode == 200) {
+      // 请求成功
+      //  提取 data 部分
+      final jsonResponse=json.decode(response.body);
+      final data = jsonResponse['data'];
+      //暂时存信息
+      GlobalTempUser().setEmail(_emailController.text);
+      GlobalTempUser().setPassword(_passController.text);
+      GlobalTempUser().setAuthcode(data['auth_code']);
+      print(GlobalTempUser().authcode);
+      LoadingDialog.hide(context);
+      CustomSnackBar.showSuccess(context, 'submit Successfully');
+    } else {
+      // 请求失败，根据状态码显示不同的错误提示
+      String errorMessage;
+      if (response.statusCode == 404) {
+        errorMessage = 'Resource not found';
+      } else if (response.statusCode == 500) {
+        errorMessage = 'Server error';
+      } else if (response.statusCode == 403) {
+        errorMessage = 'Permission denied';
+      } else {
+        errorMessage = 'Unknown error';
+      }
+
+      // 隐藏加载对话框，显示错误提示框
+      LoadingDialog.hide(context);
+       CustomSnackBar.showFailure(context,errorMessage);
+    }
+  } catch (e) {
+    // 捕获网络异常，如超时或其他错误
+    LoadingDialog.hide(context);
+     CustomSnackBar.showFailure(context,'Network Error: Cannot fetch data');
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -206,7 +260,7 @@ class _SingUpScreenState extends State<SingUpScreen> {
                     width: 329.w,
                     height: 56.h,
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async{
                         //先检查邮箱是否符合规范
                         if(isEmailValid()){
                           //再判断两遍输入的密码相不相同
@@ -214,7 +268,7 @@ class _SingUpScreenState extends State<SingUpScreen> {
                             //再判断密码格式规不规范
                             if(isPasswordValid(_passController.text))
                             {
-                               widget.onSubmitData(_emailController.text);
+                              await _submitEmail();
                                widget.controller.animateToPage(4,
                               duration: const Duration(milliseconds: 500),
                               curve: Curves.ease);

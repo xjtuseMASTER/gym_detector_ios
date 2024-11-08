@@ -10,7 +10,10 @@ class RecordDynamicPage extends StatefulWidget{
   final int index;//决定显示哪个页面
   final String title;
   final Person getperson;// 目标访问用户
-  RecordDynamicPage({required this.index,required this.title,required this.getperson});
+  final isOneself;//是否是本人
+  final Map<String,dynamic> isVisble;
+  final String name;
+  RecordDynamicPage({required this.index,required this.title,required this.getperson,required this.isOneself,required this.isVisble,required this.name});
   _RecordDynamicPageState createState()=>_RecordDynamicPageState();
 
 }
@@ -42,9 +45,20 @@ class _RecordDynamicPageState extends State<RecordDynamicPage>{
       body: 
       Stack(
       children: [  
-
-      //根据偏好设置显不显示
+        //根据偏好设置显不显示
+      widget.isVisble[widget.name]?
       UsedPostGridview(person: widget.getperson,fetchMorePosts: fetchMorePosts)
+      :const Center(
+      child: Text(
+        "This user is not open to you",
+        style: TextStyle(
+          color: Colors.purple, // 紫色
+          fontSize: 24,         // 较大的字体
+          fontWeight: FontWeight.bold,
+        ),
+        textAlign: TextAlign.center,
+      ),
+      )
       ]
       )
     );

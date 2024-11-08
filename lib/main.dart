@@ -17,7 +17,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // 初始化全局的 CustomHttpClient 实例
 final CustomHttpClient customHttpClient = CustomHttpClient();
-
 void main() {
   final PageController _pageController = PageController();
   final cloudinary = CloudinaryPublic('dqfncgtzx', 'FiformAi', cache: false);
