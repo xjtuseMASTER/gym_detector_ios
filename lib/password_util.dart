@@ -1,17 +1,14 @@
-import 'package:bcrypt/bcrypt.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 class PasswordUtil {
-  // 使用 bcrypt 生成密码的哈希值
+  // 使用 SHA-256 生成密码的哈希值
   static String hashPassword(String password) {
-    // 使用 bcrypt 生成哈希值，成本因子为 12（可以根据需求调整）
-    // String hashed = BCrypt.hashpw(password, BCrypt.gensalt());
-    // print(hashed);
-    // return hashed;
-    return password;
-  }
-
-  // 验证密码是否与哈希值匹配
-  static bool verifyPassword(String password, String hashedPassword) {
-    return BCrypt.checkpw(password, hashedPassword);
+    // 将密码转换为字节数组
+    var bytes = utf8.encode(password);
+    // 使用 SHA-256 计算哈希值
+    var digest = sha256.convert(bytes);
+    // 返回哈希值的十六进制字符串表示
+    return digest.toString();
   }
 }

@@ -8,6 +8,7 @@ import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -173,7 +174,7 @@ Future<void> _handleRelease(BuildContext context) async {
 
     // 发送 POST 请求到后端
     final response = await http.post(
-      Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/post/release'),
+      Uri.parse('${Http.httphead}/post/release'),
       headers: {
         'Content-Type': 'application/json',
       },

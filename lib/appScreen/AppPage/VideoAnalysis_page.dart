@@ -57,7 +57,7 @@ class VideoAnalysisPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Image.network(
-                    item['pic_url'],
+                    item['frame'],
                     width: double.infinity,
                     height: 220,
                     fit: BoxFit.cover,
@@ -67,7 +67,7 @@ class VideoAnalysisPage extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    item['title'],
+                    item['error'],
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
@@ -76,7 +76,7 @@ class VideoAnalysisPage extends StatelessWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    item['content'],
+                    item['advice'].substring(0,100),
                     style: TextStyle(fontSize: 16, color: Colors.black87),
                   ),
                 ],

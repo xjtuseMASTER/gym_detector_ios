@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'HomePage/home_page.dart';
 import 'AppPage/app_page.dart';
@@ -73,9 +74,9 @@ class _MainScreenState extends State<MainScreen> {
    try {
     // 发送请求
     final response = await customHttpClient.get(
-        Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/post/stream').replace(
+        Uri.parse('${Http.httphead}/post/stream').replace(
           queryParameters: {
-            'user_id':userId,
+            'user_id':'1',
             'pageNumber':'1'
           },
         ),
@@ -84,8 +85,9 @@ class _MainScreenState extends State<MainScreen> {
     if (response.statusCode == 200) {
       // 请求成功
       //  提取 data 部分
-    final jsonResponse = json.decode(response.body);
-    final List<dynamic> postList = jsonResponse['data']['postList'];
+      final decodedBody = utf8.decode(response.bodyBytes); 
+      final jsonResponse = json.decode(decodedBody);
+      final List<dynamic> postList = jsonResponse['data'];
     return postList.map((post) => post as Map<String, dynamic>).toList();
     } 
     else{

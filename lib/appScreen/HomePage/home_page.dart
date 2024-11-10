@@ -337,14 +337,20 @@ Future<List<Map<String, dynamic>>> fetchNewPosts(String user_id,int Pagenumber) 
                               context,
                               MaterialPageRoute(
                                 builder: (context) => DetailPage(
-                                    postId: post['postId'], authorId: post['authorId']),
+                                    postId: post['postId'], authorId: post['autherId']),
                               ),
                             );
                           },
                           child: ClipRRect(
                             borderRadius:
                                 BorderRadius.vertical(top: Radius.circular(10)),
-                            child: Image.network(
+                            child: post['picList'] == null || post['picList'].isEmpty ?
+                            Image.asset(
+                              'assets/images/NetworkError.png',
+                              height: 205,
+                              width: double.infinity,
+                            ) :
+                            Image.network(
                               post['picList'][0]['picUrl'], // 显示第一张图片
                               fit: BoxFit.cover,
                               height: 205,

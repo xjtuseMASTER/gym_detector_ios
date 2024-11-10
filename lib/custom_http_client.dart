@@ -9,7 +9,9 @@ class CustomHttpClient extends http.BaseClient {
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) {
     // 添加全局的 headers
-    // request.headers['Authorization'] = 'Bearer ${GlobalUser().getToken()}';
+    request.headers['Authorization'] = 'Bearer ${GlobalUser().getToken()}';
+    request.headers['Token'] = 'dev';
+    request.headers['Connection'] = 'close';
     request.headers['Content-Type'] = 'application/json';
     // 这里可以添加更多的全局请求头
 
