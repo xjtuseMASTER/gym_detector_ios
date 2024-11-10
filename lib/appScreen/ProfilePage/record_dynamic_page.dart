@@ -80,16 +80,25 @@ class _RecordDynamicPageState extends State<RecordDynamicPage>{
   else if(widget.index==1)
   {
     //拿去发布数据
-    responseJson = await customHttpClient.get(Uri.parse('${Http.httphead}/post/mypost'));
+    responseJson = await customHttpClient.get(Uri.parse('${Http.httphead}/post/mypost').replace(queryParameters: {
+            'userId': user_id,
+            'pageNumber': Pagenumber.toString(),            
+          }),
+        ).timeout(const Duration(seconds: 30));
   }  
   else{
     //拿去收藏数据
-    responseJson = await customHttpClient.get(Uri.parse('${Http.httphead}/post_collect/mycollect'));
+    responseJson = await customHttpClient.get(Uri.parse('${Http.httphead}/post_collect/mycollect').replace(queryParameters: {
+            'userId': user_id,
+            'pageNumber': Pagenumber.toString(),            
+          }),
+        ).timeout(const Duration(seconds: 30));
   }
   
   // 检查请求是否成功
   if (responseJson.statusCode==200) {
-    final jsonResponse=json.decode(responseJson.body);
+    final decodedBody = utf8.decode(responseJson.bodyBytes); 
+    final jsonResponse = json.decode(decodedBody);
     // 获取 postList
     final List<dynamic> postList = jsonResponse['data'];
     

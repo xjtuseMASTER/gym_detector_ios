@@ -20,74 +20,79 @@ class PersonImage extends StatefulWidget {
 
 class _PersonImageState extends State<PersonImage> {
   File? _imageFile;
-  CloudinaryPublic ?cloudinary;
+  CloudinaryPublic? cloudinary;
   @override
   void initState() {
     super.initState();
-    cloudinary = Provider.of<CloudinaryPublic>(context, listen: false); // 在 initState 中获取实例
+    cloudinary = Provider.of<CloudinaryPublic>(context,
+        listen: false); // 在 initState 中获取实例
   }
+
   // 选择照片并上传
-  Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+  Future<void> _pickImage(BuildContext context) async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+        LoadingDialog.show(context, 'uploading...');
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
       });
-    try {
+      try {
         CloudinaryResponse response = await cloudinary!.uploadFile(
-            CloudinaryFile.fromFile(pickedFile.path, resourceType: CloudinaryResourceType.Image),
+          CloudinaryFile.fromFile(pickedFile.path,
+              resourceType: CloudinaryResourceType.Image),
         );
-          print(response.secureUrl);
-          GlobalUser().user!.setAvatar(response.secureUrl);
-          print(GlobalUser().user!.avatar);
-          await _uploadProfilePhoto(GlobalUser().user!.user_id,response.url);
+        print(response.secureUrl);
+        GlobalUser().user!.setAvatar(response.secureUrl);
+        print(GlobalUser().user!.avatar);
+        await _uploadProfilePhoto(GlobalUser().user!.user_id, response.url);
+        LoadingDialog.hide(context);
       } on CloudinaryException catch (e) {
-       CustomSnackBar.showFailure(context, 'Network Error!');
+        CustomSnackBar.showFailure(context, 'Network Error!');
       }
     }
   }
-  // 将secureurl返回给后端
-  Future<void> _uploadProfilePhoto(String user_id,String secureurl) async {
-  try {
-    // 显示加载对话框
-    LoadingDialog.show(context, 'uploading...');
 
-    // 发送请求
-    final response = await customHttpClient.get(
+  // 将secureurl返回给后端
+  Future<void> _uploadProfilePhoto(String user_id, String secureurl) async {
+    try {
+      // 显示加载对话框
+
+      // 发送请求
+      final response = await customHttpClient.get(
         Uri.parse('${Http.httphead}/user/changeprofile_photo').replace(
           queryParameters: {
             'user_id': user_id, // 传入 user_id 参数
-            'sucure_url':secureurl 
+            'sucure_url': secureurl
           },
         ),
       );
 
-    if (response.statusCode == 200) {
-      LoadingDialog.hide(context);
-      CustomSnackBar.showSuccess(context, 'Upload Successfully');
-    } else {
-      // 请求失败，根据状态码显示不同的错误提示
-      String errorMessage;
-      if (response.statusCode == 404) {
-        errorMessage = 'Resource not found';
-      } else if (response.statusCode == 500) {
-        errorMessage = 'Server error';
-      } else if (response.statusCode == 403) {
-        errorMessage = 'Permission denied';
+      if (response.statusCode == 200) {
+        CustomSnackBar.showSuccess(context, 'Upload Successfully');
       } else {
-        errorMessage = 'Unknown error';
-      }
+        // 请求失败，根据状态码显示不同的错误提示
+        String errorMessage;
+        if (response.statusCode == 404) {
+          errorMessage = 'Resource not found';
+        } else if (response.statusCode == 500) {
+          errorMessage = 'Server error';
+        } else if (response.statusCode == 403) {
+          errorMessage = 'Permission denied';
+        } else {
+          errorMessage = 'Unknown error';
+        }
 
-      // 隐藏加载对话框，显示错误提示框
+        // 隐藏加载对话框，显示错误提示框
+        LoadingDialog.hide(context);
+        CustomSnackBar.showFailure(context, errorMessage);
+      }
+    } catch (e) {
+      // 捕获网络异常，如超时或其他错误
       LoadingDialog.hide(context);
-       CustomSnackBar.showFailure(context,errorMessage);
+      CustomSnackBar.showFailure(context, 'Network Error: Cannot upload data');
     }
-  } catch (e) {
-    // 捕获网络异常，如超时或其他错误
-    LoadingDialog.hide(context);
-     CustomSnackBar.showFailure(context,'Network Error: Cannot upload data');
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -134,15 +139,17 @@ class _PersonImageState extends State<PersonImage> {
               child: Stack(
                 children: [
                   // 头像图片
-                 Container(
+                  Container(
                     width: 220,
                     height: 220,
-                   decoration: BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       image: DecorationImage(
                         image: _imageFile != null
-                            ? FileImage(_imageFile!) as ImageProvider<Object> // 如果用户上传了图片，使用本地文件
-                            : NetworkImage(widget.person.avatar), // 如果没有本地文件，使用网络图片
+                            ? FileImage(_imageFile!)
+                                as ImageProvider<Object> // 如果用户上传了图片，使用本地文件
+                            : NetworkImage(
+                                widget.person.avatar), // 如果没有本地文件，使用网络图片
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -152,7 +159,9 @@ class _PersonImageState extends State<PersonImage> {
                     right: 10,
                     bottom: 10,
                     child: GestureDetector(
-                      onTap: _pickImage,  // 点击加号时打开相册选择图片
+                      onTap: () {
+                        _pickImage(context);
+                      }, // 点击加号时打开相册选择图片
                       child: Container(
                         width: 40,
                         height: 40,

@@ -349,7 +349,7 @@ class _DetailPageState extends State<DetailPage> {
                                     user_id: post['authorId'])));
                       },
                       child: CircleAvatar(
-                        backgroundImage: post['authorAvatar'] == ''
+                        backgroundImage: post['authorAvatar'] == null
                             ? const AssetImage('assets/images/NullPhoto.png')
                                 as ImageProvider
                             : NetworkImage(post['authorAvatar'])

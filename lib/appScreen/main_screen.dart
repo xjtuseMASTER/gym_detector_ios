@@ -73,9 +73,7 @@ class _MainScreenState extends State<MainScreen> {
     // 发送请求
     final response = await customHttpClient.get(
         Uri.parse('${Http.httphead}/post/stream').replace(
-        Uri.parse('${Http.httphead}/post/stream').replace(
           queryParameters: {
-            'user_id':'1',
             'user_id':'1',
             'pageNumber':'1'
           },
