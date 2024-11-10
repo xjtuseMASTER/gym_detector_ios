@@ -5,6 +5,7 @@ import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/global_module/global_user_preferences.dart';
 import 'package:gym_detector_ios/module/person.dart';
+import 'package:gym_detector_ios/widgets/http.dart';
 
 class DynamiclistView extends StatefulWidget {
   final Person getperson; // 目标访问用户
@@ -38,39 +39,45 @@ class _DynamiclistViewState extends State<DynamiclistView> {
   @override
   void initState() {
     super.initState();
-    fetchUserPreferencesFromBackend(widget.getperson.email);
+    fetchUserPreferencesFromBackend(widget.getperson.user_id);
   }
 
-  Future<void> fetchUserPreferencesFromBackend(String userEmail) async {
+  Future<void> fetchUserPreferencesFromBackend(String user_id) async {
+  try {
     final response = await customHttpClient.get(
-      Uri.parse('http://127.0.0.1:4523/m2/5245288-4913049-default/222919194')
+      Uri.parse('${Http.httphead}/user_preference/getpreferences')
           .replace(queryParameters: {
-        'user_email': userEmail, // 传入 user_email 参数
+        'user_id': user_id, // 传入 user_email 参数
       }),
     );
 
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
       final data = jsonResponse['data'];
-
-      setState(() {
-        _isVisible = {
-          "isLikesVisible": widget.isOneself
-              ? true
-              : data['isLikesVisible'] == 1,
-          "isReleaseVisible": widget.isOneself
-              ? true
-              : data['isReleaseVisible'] == 1,
-          "isCollectsVisible": widget.isOneself
-              ? true
-              : data['isCollectsVisible'] == 1,
-        };
-      });
+      // 仅在 Widget 仍然挂载时调用 setState
+      if (mounted) {
+        setState(() {
+          _isVisible = {
+            "isLikesVisible": widget.isOneself
+                ? true
+                : data['isLikesVisible'] == 1,
+            "isReleaseVisible": widget.isOneself
+                ? true
+                : data['isReleaseVisible'] == 1,
+            "isCollectsVisible": widget.isOneself
+                ? true
+                : data['isCollectsVisible'] == 1,
+          };
+        });
+      }
     } else {
       throw Exception('Failed to load user preferences');
     }
+  } catch (e) {
+    // 错误处理
+    print("Error: $e");
   }
-
+}
   @override
   Widget build(BuildContext context) {
     return Container(

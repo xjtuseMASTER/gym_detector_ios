@@ -24,23 +24,6 @@ class AppPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start, // 向左对齐
           children: [
-            // // 搜索框
-            // Container(
-            //   margin: const EdgeInsets.only(bottom: 16), // 与图片留白
-            //   padding: const EdgeInsets.symmetric(horizontal: 16),
-            //   decoration: BoxDecoration(
-            //     color: Colors.grey[200],
-            //     borderRadius: BorderRadius.circular(30),
-            //   ),
-            //   child: const TextField(
-            //     decoration: InputDecoration(
-            //       border: InputBorder.none,
-            //       hintText: 'Search...',
-            //       icon: Icon(Icons.search, color: Color(0xFF755DC1)),
-            //     ),
-            //   ),
-            // ),
-            // 可滚动的图片列表
             Expanded(
               child: ListView(
                 children: [

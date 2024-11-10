@@ -1,31 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-
 class OtpForm extends StatefulWidget {
   const OtpForm({
     super.key,
     required this.callBack,
   });
+  
   final Function(String) callBack;
+
   @override
   State<OtpForm> createState() => _OtpFormState();
 }
 
 class _OtpFormState extends State<OtpForm> {
-  final TextEditingController _num1 = TextEditingController();
-  final TextEditingController _num2 = TextEditingController();
-  final TextEditingController _num3 = TextEditingController();
-  final TextEditingController _num4 = TextEditingController();
-  final TextEditingController _num5 = TextEditingController();
-  final TextEditingController _num6 = TextEditingController();
+  final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
   
+  void _onChanged(int index) {
+    setState(() {
+      // Check if all fields are filled
+      if (_controllers.every((controller) => controller.text.isNotEmpty)) {
+        widget.callBack(_controllers.map((controller) => controller.text).join());
+      } else {
+        // Do nothing while typing
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
       child: RawKeyboardListener(
-        autofocus: false,
-        focusNode: FocusNode(canRequestFocus: false),
+        autofocus: true, // Allow RawKeyboardListener to capture keyboard events
+        focusNode: FocusNode(),
         onKey: (event) {
           if (event.isKeyPressed(LogicalKeyboardKey.backspace)) {
             FocusScope.of(context).previousFocus();
@@ -33,157 +39,31 @@ class _OtpFormState extends State<OtpForm> {
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SizedBox(
+          children: List.generate(6, (index) {
+            return SizedBox(
               height: 20,
               width: 20,
               child: TextFormField(
-                autofocus: true,
-                controller: _num1,
+                autofocus: index == 0,  // Only autofocus on the first input
+                controller: _controllers[index],
                 inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.allow(//
-                      RegExp(r'[0-9]')),
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                 ],
-                onSaved: (pin1) {},
                 onChanged: (value) {
-                  if (value.length == 1) {
-                    FocusScope.of(context).nextFocus();
+                  if (value.length == 1 && index < 5) {
+                    FocusScope.of(context).nextFocus(); // Move to next field
+                  } else if (value.isEmpty && index > 0) {
+                    FocusScope.of(context).previousFocus(); // Move to previous field
                   }
+                  _onChanged(index);  // Update callback only when all fields are filled
                 },
                 keyboardType: TextInputType.number,
                 maxLength: 1,
-                decoration: const InputDecoration(
-                  counterText: "",
-                ),
+                decoration: const InputDecoration(counterText: ""),
                 textAlign: TextAlign.center,
               ),
-            ),
-            SizedBox(
-              height: 20,
-              width: 20,
-              child: TextFormField(
-                autofocus: true,
-                controller: _num2,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.allow(//
-                      RegExp(r'[0-9]')),
-                ],
-                onSaved: (pin2) {},
-                onChanged: (value) {
-                  if (value.length == 1) {
-                    FocusScope.of(context).nextFocus();
-                  }
-                },
-                keyboardType: TextInputType.number,
-                maxLength: 1,
-                decoration: const InputDecoration(
-                  counterText: "",
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            SizedBox(
-              height: 20,
-              width: 20,
-              child: TextFormField(
-                autofocus: true,
-                controller: _num3,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.allow(//
-                      RegExp(r'[0-9]')),
-                ],
-                onSaved: (pin3) {},
-                onChanged: (value) {
-                  if (value.length == 1) {
-                    FocusScope.of(context).nextFocus();
-                  }
-                },
-                keyboardType: TextInputType.number,
-                maxLength: 1,
-                decoration: const InputDecoration(
-                  counterText: "",
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            SizedBox(
-              height: 20,
-              width: 20,
-              child: TextFormField(
-                autofocus: true,
-                controller: _num4,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.allow(//
-                      RegExp(r'[0-9]')),
-                ],
-                onSaved: (pin4) {},
-                onChanged: (value) {
-                  if (value.length == 1) {
-                    FocusScope.of(context).nextFocus();
-                  }
-                },
-                keyboardType: TextInputType.number,
-                maxLength: 1,
-                decoration: const InputDecoration(
-                  counterText: "",
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            SizedBox(
-              height: 20,
-              width: 20,
-              child: TextFormField(
-                autofocus: true,
-                controller: _num5,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.allow(//
-                      RegExp(r'[0-9]')),
-                ],
-                onSaved: (pin5) {},
-                onChanged: (value) {
-                  if (value.length == 1) {
-                    FocusScope.of(context).nextFocus();
-                  }
-                },
-                keyboardType: TextInputType.number,
-                maxLength: 1,
-                decoration: const InputDecoration(
-                  counterText: "",
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            SizedBox(
-              height: 20,
-              width: 20,
-              child: TextFormField(
-                autofocus: true,
-                controller: _num6,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.allow(//
-                      RegExp(r'[0-9]')),
-                ],
-                onSaved: (pin6) {},
-                onChanged: (value) {
-                  if (value.length == 1) {
-                    widget.callBack(_num1.text +
-                        _num2.text +
-                        _num3.text +
-                        _num4.text +
-                        _num5.text +
-                        _num6.text);
-                  }
-                },
-                keyboardType: TextInputType.number,
-                maxLength: 1,
-                decoration: const InputDecoration(
-                  counterText: "",
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
+            );
+          }),
         ),
       ),
     );

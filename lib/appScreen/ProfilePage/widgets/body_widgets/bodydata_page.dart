@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'package:http/http.dart' as http;
 
@@ -34,42 +35,65 @@ class _BodydataPageState extends State<BodydataPage>  with AutomaticKeepAliveCli
   Future<bool> fetchBodyDataSequentially() async {
     try {
       // 获取身高数据
-      final heightResponse = await customHttpClient.get(Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/user_height/getheightlist'));
+      final heightResponse = await customHttpClient.get(
+        Uri.parse('${Http.httphead}/user_height/getheightlist').replace(
+          queryParameters: {
+            'userId':GlobalUser().user!.user_id
+          }
+        )
+      );
       if (heightResponse.statusCode == 200) {
         heightList = _parseData(heightResponse.body, 'heightList');
         bodyData.add(heightList);
       } else {
         bodyData.add([0,0,0,0,0]);
+        CustomSnackBar.showSuccess(context, "You haven't uploaded any data！");
         throw Exception('Failed to fetch height data');
       }
 
       // 获取体重数据
-      final weightResponse = await customHttpClient.get(Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/main/getweightlist'));
+      final weightResponse = await customHttpClient.get(Uri.parse('${Http.httphead}/user_weight/getweightlist').replace(
+          queryParameters: {
+            'user_id':GlobalUser().user!.user_id
+          }
+      )
+      );
       if (weightResponse.statusCode == 200) {
         weightList = _parseData(weightResponse.body, 'weightList');
         bodyData.add(weightList);
       } else {
          bodyData.add([0,0,0,0,0]);
+         CustomSnackBar.showSuccess(context, "You haven't uploaded any data！");
         throw Exception('Failed to fetch weight data');
       }
 
       // 获取肺活量数据
-      final vitalCapacityResponse = await customHttpClient.get(Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/main/getvitalcapacityList'));
+      final vitalCapacityResponse = await customHttpClient.get(Uri.parse('${Http.httphead}/user_vital_capacity/getvitalcapacitylist').replace(
+          queryParameters: {
+            'user_id':GlobalUser().user!.user_id
+          }
+      ));
       if (vitalCapacityResponse.statusCode == 200) {
         vitalCapacityList = _parseData(vitalCapacityResponse.body, 'vitalCapacityList');
         bodyData.add(vitalCapacityList);
       } else {
          bodyData.add([0,0,0,0,0]);
+         CustomSnackBar.showSuccess(context, "You haven't uploaded any data！");
         throw Exception('Failed to fetch vital capacity data');
       }
 
       // 获取体脂率数据
-      final bodyFatResponse = await customHttpClient.get(Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/main/getbodyfatList'));
+      final bodyFatResponse = await customHttpClient.get(Uri.parse('${Http.httphead}/user_body_fat_rate/getbodyfatlist').replace(
+          queryParameters: {
+            'user_id':GlobalUser().user!.user_id
+          }
+      ));
       if (bodyFatResponse.statusCode == 200) {
         bodyFatRateList = _parseData(bodyFatResponse.body, 'bodyFatRateList');
         bodyData.add(bodyFatRateList);
       } else {
          bodyData.add([0,0,0,0,0]);
+         CustomSnackBar.showSuccess(context, "You haven't uploaded any data！");
         throw Exception('Failed to fetch body fat rate data');
       }
 
@@ -89,7 +113,7 @@ class _BodydataPageState extends State<BodydataPage>  with AutomaticKeepAliveCli
     switch(selectedIndex){
       //上传身高
       case 0:  response= await customHttpClient.get(
-        Uri.parse('http://127.0.0.1:4523/m2/5245288-4913049-default/222467509').replace(
+        Uri.parse('${Http.httphead}/user_height/uploadheight').replace(
           queryParameters: {
             'user_id': GlobalUser().user!.user_id, // 传入 user_id 参数
             'height':data,
@@ -100,7 +124,7 @@ class _BodydataPageState extends State<BodydataPage>  with AutomaticKeepAliveCli
       break;
        //上传体重
       case 1: response = await customHttpClient.get(
-        Uri.parse('http://127.0.0.1:4523/m2/5245288-4913049-default/222467509').replace(
+        Uri.parse('${Http.httphead}/user_weight/uploadweight').replace(
           queryParameters: {
             'user_id': GlobalUser().user!.user_id, // 传入 user_id 参数
             'weight':data,
@@ -111,7 +135,7 @@ class _BodydataPageState extends State<BodydataPage>  with AutomaticKeepAliveCli
       break;
        //上传肺活量
       case 2: response = await customHttpClient.get(
-        Uri.parse('http://127.0.0.1:4523/m2/5245288-4913049-default/222467509').replace(
+        Uri.parse('${Http.httphead}/user_vital_capacity/uploadvitalcapacity').replace(
           queryParameters: {
             'user_id': GlobalUser().user!.user_id, // 传入 user_id 参数
             'vital_capacity':data,
@@ -122,7 +146,7 @@ class _BodydataPageState extends State<BodydataPage>  with AutomaticKeepAliveCli
       break;
        //上传体脂率
       case 3:  response = await customHttpClient.get(
-        Uri.parse('http://127.0.0.1:4523/m2/5245288-4913049-default/222467509').replace(
+        Uri.parse('${Http.httphead}/user_body_fat_rate/uploadbodyfatrate').replace(
           queryParameters: {
             'user_id': GlobalUser().user!.user_id, // 传入 user_id 参数
             'body_fat_rate':data,
@@ -281,9 +305,10 @@ class _BodydataPageState extends State<BodydataPage>  with AutomaticKeepAliveCli
                       border: Border.all(color: Colors.black, width: 1),
                     ),
                     // 动态设置纵轴最小值和最大值
-                    minY: bodyData[selectedIndex].reduce((a, b) => a < b ? a : b).toDouble(),
-                    maxY: bodyData[selectedIndex].reduce((a, b) => a > b ? a : b).toDouble(),
-                    lineBarsData: [
+                    // 动态设置纵轴最小值和最大值
+                      minY: bodyData[selectedIndex].every((value) => value == 0) ? 0 : bodyData[selectedIndex].reduce((a, b) => a < b ? a : b).toDouble(),
+                      maxY: bodyData[selectedIndex].every((value) => value == 0) ? 1 : bodyData[selectedIndex].reduce((a, b) => a > b ? a : b).toDouble(),
+                        lineBarsData: [
                       LineChartBarData(
                         spots: List.generate(
                           bodyData[selectedIndex].length,
@@ -312,7 +337,15 @@ class _BodydataPageState extends State<BodydataPage>  with AutomaticKeepAliveCli
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildDataCard( Choices[selectedIndex],categories[selectedIndex],bodyData[selectedIndex][bodyData[selectedIndex].length-1].toString(),units[selectedIndex],selectedIndex ),
+                 _buildDataCard(
+                    Choices[selectedIndex],
+                    categories[selectedIndex],
+                    bodyData[selectedIndex].isNotEmpty
+                        ? bodyData[selectedIndex].last.toString() // 获取最后一个值
+                        : '0',
+                    units[selectedIndex],
+                    selectedIndex,
+                  ),
               ],
             ),
           ),

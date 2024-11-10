@@ -1,9 +1,12 @@
+
+//找回密码
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_temp_user.dart';
 import 'package:gym_detector_ios/password_util.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 class ResetpasswordPage extends StatefulWidget {
   const ResetpasswordPage({super.key, required this.controller,required this.user_email});
@@ -20,7 +23,7 @@ class _ResetpasswordPageState extends State<ResetpasswordPage> {
   Future<void> _submitResetPassword() async {
     try {
       final response = await customHttpClient.put(
-        Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/user/password'),
+        Uri.parse('${Http.httphead}/user/password'),
         body: {
           "email": GlobalTempUser().email,
            "password": PasswordUtil.hashPassword(GlobalTempUser().password!)
@@ -56,7 +59,10 @@ class _ResetpasswordPageState extends State<ResetpasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
+
+      body:SingleChildScrollView(  // 新增 SingleChildScrollView
+      child:
+       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
@@ -237,6 +243,7 @@ class _ResetpasswordPageState extends State<ResetpasswordPage> {
           ),
         ],
       ),
+      )
     );
   }
  bool isPasswordValid(String password) {

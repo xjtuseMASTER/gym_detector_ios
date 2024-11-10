@@ -27,12 +27,11 @@ class _LoginScreenState extends State<LoginScreen> {
     // 获取屏幕的尺寸
     final Size screenSize = MediaQuery.of(context).size;
 
-    // 打印屏幕尺寸到控制台
-    print('屏幕宽度: ${screenSize.width}');
-    print('屏幕高度: ${screenSize.height}');
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
+      body: SingleChildScrollView(
+      child: 
+      Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
@@ -150,8 +149,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         else{
                         await _fetchUserFromBackend(context);
                           //多一道检查用户初始化数据的保险
-                        if (GlobalUser().getUser() != null) {
-                             Navigator.pushReplacementNamed(context, '/main'); // 导航到主页面
+                        if (GlobalUser().user!= null) {
+                             Navigator.of(context).pushNamedAndRemoveUntil(
+                              '/main',
+                              (Route<dynamic> route) => false, // 清空路由栈
+                            );
                         }
                           else{
                           CustomSnackBar.showFailure(context, 'Description User initialization failed! Try Again!');
@@ -232,6 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ],
       ),
+      )
     );
   }
   Future<void> saveUserData(Person person) async {
@@ -262,7 +265,8 @@ Future<void> _fetchUserFromBackend(BuildContext context) async {
     if (response.statusCode == 200) {
       // 请求成功
       //  提取 data 部分
-      final jsonResponse=json.decode(response.body);
+      final decodedBody = utf8.decode(response.bodyBytes); 
+      final jsonResponse=json.decode(decodedBody);
       final data = jsonResponse['data'];
       //保存登陆状态
      final person = Person(
@@ -283,8 +287,8 @@ Future<void> _fetchUserFromBackend(BuildContext context) async {
       GlobalUser().setUser(person);
       GlobalUser().setToken(jsonResponse['data']['token']);
       //获取用户偏好设置信息
-      // UserPreferences userPreferences= await fetchUserPreferencesFromBackend(_emailController.text);
-      // GlobalUserPreferences().setUserPreferences(userPreferences);
+      UserPreferences userPreferences= await fetchUserPreferencesFromBackend(GlobalUser().user!.user_id);
+      GlobalUserPreferences().setUserPreferences(userPreferences);
       LoadingDialog.hide(context);
       CustomSnackBar.showSuccess(context, 'Login Successfully');
     } else {
@@ -315,10 +319,10 @@ Future<void> _fetchUserFromBackend(BuildContext context) async {
 
    
 //获取用户偏好设置
-Future<UserPreferences> fetchUserPreferencesFromBackend(String user_email) async{
+Future<UserPreferences> fetchUserPreferencesFromBackend(String user_id) async{
   final response= await customHttpClient.get(Uri.parse('${Http.httphead}/user_preference/getpreferences').replace(
           queryParameters: {
-            'user_emial': user_email, // 传入 user_id 参数
+            'user_id': user_id, // 传入 user_id 参数
           },
         ),);
   if(response.statusCode==200){
@@ -330,7 +334,24 @@ Future<UserPreferences> fetchUserPreferencesFromBackend(String user_email) async
     return UserPreferences.fromJson(data);
   }
   else{
-    throw Exception('Failed to load userpreferrences');
+    // 请求失败，根据状态码显示不同的错误提示
+      String errorMessage;
+      if (response.statusCode == 404) {
+        errorMessage = 'Resource not found';
+      } else if (response.statusCode == 500) {
+        errorMessage = 'Server error';
+      } else if (response.statusCode == 403) {
+        errorMessage = 'Permission denied';
+      } else if (response.statusCode == 400) {
+        errorMessage = 'getUserPreference,unsuccessful!';
+      }
+      else {
+        errorMessage = 'Unknown error';
+      }
+      // 隐藏加载对话框，显示错误提示框
+      LoadingDialog.hide(context);
+       CustomSnackBar.showFailure(context,errorMessage);
+       return UserPreferences(isInApp_Reminder: false, outInApp_Reminder: false, isLightTheme: true, isReleaseVisible: true, isCollectsVisible: true, isLikesVisible: true);
   }
 
 }

@@ -6,8 +6,10 @@ import 'dart:ui';
 
 import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:flutter/material.dart';
+import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -172,8 +174,8 @@ Future<void> _handleRelease(BuildContext context) async {
     NewPost['content'] = _captionController.text;
 
     // 发送 POST 请求到后端
-    final response = await http.post(
-      Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/post/release'),
+    final response = await  customHttpClient.post(
+      Uri.parse('${Http.httphead}/post/release'),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -183,7 +185,7 @@ Future<void> _handleRelease(BuildContext context) async {
     if (response.statusCode == 200) {
       // 处理返回的数据
       final jsonResponse = json.decode(response.body);
-      post_id = jsonResponse['data']['post_id'];
+      post_id = jsonResponse['data']['postId'];
       print('数据获取成功');
       LoadingDialog.hide(context);
       CustomSnackBar.showSuccess(context, 'Release Successfully！');
@@ -253,7 +255,9 @@ bool _isFormValid() {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child:SingleChildScrollView(
+      child:  
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
              const SizedBox(height: 30),
@@ -309,6 +313,7 @@ bool _isFormValid() {
                 ),
           ],
         ),
+        )
       ),
     );
   }

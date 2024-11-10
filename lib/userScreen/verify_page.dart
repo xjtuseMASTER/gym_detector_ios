@@ -72,8 +72,8 @@ class _VerifyScreenState extends State<VerifyScreen> {
       );
       if (response.statusCode == 200) {
         //清除暂存信息
-        GlobalTempUser().clearUser();
-       CustomSnackBar.showSuccess(context, "SignUp Successfully! Please Login");
+      GlobalTempUser().clearUser();
+      CustomSnackBar.showSuccess(context, "SignUp Successfully! Please Login");
 
 
       } else {
@@ -106,7 +106,9 @@ class _VerifyScreenState extends State<VerifyScreen> {
 Widget build(BuildContext context) {
   return Scaffold(
     backgroundColor: Colors.white,
-    body: Stack(
+    body: SingleChildScrollView(  // 新增 SingleChildScrollView
+      child:
+    Stack(
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,9 +175,10 @@ Widget build(BuildContext context) {
                             });
                             await _submitEmail();
                           } else {
-                            if (GlobalTempUser().authcode == PasswordUtil.hashPassword(varifyCode!)) {
-
+                            if (GlobalTempUser().authcode == varifyCode!) {
+                              LoadingDialog.show(context, 'Rigisting....');
                               await _submitRegister();
+                              LoadingDialog.hide(context);
                               widget.controller.animateToPage(2,
                                   duration: const Duration(milliseconds: 500),
                                   curve: Curves.ease);
@@ -301,6 +304,7 @@ Widget build(BuildContext context) {
         ),
       ],
     ),
+    )
   );
 }
 }

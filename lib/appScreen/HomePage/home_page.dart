@@ -10,6 +10,7 @@ import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/person.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/http.dart';
 
 class HomePage extends StatefulWidget {
   List<Map<String, dynamic>> initialPosts;
@@ -108,7 +109,7 @@ Future<List<Map<String, dynamic>>> fetchNewPosts(String user_id,int Pagenumber) 
  try {
     // 发送请求
     final response = await customHttpClient.get(
-      Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/post/stream').replace(
+      Uri.parse('${Http.httphead}/post/stream').replace(
         queryParameters: {
           'user_id': user_id,
           'pageNumber': Pagenumber.toString(), // 确保 pageNumber 为字符串
@@ -337,14 +338,20 @@ Future<List<Map<String, dynamic>>> fetchNewPosts(String user_id,int Pagenumber) 
                               context,
                               MaterialPageRoute(
                                 builder: (context) => DetailPage(
-                                    postId: post['postId'], authorId: post['authorId']),
+                                    postId: post['postId'], authorId: post['autherId']),
                               ),
                             );
                           },
                           child: ClipRRect(
                             borderRadius:
                                 BorderRadius.vertical(top: Radius.circular(10)),
-                            child: Image.network(
+                           child: post['picList'] == null || post['picList'].isEmpty ?
+                            Image.asset(
+                              'assets/images/NetworkError.png',
+                              height: 205,
+                              width: double.infinity,
+                            ) :
+                            Image.network(
                               post['picList'][0]['picUrl'], // 显示第一张图片
                               fit: BoxFit.cover,
                               height: 205,

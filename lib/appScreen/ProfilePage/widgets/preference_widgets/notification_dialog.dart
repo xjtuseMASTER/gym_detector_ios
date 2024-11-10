@@ -45,7 +45,7 @@ class NotificationDialog {
                   // 第二行：是否打开消息通知 2
                   SwitchListTile(
                     title: Text(
-                      'In-app notification',
+                      'out-app notification',
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                     value: _outAppnotificationEnabled,

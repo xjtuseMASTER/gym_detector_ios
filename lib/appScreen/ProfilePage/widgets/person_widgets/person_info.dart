@@ -6,6 +6,7 @@ import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/person.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'package:http/http.dart' as http;
 
@@ -45,7 +46,9 @@ class _PersonInfoState extends State<PersonInfo> {
     return Container(
       padding: EdgeInsets.all(25.w),
       color: Colors.white,
-      child: Column(
+      child: SingleChildScrollView(  // 新增 SingleChildScrollView
+      child:
+      Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           isEditing//根据一个逻辑变量来控制信息是显示状态还是编辑状态
@@ -144,6 +147,7 @@ class _PersonInfoState extends State<PersonInfo> {
       ),
         ],
       ),
+      )
     );
   }
 
@@ -189,7 +193,7 @@ class _PersonInfoState extends State<PersonInfo> {
   try {
     // 发送 POST 请求到后端
     final response = await customHttpClient.post(
-      Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/user/change'),
+      Uri.parse('${Http.httphead}/user/change'),
       body: jsonEncode(updatedInfo),
     );
 

@@ -4,6 +4,7 @@ import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/person.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -53,7 +54,7 @@ class _PersonImageState extends State<PersonImage> {
 
     // 发送请求
     final response = await customHttpClient.get(
-        Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/user/changeprofile_photo').replace(
+        Uri.parse('${Http.httphead}/user/changeprofile_photo').replace(
           queryParameters: {
             'user_id': user_id, // 传入 user_id 参数
             'sucure_url':secureurl 

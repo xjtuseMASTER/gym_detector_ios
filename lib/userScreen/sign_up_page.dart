@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_temp_user.dart';
@@ -72,7 +73,9 @@ class _SingUpScreenState extends State<SingUpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
+      body: SingleChildScrollView(  // 新增 SingleChildScrollView
+      child:
+      Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
@@ -189,6 +192,9 @@ class _SingUpScreenState extends State<SingUpScreen> {
                             ),
                           ),
                         ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'^[a-zA-Z0-9]+$')),
+                        ],
                       ),
                     ),
                     SizedBox(
@@ -234,6 +240,9 @@ class _SingUpScreenState extends State<SingUpScreen> {
                             ),
                           ),
                         ),
+                         inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'^[a-zA-Z0-9]+$')),
+                        ],
                       ),
                     ),
                   ],
@@ -348,6 +357,7 @@ class _SingUpScreenState extends State<SingUpScreen> {
           ),
         ],
       ),
+      )
     );
   }
   bool isEmailValid() {

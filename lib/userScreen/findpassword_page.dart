@@ -6,6 +6,7 @@ import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_temp_user.dart';
 import 'package:gym_detector_ios/password_util.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'package:gym_detector_ios/widgets/otp_form.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -32,9 +33,9 @@ class _FindpasswordPageState extends State<FindpasswordPage> {
 
     // 发送请求
     final response = await customHttpClient.get(
-        Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/auth/email').replace(
+        Uri.parse('${Http.httphead}/auth/email').replace(
           queryParameters: {
-            'user_emial': _emailController.text, // 传入 user_id 参数
+            'email': _emailController.text, // 传入 user_id 参数
           },
         ),
       );
@@ -78,7 +79,9 @@ class _FindpasswordPageState extends State<FindpasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
+      body: SingleChildScrollView(  // 新增 SingleChildScrollView
+      child:
+      Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
@@ -337,6 +340,7 @@ class _FindpasswordPageState extends State<FindpasswordPage> {
           ),
         ],
       ),
+      )
     );
   }
   bool isEmailValid() {

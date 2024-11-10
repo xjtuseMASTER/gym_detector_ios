@@ -1,4 +1,5 @@
 // 提供语言更换窗口
+//已经弃用
 import 'package:flutter/material.dart';
 
 class LanguageDialog {

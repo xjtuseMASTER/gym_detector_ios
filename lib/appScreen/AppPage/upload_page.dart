@@ -95,6 +95,7 @@ class _UploadPage extends State<UploadPage> {
         ),
         chunkSize: 5000000, // 分块大小5MB
       );
+      //把缩略图也传上去
 
       // 删除视频和缩略图文件以释放资源
       _cleanupFiles();
