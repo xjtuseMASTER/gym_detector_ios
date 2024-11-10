@@ -8,6 +8,7 @@ import 'package:gym_detector_ios/appScreen/AppPage/VideoAnalysis_page.dart';
 import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'package:gym_detector_ios/widgets/persentageload_dialog.dart';
 import 'package:image_picker/image_picker.dart';
@@ -15,38 +16,51 @@ import 'package:provider/provider.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:video_player/video_player.dart';
+
 class UploadPage extends StatefulWidget {
   final int index;
   UploadPage({required this.index});
-  _UploadPage createState()=>_UploadPage();
+  _UploadPage createState() => _UploadPage();
 }
 
 class _UploadPage extends State<UploadPage> {
   CloudinaryPublic? cloudinary; // 云端上传器
-  final List<String> names = ['Pull-ups', 'Push up', 'Squat', 'Deadlift', 'Plank', 'bench press', 'Sit up', 'Dumbbell fly'];
+  final List<String> names = [
+    'Pull-ups',
+    'Push up',
+    'Squat',
+    'Deadlift',
+    'Plank',
+    'bench press',
+    'Sit up',
+    'Dumbbell fly'
+  ];
   final _picker = ImagePicker();
   File? _video;
   bool isSelectedVideo = false; // 是否选择了正确的视频
   String? videoThumbnailPath;
-  double _uploadingPercentage = 0.0;
 
   @override
   void initState() {
     super.initState();
-    cloudinary = Provider.of<CloudinaryPublic>(context, listen: false); // 在 initState 中获取实例
+    cloudinary = Provider.of<CloudinaryPublic>(context,
+        listen: false); // 在 initState 中获取实例
   }
 
   // 从相册选择视频上传
   Future<void> _pickVideo() async {
-    final XFile? selectedVideo = await _picker.pickVideo(source: ImageSource.gallery);
-    
+    final XFile? selectedVideo =
+        await _picker.pickVideo(source: ImageSource.gallery);
+
     if (selectedVideo != null) {
-      VideoPlayerController videoController = VideoPlayerController.file(File(selectedVideo.path));
+      VideoPlayerController videoController =
+          VideoPlayerController.file(File(selectedVideo.path));
       await videoController.initialize();
       final videoDuration = videoController.value.duration;
-      
+
       if (videoDuration.inSeconds > 60) {
-        CustomSnackBar.showFailure(context, 'Please select a video under one minute！');
+        CustomSnackBar.showFailure(
+            context, 'Please select a video under one minute！');
         return;
       }
 
@@ -69,77 +83,83 @@ class _UploadPage extends State<UploadPage> {
   }
 
   Future<void> _handleSubmit(BuildContext context, String userId) async {
-  if (_video == null) return;
+    if (_video == null) return;
 
-  try {
-    final videoFile = File(_video!.path);
-    final videoSize = await videoFile.length();
-    final maxSize = 100 * 1024 * 1024; // 100MB 限制
-    
-    if (videoSize > maxSize) {
-      CustomSnackBar.showFailure(context, 'Video size exceeds 100MB limit');
-      return;
-    }
-
-    LoadingDialog.show(context, "Uploading video...");
-    
     try {
-      final res = await cloudinary!.uploadFileInChunks(
-        CloudinaryFile.fromFile(
-          _video!.path,
-          folder: 'hello-folder',
-          context: {
-            'alt': 'Hello',
-            'caption': 'An example upload in chunks',
-          },
-        ),
-        chunkSize: 5000000, // 分块大小5MB
-      );
-      //把缩略图也传上去
+      final videoFile = File(_video!.path);
+      final videoSize = await videoFile.length();
+      final maxSize = 100 * 1024 * 1024; // 100MB 限制
 
-      // 删除视频和缩略图文件以释放资源
-      _cleanupFiles();
-
-      if (res?.secureUrl == null) {
-        throw Exception('Upload failed: No secure URL received');
+      if (videoSize > maxSize) {
+        CustomSnackBar.showFailure(context, 'Video size exceeds 100MB limit');
+        return;
       }
 
-      // 不要隐藏 LoadingDialog 太早
-      if (context.mounted) {
-        final response = await customHttpClient.get(
-          Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/main/upload')
-              .replace(queryParameters: {
-            'user_id': userId,
-            'videourl': res?.secureUrl,
-            'app_id': widget.index.toString(),
-          }),
-        ).timeout(const Duration(seconds: 30));
+      LoadingDialog.show(context, "Uploading video...");
 
-        if (response.statusCode == 200) {
-          LoadingDialog.hide(context);
-          print('视频上传成功');
-          final jsonResponse = json.decode(response.body);
-          final List<Map<String, dynamic>> analysisList = List<Map<String, dynamic>>.from(jsonResponse['data']['analysis_list']);
-          // 直接在当前页面显示 VideoInfoDialog
-          Navigator.push(context, MaterialPageRoute(builder: (context)=> VideoAnalysisPage(analysisList: analysisList)));
+      try {
+        final res = await cloudinary!.uploadFileInChunks(
+          CloudinaryFile.fromFile(
+            _video!.path,
+            folder: 'hello-folder',
+            context: {
+              'alt': 'Hello',
+              'caption': 'An example upload in chunks',
+            },
+          ),
+          chunkSize: 5000000, // 分块大小5MB
+        );
 
-        } else {
-          _handleErrorResponse(context, response.statusCode);
+        // 删除视频和缩略图文件以释放资源
+        _cleanupFiles();
+
+        if (res?.secureUrl == null) {
+          throw Exception('Upload failed: No secure URL received');
         }
+
+        // 不要隐藏 LoadingDialog 太早
+        if (context.mounted) {
+          final response = await customHttpClient
+              .get(
+                Uri.parse('${Http.httphead}/history/upload')
+                    .replace(queryParameters: {
+                  'user_id': userId,
+                  'video_url': res?.secureUrl,
+                  'app_id': widget.index.toString(),
+                }),
+              )
+              .timeout(const Duration(seconds: 30));
+
+          if (response.statusCode == 200) {
+            LoadingDialog.hide(context);
+            final decodedBody = utf8.decode(response.bodyBytes); 
+            final jsonResponse = json.decode(decodedBody);
+            final List<Map<String, dynamic>> analysisList =
+                List<Map<String, dynamic>>.from(
+                    jsonResponse['data']);
+            // 直接在当前页面显示 VideoInfoDialog
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        VideoAnalysisPage(analysisList: analysisList)));
+          } else {
+            _handleErrorResponse(context, response.statusCode);
+          }
+        }
+      } catch (uploadError) {
+        if (context.mounted) {
+          CustomSnackBar.showFailure(
+              context, 'Upload failed: ${uploadError.toString()}');
+        }
+        rethrow;
       }
-    } catch (uploadError) {
+    } catch (e) {
       if (context.mounted) {
-        CustomSnackBar.showFailure(context, 'Upload failed: ${uploadError.toString()}');
+        CustomSnackBar.showFailure(context, 'Network Error: ${e.toString()}');
       }
-      rethrow;
-    }
-    
-  } catch (e) {
-    if (context.mounted) {
-      CustomSnackBar.showFailure(context, 'Network Error: ${e.toString()}');
     }
   }
-}
 
   // 删除视频文件和缩略图以释放存储空间
   void _cleanupFiles() {
@@ -181,7 +201,8 @@ class _UploadPage extends State<UploadPage> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: Color.fromARGB(255, 212, 141, 240)),
+          icon: const Icon(Icons.arrow_back,
+              color: Color.fromARGB(255, 212, 141, 240)),
         ),
         title: Text(
           'Upload Video',
@@ -199,13 +220,15 @@ class _UploadPage extends State<UploadPage> {
           children: [
             Card(
               elevation: 5,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.r)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.r)),
               child: Container(
                 height: 250.h,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15.r),
                   image: DecorationImage(
-                    image: AssetImage('assets/gymplan_images/sample${widget.index + 1}.jpg'),
+                    image: AssetImage(
+                        'assets/gymplan_images/sample${widget.index + 1}.jpg'),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -241,7 +264,8 @@ class _UploadPage extends State<UploadPage> {
                               SizedBox(height: 5.h),
                               Text(
                                 'Please select the video you wanna analyse.',
-                                style: TextStyle(fontSize: 10.sp, color: Colors.grey),
+                                style: TextStyle(
+                                    fontSize: 10.sp, color: Colors.grey),
                               ),
                             ],
                           )
@@ -269,7 +293,8 @@ class _UploadPage extends State<UploadPage> {
             ElevatedButton(
               onPressed: () async {
                 if (!isSelectedVideo) {
-                  CustomSnackBar.showFailure(context, 'Please Select Video First！');
+                  CustomSnackBar.showFailure(
+                      context, 'Please Select Video First！');
                 } else {
                   await _handleSubmit(context, GlobalUser().getUser()!.user_id);
                 }
@@ -277,7 +302,8 @@ class _UploadPage extends State<UploadPage> {
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 15.h),
                 backgroundColor: const Color.fromARGB(255, 188, 134, 232),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.r)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30.r)),
               ),
               child: Text(
                 'Upload',

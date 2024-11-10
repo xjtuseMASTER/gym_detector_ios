@@ -4,6 +4,7 @@ import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widget
 import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 // 从主页进入的用户反馈界面
 class FeedbackPage extends StatefulWidget {
@@ -17,7 +18,7 @@ class _FeedbackPageState extends State<FeedbackPage>{
     LoadingDialog.show(context, 'Submitting...');
 
     // 发送请求
-    final response = await customHttpClient.get(Uri.parse('http://127.0.0.1:4523/m1/5245288-4913049-default/user/feedback').replace(
+    final response = await customHttpClient.get(Uri.parse('${Http.httphead}/user_feedback/feedback').replace(
       queryParameters: {
             'user_id': userId, 
             'content':content

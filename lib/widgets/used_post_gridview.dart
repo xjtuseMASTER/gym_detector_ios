@@ -12,7 +12,7 @@ class UsedPostGridview extends StatefulWidget {
 }
 
 class _UsedPostGridviewState extends State<UsedPostGridview> {
-  int Pagenumber = 20; // 当前展示的视频数
+  int Pagenumber = 1; // 当前展示的视频数
   late Future<List<Map<String, dynamic>>> _futurepost; // 初次加载的数据源
   List<Map<String, dynamic>> _posts = []; // 保存获取到的数据作为真正的数据源
   ScrollController _scrollController = ScrollController();

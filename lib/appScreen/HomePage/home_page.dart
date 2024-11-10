@@ -339,6 +339,7 @@ Future<List<Map<String, dynamic>>> fetchNewPosts(String user_id,int Pagenumber) 
                               MaterialPageRoute(
                                 builder: (context) => DetailPage(
                                     postId: post['postId'], authorId: post['autherId']),
+                                    postId: post['postId'], authorId: post['autherId']),
                               ),
                             );
                           },
