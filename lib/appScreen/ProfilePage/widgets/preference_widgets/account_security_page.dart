@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/person.dart';
-import 'package:gym_detector_ios/password_util.dart';
+import 'package:gym_detector_ios/services/utils/password_util.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import 'package:gym_detector_ios/widgets/http.dart';
 

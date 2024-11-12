@@ -1,9 +1,6 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:gym_detector_ios/main.dart';
-import 'package:gym_detector_ios/module/global_module/global_user.dart';
-import 'package:gym_detector_ios/widgets/http.dart';
+import 'package:gym_detector_ios/services/api/Post/post_api.dart';
 import 'HomePage/home_page.dart';
 import 'AppPage/app_page.dart';
 import 'ProfilePage/profile_page.dart';
@@ -22,7 +19,10 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     // 异步获取首次数据
-    _futurePosts = fetchMorePosts(GlobalUser().getUser()!.user_id);
+    _futurePosts = PostApi.fetchMorePosts({
+            'user_id':'1',
+            'pageNumber':'1'
+          });
   }
 
   void _onItemTapped(int index) {
@@ -66,34 +66,4 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
-
-  // 首次获取帖子数据
-  Future<List<Map<String, dynamic>>> fetchMorePosts(String userId) async {
-   try {
-    // 发送请求
-    final response = await customHttpClient.get(
-        Uri.parse('${Http.httphead}/post/stream').replace(
-          queryParameters: {
-            'user_id':'1',
-            'pageNumber':'1'
-          },
-        ),
-      ).timeout(Duration(seconds: 30));
-
-    if (response.statusCode == 200) {
-      // 请求成功
-      //  提取 data 部分
-    final decodedBody = utf8.decode(response.bodyBytes); 
-    final jsonResponse = json.decode(decodedBody);
-    final List<dynamic> postList = jsonResponse['data'];
-    return postList.map((post) => post as Map<String, dynamic>).toList();
-    } 
-    else{
-      return [];
-    }
-  } catch (e) {
-    return[];
- 
-  }
-}
 }

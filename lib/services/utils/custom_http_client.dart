@@ -16,7 +16,6 @@ class CustomHttpClient extends http.BaseClient {
       'Accept': 'application/json',
       'Connection': 'close',
       'Authorization': 'Bearer ${GlobalUser().getToken()}',
-      'Token': 'dev',
       'token': 'dev',
       'Content-Type': 'application/json',
     });

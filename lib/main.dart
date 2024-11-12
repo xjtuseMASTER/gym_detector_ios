@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gym_detector_ios/custom_http_client.dart';
+import 'package:gym_detector_ios/services/utils/custom_http_client.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/global_module/global_user_preferences.dart';
 import 'package:gym_detector_ios/module/person.dart';
@@ -85,18 +85,15 @@ class MyApp extends StatelessWidget {
   Future<bool> checkLoginStatus(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final String? userId = prefs.getString('user_id');
-    final String? email = prefs.getString('email');
     final int? loginTime = prefs.getInt('login_time');
 
-    if (userId != null && email != null && loginTime != null) {
+    if (userId != null ) {
       // 检查登录时间是否超过7天
       final currentTime = DateTime.now().millisecondsSinceEpoch;
-      if (currentTime - loginTime <= 7 * 24 * 60 * 60 * 1000) {
+      if (currentTime - loginTime! <= 7 * 24 * 60 * 60 * 1000) {
         // 登录未过期，恢复用户数据到全局变量类
         Person? user=await fetchUserFromBackend(context,userId);
-
-        UserPreferences userPreferences=await fetchUserPreferencesFromBackend(email);
-
+        UserPreferences userPreferences=await fetchUserPreferencesFromBackend(userId);
         GlobalUser().setUser(user!);
         GlobalUserPreferences().setUserPreferences(userPreferences);
         return true; // 用户已登录且未过期
@@ -149,10 +146,10 @@ Future<Person?> fetchUserFromBackend(BuildContext context, String user_id) async
   }
 }
 //获取用户偏好设置
-Future<UserPreferences> fetchUserPreferencesFromBackend(String user_email) async{
+Future<UserPreferences> fetchUserPreferencesFromBackend(String user_id) async{
   final response= await customHttpClient.get(Uri.parse('${Http.httphead}/user_preference/getpreferences').replace(
           queryParameters: {
-            'user_emial': user_email, // 传入 user_id 参数
+            'user_id': user_id, // 传入 user_id 参数
           },
         ),);
   if(response.statusCode==200){

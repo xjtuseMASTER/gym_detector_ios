@@ -1,13 +1,11 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
-import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_temp_user.dart';
-import 'package:gym_detector_ios/password_util.dart';
+import 'package:gym_detector_ios/services/api/Auth/signup_api.dart';
+import 'package:gym_detector_ios/services/utils/checkvalid_utils.dart';
+import 'package:gym_detector_ios/services/utils/password_util.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
-import 'package:gym_detector_ios/widgets/http.dart';
-import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'package:gym_detector_ios/widgets/otp_form.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 //找回密码邮箱验证页面
@@ -25,56 +23,6 @@ class _FindpasswordPageState extends State<FindpasswordPage> {
   bool isSendVerifyCode=false;//是否已经发送验证码
   String verify_code='';//验证码
   bool isOutoftime=false;
-
-  Future<void> _submitEmail() async {
-  try {
-    // 显示加载对话框
-    LoadingDialog.show(context, 'Submitting...');
-
-    // 发送请求
-    final response = await customHttpClient.get(
-        Uri.parse('${Http.httphead}/auth/email').replace(
-          queryParameters: {
-            'email': _emailController.text, // 传入 user_id 参数
-          },
-        ),
-      );
-
-    if (response.statusCode == 200) {
-      // 请求成功
-      //  提取 data 部分
-      final jsonResponse=json.decode(response.body);
-      final data = jsonResponse['data'];
-      //暂时存信息
-      GlobalTempUser().clearUser();
-      GlobalTempUser().setEmail(_emailController.text);
-      GlobalTempUser().setAuthcode(data['auth_code']);
-      print(GlobalTempUser().authcode);
-      LoadingDialog.hide(context);
-      CustomSnackBar.showSuccess(context, 'submit Successfully');
-    } else {
-      // 请求失败，根据状态码显示不同的错误提示
-      String errorMessage;
-      if (response.statusCode == 404) {
-        errorMessage = 'Resource not found';
-      } else if (response.statusCode == 500) {
-        errorMessage = 'Server error';
-      } else if (response.statusCode == 403) {
-        errorMessage = 'Permission denied';
-      } else {
-        errorMessage = 'Unknown error';
-      }
-
-      // 隐藏加载对话框，显示错误提示框
-      LoadingDialog.hide(context);
-       CustomSnackBar.showFailure(context,errorMessage);
-    }
-  } catch (e) {
-    // 捕获网络异常，如超时或其他错误
-    LoadingDialog.hide(context);
-     CustomSnackBar.showFailure(context,'Network Error: Cannot fetch data');
-  }
-}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -208,13 +156,19 @@ class _FindpasswordPageState extends State<FindpasswordPage> {
                         }
                         else{
                         //先检查邮箱是否符合规范
-                        if(isEmailValid()){
+                        if(CheckvalidUtils.isEmailValid(_emailController.text)){
                          //显示验证码框
                          setState(() {
                            isSendVerifyCode=true;
                          });
                          //向后端传回邮箱
-                         await _submitEmail();
+                         final data=await SignupApi.submitEmail(context,{
+                            'email': _emailController.text, 
+                          });
+                          //暂时存信息
+                            GlobalTempUser().clearUser();
+                            GlobalTempUser().setEmail(_emailController.text);
+                            GlobalTempUser().setAuthcode(data['auth_code']!);
                         }
                         else{
                            ScaffoldMessenger.of(context).showSnackBar(
@@ -343,12 +297,5 @@ class _FindpasswordPageState extends State<FindpasswordPage> {
       )
     );
   }
-  bool isEmailValid() {
-  String email = _emailController.text; // 获取用户输入，不去除空格
-  String emailPattern =
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'; // 正则表达式不允许空格
-  RegExp regex = RegExp(emailPattern);
 
-  return regex.hasMatch(email); // 如果匹配则返回 true，表示邮箱格式有效
-}
 }
