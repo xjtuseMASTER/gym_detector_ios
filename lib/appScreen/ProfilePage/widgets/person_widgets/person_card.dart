@@ -1,5 +1,6 @@
 //简要个人信息展示类
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/person_widgets/person_details.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
@@ -97,25 +98,27 @@ class _PersonCardState extends State<PersonCard>{
                     if(widget.isOneself){ //只有用户本身才能点击进入详细个人主页
                     _navigateToDetails(context);
                   }},              
-                child:ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
-                  child: 
-                  person!.avatar==null?
-                   Image.asset(
-                    'assets/images/NullPhoto.png', // 用户头像的 URL
-                    width: 80,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(Icons.error); // 如果加载图片失败，显示一个错误图标
-                    },
-                  ):
-                  Image.network(
-                    person!.avatar, // 用户头像的 URL
-                    width: 80,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(Icons.error); // 如果加载图片失败，显示一个错误图标
-                    },
-                  )
-                )
+                child:CircleAvatar(
+                      radius: 40,
+                      backgroundColor: Colors.grey[200],
+                      child: ClipOval(
+                        child: CachedNetworkImage(
+                          imageUrl: person!.avatar,
+                          fit: BoxFit.cover,
+                          width: 80,
+                          height: 80,
+                          // 加载时显示占位图
+                          placeholder: (context, url) => Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          // 加载失败时显示错误图标
+                          errorWidget: (context, url, error) => const Icon(
+                            Icons.error,
+                            size: 40,
+                          ),
+                        ),
+                      ),
+                      )
                 )
               ],
             ),

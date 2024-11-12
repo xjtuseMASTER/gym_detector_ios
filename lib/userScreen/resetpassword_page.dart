@@ -2,12 +2,9 @@
 //找回密码
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_temp_user.dart';
-import 'package:gym_detector_ios/password_util.dart';
-import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
-import 'package:gym_detector_ios/widgets/http.dart';
-import 'package:gym_detector_ios/widgets/loading_dialog.dart';
+import 'package:gym_detector_ios/services/api/Auth/resetpasswd_api.dart';
+import 'package:gym_detector_ios/services/utils/password_util.dart';
 class ResetpasswordPage extends StatefulWidget {
   const ResetpasswordPage({super.key, required this.controller,required this.user_email});
   final PageController controller;
@@ -19,42 +16,6 @@ class ResetpasswordPage extends StatefulWidget {
 class _ResetpasswordPageState extends State<ResetpasswordPage> {
   final TextEditingController _newpasswordController = TextEditingController();
   final TextEditingController _renewpasswordController = TextEditingController();
-  //向后端发邮箱和密码
-  Future<void> _submitResetPassword() async {
-    try {
-      final response = await customHttpClient.put(
-        Uri.parse('${Http.httphead}/user/password'),
-        body: {
-          "email": GlobalTempUser().email,
-           "password": PasswordUtil.hashPassword(GlobalTempUser().password!)
-        }
-            
-      );
-      if (response.statusCode == 200) {
-        //清除暂存信息
-        GlobalTempUser().clearUser();
-       CustomSnackBar.showSuccess(context, "Reset Successfully! Please Login");
-
-
-      } else {
-        String errorMessage;
-        if (response.statusCode == 404) {
-          errorMessage = 'Resource not found';
-        } else if (response.statusCode == 500) {
-          errorMessage = 'Server error';
-        } else if (response.statusCode == 403) {
-          errorMessage = 'Permission denied';
-        } else {
-          errorMessage = 'Unknown error';
-        }
-        LoadingDialog.hide(context);
-        CustomSnackBar.showFailure(context, errorMessage);
-      }
-    } catch (e) {
-      LoadingDialog.hide(context);
-      CustomSnackBar.showFailure(context, 'Network Error: Cannot fetch data');
-    }
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -200,7 +161,10 @@ class _ResetpasswordPageState extends State<ResetpasswordPage> {
                               //向后端传参密码
                               //显示成功弹窗
                               GlobalTempUser().setPassword(_renewpasswordController.text);
-                              await _submitResetPassword();
+                              await ResetpasswdApi.submitResetPassword(context,{
+                                    "email": GlobalTempUser().email!,
+                                    "password": PasswordUtil.hashPassword(GlobalTempUser().password!)
+                                  });
                               //返回登录页面
                               widget.controller.animateToPage(2,
                               duration: const Duration(milliseconds: 500),

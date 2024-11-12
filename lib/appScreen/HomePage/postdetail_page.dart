@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/appScreen/HomePage/others_profile_page.dart';
 import 'package:gym_detector_ios/appScreen/HomePage/widgets/comment_selection.dart';
@@ -28,6 +29,7 @@ class _DetailPageState extends State<DetailPage> {
   double collect_iconScale = 1.3; // 收藏按钮初始缩放比例
   double favorite_iconScale = 1.3; // 点赞按钮初始缩放比例
   int currentImageIndex = 0;
+  String CommentId='';
   // 控制回复的展开/收起
   List<bool> isExpandedList = [];
 
@@ -60,9 +62,9 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   //生成评论对象
-  Map<String, dynamic> generateComment(String content) {
+  Map<String, dynamic> generateComment(String content,String commentId) {
     return {
-      "commentId": "",
+      "commentId": commentId,
       "authorId": GlobalUser().getUser()!.user_id,
       "authorName": GlobalUser().getUser()!.user_name,
       "authorAvatar": GlobalUser().getUser()!.avatar,
@@ -73,9 +75,9 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   //生成回复对象
-  Map<String, dynamic> generateReply(String content, String replyTo) {
+  Map<String, dynamic> generateReply(String content, String replyTo,String CommentId) {
     return {
-      "commentId": "",
+      "commentId": CommentId,
       "authorId": GlobalUser().getUser()!.user_id,
       "authorName": GlobalUser().getUser()!.user_name,
       "authorAvatar": GlobalUser().getUser()!.avatar,
@@ -245,6 +247,9 @@ class _DetailPageState extends State<DetailPage> {
       );
 
       if (response.statusCode == 200) {
+        final decodedBody = utf8.decode(response.bodyBytes); 
+        final jsonResponse=json.decode(decodedBody);
+        CommentId=jsonResponse['data']['comment_id'];
         CustomSnackBar.showSuccess(context, "reply successfully!");
       } else {
         // 根据不同状态码显示错误信息
@@ -281,6 +286,9 @@ class _DetailPageState extends State<DetailPage> {
         body: jsonEncode(body),
       );
       if (response.statusCode == 200) {
+        final decodedBody = utf8.decode(response.bodyBytes); 
+        final jsonResponse=json.decode(decodedBody);
+        CommentId=jsonResponse['data']['comment_id'];
         CustomSnackBar.showSuccess(context, "reply successfully!");
       } else {
         // 根据不同状态码显示错误信息
@@ -348,11 +356,11 @@ class _DetailPageState extends State<DetailPage> {
                                 builder: (context) => OthersProfilePage(
                                     user_id: post['authorId'])));
                       },
-                      child: CircleAvatar(
+                      child:CircleAvatar(
                         backgroundImage: post['authorAvatar'] == null
                             ? const AssetImage('assets/images/NullPhoto.png')
                                 as ImageProvider
-                            : NetworkImage(post['authorAvatar'])
+                            : CachedNetworkImageProvider(post['authorAvatar'])
                                 as ImageProvider, // 帖子作者头像
                         radius: 20,
                       ),
@@ -379,15 +387,21 @@ class _DetailPageState extends State<DetailPage> {
                         PageView.builder(
                           itemCount: post['picList'].length,
                           itemBuilder: (context, index) {
-                            return Image.network(
-                              post['picList'][index]['picUrl'],
-                              fit: BoxFit.cover,
+                            return CachedNetworkImage(
+                            imageUrl: post['picList'][index]['picUrl'],
+                            fit: BoxFit.cover,
+                            height: 205,
+                            width: double.infinity,
+                            // 加载时显示加载动画
+                            placeholder: (context, url) => Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                            // 加载失败时显示错误图片
+                            errorWidget: (context, url, error) => Image.asset(
+                              'assets/images/NetworkError.png',
                               height: 205,
                               width: double.infinity,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Image.asset(
-                                    'assets/images/NetworkError.png');
-                              },
+                            ),
                             );
                           },
                           onPageChanged: (index) {
@@ -592,8 +606,7 @@ class _DetailPageState extends State<DetailPage> {
                             ),
                           ),
                           //平论区
-                          SingleChildScrollView(
-                            child: Column(
+                           Column(
                               children: [
                                 ListView.builder(
                                   shrinkWrap: true,
@@ -648,6 +661,8 @@ class _DetailPageState extends State<DetailPage> {
                                                     fontSize: 16,
                                                     fontWeight:
                                                         FontWeight.w600),
+                                                        overflow: TextOverflow.ellipsis,
+                                                        maxLines: 2,
                                               ),
                                               Row(
                                                 mainAxisAlignment:
@@ -690,13 +705,15 @@ class _DetailPageState extends State<DetailPage> {
                                                       child: Text(isExpandedList[
                                                               index]
                                                           ? 'Pick up'
-                                                          : 'Expand ${replies.length} more'),
+                                                          : 'Expand ${replies.length} ',
+                                                          overflow: TextOverflow.ellipsis,
+                                                          ),
                                                     ),
                                                 ],
                                               ),
                                             ],
                                           ),
-                                          trailing: comment['time'] == "Just now" ? Text("Just now"): Text(comment['time'].substring(0,16)),
+                                          trailing: comment['time'] == "Just now" ? Text("Just now"): Text(comment['time'].substring(0,16),overflow: TextOverflow.ellipsis,),
                                         ),
                                         // 展开评论表
                                         if (isExpandedList[index])
@@ -749,7 +766,7 @@ class _DetailPageState extends State<DetailPage> {
                                                         children: [
                                                           Text(
                                                             reply['authorName'],
-                                                            style: TextStyle(
+                                                            style: const TextStyle(
                                                                 fontSize: 16,
                                                                 fontWeight:
                                                                     FontWeight
@@ -757,12 +774,8 @@ class _DetailPageState extends State<DetailPage> {
                                                                 color: Colors
                                                                     .black),
                                                           ),
-                                                          Text(
-                                                            reply['replyTo']
-                                                                        .length >
-                                                                    5
-                                                                ? 'reply to: ${reply['replyTo'].substring(0, 5)}...'
-                                                                : 'reply to: ${reply['replyTo']}',
+                                                          const Text(
+                                                            'To:',
                                                             style: TextStyle(
                                                                 fontSize: 13,
                                                                 fontWeight:
@@ -770,6 +783,19 @@ class _DetailPageState extends State<DetailPage> {
                                                                         .w500,
                                                                 color: Colors
                                                                     .grey),
+
+                                                          ),
+                                                          Text(
+                                                            reply['replyTo'],
+                                                            style: const TextStyle(
+                                                                fontSize: 13,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                                color: Colors
+                                                                    .grey),
+                                                                    overflow: TextOverflow.ellipsis,
+                                                                    maxLines: 2,
                                                           ),
                                                         ],
                                                       ),
@@ -779,11 +805,14 @@ class _DetailPageState extends State<DetailPage> {
                                                                 .start,
                                                         children: [
                                                           Text(reply['content'],
-                                                              style: TextStyle(
+                                                              style: const TextStyle(
                                                                   fontSize: 14,
                                                                   fontWeight:
                                                                       FontWeight
-                                                                          .w600)),
+                                                                          .w600),
+                                                                        overflow: TextOverflow.ellipsis, 
+                                                                        maxLines: 2, 
+                                                                          ),
                                                           Row(
                                                             mainAxisAlignment:
                                                                 MainAxisAlignment
@@ -844,7 +873,7 @@ class _DetailPageState extends State<DetailPage> {
                                 ),
                               ],
                             ),
-                          )
+                          
                         ],
                       ),
                     ),
@@ -888,25 +917,25 @@ class _DetailPageState extends State<DetailPage> {
                       if (replyController.text.isNotEmpty) {
                         body['content'] = replyController.text;
                         if (isComment) {
-                          setState(() {
-                            commentlist.insert(
-                                0, generateComment(replyController.text));
-                            isExpandedList.add(false);
-                          });
                           replyToPost(body).then((_) {
                             if (mounted) {
                               Navigator.pop(context);
                             }
                           });
-                        } else {
                           setState(() {
-                            commentlist[index]['replies'].insert(0,
-                                generateReply(replyController.text, replyTo));
+                            commentlist.insert(
+                                0, generateComment(replyController.text,CommentId));
+                            isExpandedList.add(false);
                           });
+                        } else {
                           replyToComment(body).then((_) {
                             if (mounted) {
                               Navigator.pop(context);
                             }
+                          });
+                          setState(() {
+                            commentlist[index]['replies'].insert(0,
+                                generateReply(replyController.text, replyTo,CommentId));
                           });
                         }
                         Navigator.of(context).pop(); // 确保使用的是弹窗的 context

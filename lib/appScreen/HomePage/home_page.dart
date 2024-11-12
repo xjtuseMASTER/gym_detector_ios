@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/appScreen/HomePage/create_post_page.dart';
 import 'package:gym_detector_ios/appScreen/HomePage/feedback_page.dart';
@@ -120,8 +121,9 @@ Future<List<Map<String, dynamic>>> fetchNewPosts(String user_id,int Pagenumber) 
     if (response.statusCode == 200) {
       // 请求成功
       // 提取 data 部分
-      final jsonResponse = json.decode(response.body);
-      final List<dynamic> postList = jsonResponse['data']['postList'];
+      final decodedBody = utf8.decode(response.bodyBytes); 
+      final jsonResponse = json.decode(decodedBody);
+      final List<dynamic> postList = jsonResponse['data'];
       return postList.map((post) => post as Map<String, dynamic>).toList();
     } else {
       // 请求失败，根据状态码显示不同的错误提示
@@ -343,24 +345,30 @@ Future<List<Map<String, dynamic>>> fetchNewPosts(String user_id,int Pagenumber) 
                             );
                           },
                           child: ClipRRect(
-                            borderRadius:
-                                BorderRadius.vertical(top: Radius.circular(10)),
-                           child: post['picList'] == null || post['picList'].isEmpty ?
-                            Image.asset(
-                              'assets/images/NetworkError.png',
-                              height: 205,
-                              width: double.infinity,
-                            ) :
-                            Image.network(
-                              post['picList'][0]['picUrl'], // 显示第一张图片
-                              fit: BoxFit.cover,
-                              height: 205,
-                              width: double.infinity,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Image.asset('assets/images/NetworkError.png');
-                              },
-                            ),
-                          ),
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                            child: post['picList'] == null || post['picList'].isEmpty ?
+                              Image.asset(
+                                'assets/images/NetworkError.png',
+                                height: 205,
+                                width: double.infinity,
+                              ) :
+                              CachedNetworkImage(
+                                imageUrl: post['picList'][0]['picUrl'],
+                                height: 205,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                // 加载时显示loading
+                                placeholder: (context, url) => Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                                // 加载失败时显示错误图片
+                                errorWidget: (context, url, error) => Image.asset(
+                                  'assets/images/NetworkError.png',
+                                  height: 205,
+                                  width: double.infinity,
+                                ),
+                              ),
+                          )
                         ),
                         Padding(
                           padding: const EdgeInsets.all(6.0),

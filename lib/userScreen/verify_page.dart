@@ -1,14 +1,12 @@
-import 'dart:convert';
+
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_temp_user.dart';
-import 'package:gym_detector_ios/password_util.dart';
+import 'package:gym_detector_ios/services/api/Auth/signup_api.dart';
+import 'package:gym_detector_ios/services/utils/password_util.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
-import 'package:gym_detector_ios/widgets/http.dart';
-import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import '../widgets/otp_form.dart';
 
 class VerifyScreen extends StatefulWidget {
@@ -22,80 +20,6 @@ class _VerifyScreenState extends State<VerifyScreen> {
   String? varifyCode;
   bool isOverTime = false;
   DateTime endTime = DateTime.now().add(const Duration(minutes: 1));
-
-  Future<void> _submitEmail() async {
-    try {
-      final response = await customHttpClient.get(
-        Uri.parse('${Http.httphead}/auth/email')
-            .replace(
-          queryParameters: {
-            'email': GlobalTempUser().email,
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
-        final data = jsonResponse['data'];
-        GlobalTempUser().setAuthcode(data['auth_code']);
-        print("11111");
-        print(GlobalTempUser().authcode);
-      } else {
-        String errorMessage;
-        if (response.statusCode == 404) {
-          errorMessage = 'Resource not found';
-        } else if (response.statusCode == 500) {
-          errorMessage = 'Server error';
-        } else if (response.statusCode == 403) {
-          errorMessage = 'Permission denied';
-        } else {
-          errorMessage = 'Unknown error';
-        }
-        LoadingDialog.hide(context);
-        CustomSnackBar.showFailure(context, errorMessage);
-      }
-    } catch (e) {
-      LoadingDialog.hide(context);
-      CustomSnackBar.showFailure(context, 'Network Error: Cannot fetch data');
-    }
-  }
-  //向后端发邮箱和密码
-  Future<void> _submitRegister() async {
-    try {
-      final response = await customHttpClient.post(
-        Uri.parse('${Http.httphead}/auth/register'),
-        body: {
-          "email": GlobalTempUser().email,
-          "password": PasswordUtil.hashPassword(GlobalTempUser().password!)
-        }
-            
-      );
-      if (response.statusCode == 200) {
-        //清除暂存信息
-      GlobalTempUser().clearUser();
-      CustomSnackBar.showSuccess(context, "SignUp Successfully! Please Login");
-
-
-      } else {
-        String errorMessage;
-        if (response.statusCode == 404) {
-          errorMessage = 'Resource not found';
-        } else if (response.statusCode == 500) {
-          errorMessage = 'Server error';
-        } else if (response.statusCode == 403) {
-          errorMessage = 'Permission denied';
-        } else {
-          errorMessage = 'Unknown error';
-        }
-        LoadingDialog.hide(context);
-        CustomSnackBar.showFailure(context, errorMessage);
-      }
-    } catch (e) {
-      LoadingDialog.hide(context);
-      CustomSnackBar.showFailure(context, 'Network Error: Cannot fetch data');
-    }
-  }
-
   void _resetCountdown() {
     setState(() {
       endTime = DateTime.now().add(const Duration(minutes: 1));
@@ -173,12 +97,18 @@ Widget build(BuildContext context) {
                               endTime = DateTime.now().add(const Duration(minutes: 1)); // 重置计时
                               isOverTime = false;
                             });
-                            await _submitEmail();
+
+                            final data=await SignupApi.submitEmail(context, {
+                                'email':GlobalTempUser().email!
+                              });
+                              GlobalTempUser().setAuthcode(data['auth_code']!);
                           } else {
                             if (GlobalTempUser().authcode == varifyCode!) {
-                              LoadingDialog.show(context, 'Rigisting....');
-                              await _submitRegister();
-                              LoadingDialog.hide(context);
+
+                              await SignupApi.submitRegister(context,{
+                              "email": GlobalTempUser().email!,
+                              "password": PasswordUtil.hashPassword(GlobalTempUser().password!)
+                            });
                               widget.controller.animateToPage(2,
                                   duration: const Duration(milliseconds: 500),
                                   curve: Curves.ease);
