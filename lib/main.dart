@@ -28,6 +28,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 // 初始化全局的 CustomHttpClient 实例
 final CustomHttpClient customHttpClient = CustomHttpClient();
 void main() {
+  final PageController _pageController = PageController();
   final cloudinary = CloudinaryPublic('dqfncgtzx', 'FiformAi', cache: false);
 
   runApp(
@@ -38,13 +39,14 @@ void main() {
         Provider<CloudinaryPublic>.value(
             value: cloudinary), // 注入 CloudinaryPublic 实例
       ],
-      child: const MyApp(),
+      child: MyApp(controller: _pageController),
     ),
   );
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({Key? key, required this.controller}) : super(key: key);
+  final PageController controller;
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -63,14 +65,12 @@ class _MyAppState extends State<MyApp> {
     //     RouterConstants.PATH_MINE_INFO_PAGE, (context) => UserInfoPage());
   }
 
-
   @override
   void initState() {
     super.initState();
     _initPlugins();
     GestureBinding.instance.resamplingEnabled = true;
   }
-
 
   @override
   Widget build(BuildContext context) {

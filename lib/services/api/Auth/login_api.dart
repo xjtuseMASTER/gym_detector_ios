@@ -110,18 +110,30 @@ class LoginApi {
   }
 
   /// init depends package for app
-  static void imInit(String account, String token) async {
+  static Future<void> imInit(String account, String token) async {
     var options = await NIMSDKOptionsConfig.getSDKOptions(IMDemoConfig.AppKey);
 
-    IMKitClient.init(IMDemoConfig.AppKey, options).then((success) {
-      if (success) {
-        IMKitClient.loginIM(NIMLoginInfo(account: account, token: token))
-        .then((value) {});
-      } else {
-        // Alog.d(content: "im init failed");
-      }
-    }).catchError((e) {
-      // Alog.d(content: 'im init failed with error ${e.toString()}');
-    });
+    var success = await IMKitClient.init(IMDemoConfig.AppKey, options);
+
+     if (success) {
+      print('IMKitClient initialized successfully.');
+      print('Login successful');
+    } else {
+      print('IMKitClient initialization failed.');
+      throw Exception('IM initialization failed.');
+    }
+
+    // .then((success) {
+    //   if (success) {
+    //     IMKitClient.loginIM(NIMLoginInfo(account: account, token: token))
+    //     .then((value) {
+    //       //返回成功信息？
+    //     });
+    //   } else {
+    //     throw Exception('IM initialization failed.');
+    //   }
+    // }).catchError((e) {
+    //    throw Exception('IM initialization failed with error: ${e.toString()}');
+    // });
   }
 }
