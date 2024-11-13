@@ -18,6 +18,10 @@ class HandleHttpError {
         break;
       case 100:
         errorMessage = 'Network error';
+      case 99:
+        errorMessage = 'IM login failed';
+      case 98:
+        errorMessage = 'IM client init failed';
       default:
         errorMessage = 'Unknown error';
     }
