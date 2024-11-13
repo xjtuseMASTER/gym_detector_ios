@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import 'package:gym_detector_ios/appScreen/ChatPage/chatList_page.dart';
 import 'package:gym_detector_ios/services/api/Post/post_api.dart';
 import 'HomePage/home_page.dart';
 import 'AppPage/app_page.dart';
@@ -49,6 +49,7 @@ class _MainScreenState extends State<MainScreen> {
             final List<Widget> _pages = [
               HomePage(initialPosts: posts),
               AppPage(),
+              ChatlistPage(),
               ProfilePage(selected: 0),
             ];
             return _pages[_selectedIndex];
@@ -58,9 +59,12 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
+        selectedItemColor: const Color.fromARGB(255, 169, 124, 232), // 设置选中的图标颜色
+        unselectedItemColor: Colors.grey, // 设置未选中的图标颜色
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.apps), label: 'Apps'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat),label: 'Chat'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
