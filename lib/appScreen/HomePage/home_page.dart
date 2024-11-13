@@ -10,6 +10,7 @@ import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widget
 import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/person.dart';
+import 'package:gym_detector_ios/services/api/Post/post_api.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import 'package:gym_detector_ios/widgets/http.dart';
 
@@ -25,6 +26,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
   ScrollController _scrollController = ScrollController();
   bool _isLoadingMore = false;//是否加载
   bool _isRefreshing = false;//是否刷新
+  bool _isFirstLoad = true;
+
   @override
   void initState() {
     super.initState();
@@ -50,12 +53,16 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
     }
   }
    // 下拉刷新功能
-  Future<void> _refreshPosts() async {
+  Future<void> _refreshPosts(BuildContext context) async {
     setState(() {
       _isRefreshing = true;
     });
     PageNumber++;
-    List<Map<String, dynamic>> newPosts = await fetchNewPosts(user.user_id,PageNumber); // 获取最新的数据
+    final queryParameters= {
+          'user_id': GlobalUser().user!.user_id,
+          'pageNumber': PageNumber.toString(), // 确保 pageNumber 为字符串
+        };
+    List<Map<String, dynamic>> newPosts = await PostApi.fetchNewPosts(context,queryParameters); // 获取更多的数据
     setState(() {
       if(newPosts.isEmpty){
         _posts=_posts;//不刷新
@@ -77,13 +84,17 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
   }
 
   // 上拉加载更多功能
-  Future<void> _loadMorePosts() async {
+  Future<void> _loadMorePosts(BuildContext context) async {
     if (_isLoadingMore) return; // 防止重复请求
     setState(() {
       _isLoadingMore = true;
     });
     PageNumber++;
-    List<Map<String, dynamic>> morePosts = await fetchNewPosts(user.user_id,PageNumber); // 获取更多的数据
+    final queryParameters= {
+          'user_id': GlobalUser().user!.user_id,
+          'pageNumber': PageNumber.toString(), // 确保 pageNumber 为字符串
+        };
+    List<Map<String, dynamic>> morePosts = await PostApi.fetchNewPosts(context,queryParameters); // 获取更多的数据
     setState(() {
       // 遍历新的帖子列表
       for (var newPost in morePosts) {
@@ -101,57 +112,10 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
   // 监听滚动事件，判断是否需要加载更多
   void _onScroll() {
     if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !_isLoadingMore) {
-      _loadMorePosts(); // 当滚动到底部时加载更多
+      _loadMorePosts(context); // 当滚动到底部时加载更多
     }
   }  
 
-  //从后端拿新数据
-Future<List<Map<String, dynamic>>> fetchNewPosts(String user_id,int Pagenumber) async {
- try {
-    // 发送请求
-    final response = await customHttpClient.get(
-      Uri.parse('${Http.httphead}/post/stream').replace(
-        queryParameters: {
-          'user_id': user_id,
-          'pageNumber': Pagenumber.toString(), // 确保 pageNumber 为字符串
-        },
-      ),
-    );
-
-    if (response.statusCode == 200) {
-      // 请求成功
-      // 提取 data 部分
-      final decodedBody = utf8.decode(response.bodyBytes); 
-      final jsonResponse = json.decode(decodedBody);
-      final List<dynamic> postList = jsonResponse['data'];
-      return postList.map((post) => post as Map<String, dynamic>).toList();
-    } else {
-      // 请求失败，根据状态码显示不同的错误提示
-      String errorMessage;
-      if (response.statusCode == 404) {
-        errorMessage = 'Resource not found';
-      } else if (response.statusCode == 500) {
-        errorMessage = 'Server error';
-      } else if (response.statusCode == 403) {
-        errorMessage = 'Permission denied';
-      } else {
-        errorMessage = 'Unknown error';
-      }
-
-      //显示错误提示框
-      CustomSnackBar.showFailure(context, errorMessage);
-
-      // 返回一个空列表
-      return [];
-    }
-  } catch (e) {
-    // 捕获网络异常，如超时或其他错误
-    CustomSnackBar.showFailure(context, 'Network Error: Cannot fetch data');
-    // 返回一个空列表
-    return [];
-  }
-
-}
    @override
   Widget build(BuildContext context) {
     print(widget.initialPosts.length);
@@ -309,7 +273,9 @@ Future<List<Map<String, dynamic>>> fetchNewPosts(String user_id,int Pagenumber) 
           ? Center(child: CircularProgressIndicator())
           // : SquarePostView(initialPosts: widget.initialPosts, person: user,fetchMorePosts: fetchMorePosts,fetchNewPosts: fetchNewPosts,),//瀑布流展示widget
           :RefreshIndicator(
-              onRefresh: _refreshPosts, // 下拉刷新
+              onRefresh: () async {
+                await _refreshPosts(context);
+                  }, // 下拉刷新
               child: GridView.builder(
                 controller: _scrollController, // 绑定滚动控制器
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -353,21 +319,35 @@ Future<List<Map<String, dynamic>>> fetchNewPosts(String user_id,int Pagenumber) 
                                 width: double.infinity,
                               ) :
                               CachedNetworkImage(
-                                imageUrl: post['picList'][0]['picUrl'],
+                            imageUrl: post['picList'][0]['picUrl'],
+                            height: 205,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => _isFirstLoad
+                                ? Center(child: CircularProgressIndicator())
+                                : SizedBox(), // 不显示加载器
+                            imageBuilder: (context, imageProvider) {
+                              // 确保在构建完成后调用 setState
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (_isFirstLoad) {
+                                  setState(() {
+                                    _isFirstLoad = false;
+                                  });
+                                }
+                              });
+                              return Image(
+                                image: imageProvider,
+                                fit: BoxFit.cover,
                                 height: 205,
                                 width: double.infinity,
-                                fit: BoxFit.cover,
-                                // 加载时显示loading
-                                placeholder: (context, url) => Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                                // 加载失败时显示错误图片
-                                errorWidget: (context, url, error) => Image.asset(
-                                  'assets/images/NetworkError.png',
-                                  height: 205,
-                                  width: double.infinity,
-                                ),
-                              ),
+                              );
+                            },
+                            errorWidget: (context, url, error) => Image.asset(
+                              'assets/images/NetworkError.png',
+                              height: 205,
+                              width: double.infinity,
+                            ),
+                          )
                           )
                         ),
                         Padding(

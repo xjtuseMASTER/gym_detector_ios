@@ -1,10 +1,16 @@
+import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/appScreen/HomePage/others_profile_page.dart';
-import 'package:gym_detector_ios/appScreen/ProfilePage/profile_page.dart';
+import 'package:gym_detector_ios/appScreen/HomePage/widgets/comment_selection.dart';
+import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
+import 'package:gym_detector_ios/module/person.dart';
 import 'package:gym_detector_ios/services/api/Post/post_api.dart';
+import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/http.dart';
+import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 
 class DetailPage extends StatefulWidget {
   final String postId; //帖子Id
@@ -25,7 +31,6 @@ class _DetailPageState extends State<DetailPage> {
   double favorite_iconScale = 1.3; // 点赞按钮初始缩放比例
   int currentImageIndex = 0;
   String CommentId='';
-  bool _isFirstLoad = true;
   // 控制回复的展开/收起
   List<bool> isExpandedList = [];
 
@@ -113,118 +118,99 @@ class _DetailPageState extends State<DetailPage> {
         future: _combinedFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
+            // 数据加载中时显示加载指示器
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
+            // 错误处理
             return Center(child: Text('Failed to load post data'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            // 如果数据为空
             return Center(child: Text('No data found'));
           } else {
-            final combinedData = snapshot.data!;
-            final post = combinedData['post'];
-            final commentlist = combinedData['commentList'];
+            // 数据加载完成后显示内容
+            final combinedFuture = snapshot.data!;
+            final post = combinedFuture['post'];
+            commentlist = combinedFuture['commentList'];
 
             return Scaffold(
               appBar: AppBar(
-                backgroundColor: const Color.fromARGB(255, 220, 179, 235),
-                elevation: 0,
+                backgroundColor:
+                    const Color.fromARGB(255, 220, 179, 235), // 白色背景
+                elevation: 0, // 取消阴影
                 leading: IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.black),
+                  icon: Icon(Icons.arrow_back, color: Colors.black), // 返回按钮
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.pop(context); // 返回首页
                   },
                 ),
                 title: Row(
                   children: [
                     GestureDetector(
                       onTap: () {
-                        post['authorId']==GlobalUser().user!.user_id?
-                         Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ProfilePage(selected: 0),
-                          ),
-                        ):
+                        // 导航到作者主页
                         Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => OthersProfilePage(
-                              user_id: post['authorId'],
-                            ),
-                          ),
-                        );
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => OthersProfilePage(
+                                    user_id: post['authorId'])));
                       },
-                      child: CircleAvatar(
+                      child:CircleAvatar(
                         backgroundImage: post['authorAvatar'] == null
                             ? const AssetImage('assets/images/NullPhoto.png')
                                 as ImageProvider
                             : CachedNetworkImageProvider(post['authorAvatar'])
-                                as ImageProvider,
+                                as ImageProvider, // 帖子作者头像
                         radius: 20,
                       ),
                     ),
                     SizedBox(width: 10),
-                    Text(
-                      post['authorName'],
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    Text(post['authorName'],
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w600,
+                        )), // 帖子作者呢称
                     Spacer(),
                   ],
                 ),
               ),
-              body: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: 450,
-                      child: Stack(
-                        children: [
-                          PageView.builder(
-                            itemCount: post['picList'].length,
-                            itemBuilder: (context, index) {
-                            return 
-                            CachedNetworkImage(
+              body: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 帖子图片组，使用PageView显示多张图片
+                  Expanded(
+                    flex: 6, // 占据屏幕的上部分
+                    child: Stack(
+                      children: [
+                        PageView.builder(
+                          itemCount: post['picList'].length,
+                          itemBuilder: (context, index) {
+                            return CachedNetworkImage(
                             imageUrl: post['picList'][index]['picUrl'],
+                            fit: BoxFit.cover,
                             height: 205,
                             width: double.infinity,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => _isFirstLoad
-                                ? Center(child: CircularProgressIndicator())
-                                : SizedBox(), // 不显示加载器
-                            imageBuilder: (context, imageProvider) {
-                              // 确保在构建完成后调用 setState
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                if (_isFirstLoad) {
-                                  setState(() {
-                                    _isFirstLoad = false;
-                                  });
-                                }
-                              });
-                              return Image(
-                                image: imageProvider,
-                                fit: BoxFit.cover,
-                                height: 205,
-                                width: double.infinity,
-                              );
-                            },
+                            // 加载时显示加载动画
+                            placeholder: (context, url) => Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                            // 加载失败时显示错误图片
                             errorWidget: (context, url, error) => Image.asset(
                               'assets/images/NetworkError.png',
                               height: 205,
                               width: double.infinity,
                             ),
-                          );
-                            },
-                            onPageChanged: (index) {
+                            );
+                          },
+                          onPageChanged: (index) {
                             setState(() {
                               currentImageIndex = index;
                             });
                             // 切换图片时处理小红点显示
                           },
-                          ),
-                          Positioned(
+                        ),
+                        // tu pian
+                        Positioned(
                           bottom: 10,
                           left: MediaQuery.of(context).size.width / 2 - 50,
                           child: Row(
@@ -244,25 +230,35 @@ class _DetailPageState extends State<DetailPage> {
                             }),
                           ),
                         ),
-                        ],
-                      ),
+                      ],
                     ),
                   ),
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+
+                  // 包裹帖子标题、配文和评论区为可滑动区域
+                  Expanded(
+                    flex: 4,
+                    child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            post['title'],
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          // 帖子标题和配文
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(post['title'],
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold)),
+                                SizedBox(height: 10),
+                                Text(post['content'],
+                                    style: TextStyle(fontSize: 16)),
+                              ],
+                            ),
                           ),
-                          SizedBox(height: 10),
-                          Text(
-                            post['content'],
-                            style: TextStyle(fontSize: 16),
-                          ),
+                          SizedBox(width: 5),
+                          //点赞评论收藏数显示
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -396,17 +392,22 @@ class _DetailPageState extends State<DetailPage> {
                               ),
                             ],
                           ),
-                          const Divider(),
-                          Text(
+
+                          const Divider(
+                            color: Color.fromARGB(255, 234, 207, 246),
+                            thickness: 1.0,
+                          ),
+                          const Text(
                             'Comments',
                             style: TextStyle(
                               color: Color(0xFF755DC1),
                               fontSize: 15,
+                              fontFamily: 'Poppins',
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          // Comments section
-                         Column(
+                          //平论区
+                           Column(
                               children: [
                                 ListView.builder(
                                   shrinkWrap: true,
@@ -433,9 +434,9 @@ class _DetailPageState extends State<DetailPage> {
                                               );
                                             },
                                             child: CircleAvatar(
-                                              radius: 25,
                                               backgroundImage: comment[
-                                                          'authorAvatar'].isEmpty
+                                                          'authorAvatar'] ==
+                                                      ''
                                                   ? const AssetImage(
                                                           'assets/images/NullPhoto.png')
                                                       as ImageProvider
@@ -673,10 +674,11 @@ class _DetailPageState extends State<DetailPage> {
                                 ),
                               ],
                             ),
+                          
                         ],
                       ),
                     ),
-                  ),
+                  )
                 ],
               ),
             );
@@ -685,7 +687,6 @@ class _DetailPageState extends State<DetailPage> {
       ),
     );
   }
-
 
   void _showReplyInput(BuildContext context, Map<String, dynamic> body,
       bool isComment, int index, String replyTo) {
