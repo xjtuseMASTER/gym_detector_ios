@@ -1,6 +1,7 @@
 // 与登陆相关的api 管理
 
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/config.dart';
 import 'package:gym_detector_ios/main.dart';
@@ -9,7 +10,8 @@ import 'package:gym_detector_ios/module/global_module/global_user_preferences.da
 import 'package:gym_detector_ios/module/person.dart';
 import 'package:gym_detector_ios/module/user_preferences.dart';
 import 'package:gym_detector_ios/services/utils/decode_response_data.dart';
-import 'package:gym_detector_ios/services/utils/handle_http_error.dart';
+import 'package:gym_detector_ios/services/utils/handle.dart';
+
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
@@ -31,7 +33,7 @@ class LoginApi {
   }
 
   // 登录逻辑获取用户信息
-  static Future<void> fetchUserFromBackend(
+  static Future<HandleError> fetchUserFromBackend(
       BuildContext context, Map<String, String> args) async {
     try {
       // 显示加载对话框
@@ -66,21 +68,21 @@ class LoginApi {
         //登陆云信账号
         imInit(person.user_id.substring(0,20), person.password);
         //获取用户偏好设置信息
-        UserPreferences userPreferences =
-            await fetchUserPreferencesFromBackend({
+        UserPreferences userPreferences = await fetchUserPreferencesFromBackend({
           'user_id': GlobalUser().user!.user_id, // 传入 user_id 参数
         });
         GlobalUserPreferences().setUserPreferences(userPreferences);
         LoadingDialog.hide(context);
         CustomSnackBar.showSuccess(context, 'Login Successfully');
+        return HandleError(code: response.statusCode, isError: false, data: {});
       } else {
         LoadingDialog.hide(context);
-        HandleHttpError.handleErrorResponse(context, response.statusCode);
+        return HandleError(code: response.statusCode, isError: true, data: {});
       }
     } catch (e) {
       // 捕获网络异常，如超时或其他错误
       LoadingDialog.hide(context);
-      CustomSnackBar.showFailure(context, 'Network Error: Cannot fetch data');
+      return HandleError(code: 100, isError: true, data: {});
     }
   }
 

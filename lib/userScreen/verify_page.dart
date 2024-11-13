@@ -5,6 +5,7 @@ import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gym_detector_ios/module/global_module/global_temp_user.dart';
 import 'package:gym_detector_ios/services/api/Auth/signup_api.dart';
+import 'package:gym_detector_ios/services/utils/handle_http_error.dart';
 import 'package:gym_detector_ios/services/utils/password_util.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import '../widgets/otp_form.dart';
@@ -97,21 +98,30 @@ Widget build(BuildContext context) {
                               endTime = DateTime.now().add(const Duration(minutes: 1)); // 重置计时
                               isOverTime = false;
                             });
-
-                            final data=await SignupApi.submitEmail(context, {
-                                'email':GlobalTempUser().email!
+                            final handle=await SignupApi.submitEmail(context, {
+                                'email': GlobalTempUser().email!
                               });
+                              if(handle.isError){
+                                HandleHttpError.handleErrorResponse(context, handle.code);
+                              }else{
+                              final data = handle.data;
                               GlobalTempUser().setAuthcode(data['auth_code']!);
+                              }
                           } else {
                             if (GlobalTempUser().authcode == varifyCode!) {
 
-                              await SignupApi.submitRegister(context,{
+                              final handle=await SignupApi.submitRegister(context,{
                               "email": GlobalTempUser().email!,
                               "password": PasswordUtil.hashPassword(GlobalTempUser().password!)
                             });
-                              widget.controller.animateToPage(2,
+                              if(handle.isError){
+                                HandleHttpError.handleErrorResponse(context, handle.code);
+                              }else{
+                                CustomSnackBar.showSuccess(context, "Register Success!");
+                                widget.controller.animateToPage(2,
                                   duration: const Duration(milliseconds: 500),
                                   curve: Curves.ease);
+                              }
                             } else {
                               CustomSnackBar.showFailure(context, "varifyCode Incorrect!");
                             }

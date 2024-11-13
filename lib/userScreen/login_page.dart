@@ -1,7 +1,10 @@
 
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/services/api/Auth/login_api.dart';
+import 'package:gym_detector_ios/services/utils/handle_http_error.dart';
 import 'package:gym_detector_ios/services/utils/password_util.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -144,7 +147,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               'email': _emailController.text, // 传入 user_id 参数
                               'password': PasswordUtil.hashPassword(_passController.text)//密码
                             };
-                        await LoginApi.fetchUserFromBackend(context,queryParameters);
+                        final handle=await LoginApi.fetchUserFromBackend(context,queryParameters);
+                        if (handle.isError == true) {
+                          HandleHttpError.handleErrorResponse(context, handle.code);
+                        }
                           //多一道检查用户初始化数据的保险
                         if (GlobalUser().user!= null) {
                              Navigator.of(context).pushNamedAndRemoveUntil(

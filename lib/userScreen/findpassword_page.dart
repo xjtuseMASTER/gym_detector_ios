@@ -4,6 +4,7 @@ import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
 import 'package:gym_detector_ios/module/global_module/global_temp_user.dart';
 import 'package:gym_detector_ios/services/api/Auth/signup_api.dart';
 import 'package:gym_detector_ios/services/utils/checkvalid_utils.dart';
+import 'package:gym_detector_ios/services/utils/handle_http_error.dart';
 import 'package:gym_detector_ios/services/utils/password_util.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import 'package:gym_detector_ios/widgets/otp_form.dart';
@@ -161,14 +162,18 @@ class _FindpasswordPageState extends State<FindpasswordPage> {
                          setState(() {
                            isSendVerifyCode=true;
                          });
-                         //向后端传回邮箱
-                         final data=await SignupApi.submitEmail(context,{
-                            'email': _emailController.text, 
-                          });
-                          //暂时存信息
+                         final handle=await SignupApi.submitEmail(context, {
+                                'email':  _emailController.text
+                              });
+                              if(handle.isError){
+                                HandleHttpError.handleErrorResponse(context, handle.code);
+                              }else{
+                            final data=handle.data;
+                          //暂时存信
                             GlobalTempUser().clearUser();
                             GlobalTempUser().setEmail(_emailController.text);
                             GlobalTempUser().setAuthcode(data['auth_code']!);
+                              }
                         }
                         else{
                            ScaffoldMessenger.of(context).showSnackBar(
