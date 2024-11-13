@@ -16,6 +16,8 @@ class HandleHttpError {
       case 403:
         errorMessage = 'Permission denied';
         break;
+      case 100:
+        errorMessage = 'Network error';
       default:
         errorMessage = 'Unknown error';
     }

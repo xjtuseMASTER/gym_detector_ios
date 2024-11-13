@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gym_detector_ios/module/global_module/global_temp_user.dart';
 import 'package:gym_detector_ios/services/api/Auth/signup_api.dart';
 import 'package:gym_detector_ios/services/utils/checkvalid_utils.dart';
+import 'package:gym_detector_ios/services/utils/handle_http_error.dart';
 
 class SingUpScreen extends StatefulWidget {
   const SingUpScreen({super.key, required this.controller});
@@ -224,15 +225,20 @@ class _SingUpScreenState extends State<SingUpScreen> {
                             //再判断密码格式规不规范
                             if(CheckvalidUtils.isPasswordValid(_passController.text))
                             {
-                              final data=await SignupApi.submitEmail(context, {
+                              final handle=await SignupApi.submitEmail(context, {
                                 'email': _emailController.text, // 传入 user_id 参数
                               });
+                              if(handle.isError){
+                                HandleHttpError.handleErrorResponse(context, handle.code);
+                              }else{
+                              final data=handle.data;
                               GlobalTempUser().setEmail(_emailController.text);
                               GlobalTempUser().setPassword(_passController.text);
                               GlobalTempUser().setAuthcode(data['auth_code']!);
                               widget.controller.animateToPage(4,
                               duration: const Duration(milliseconds: 500),
                               curve: Curves.ease);
+                              }
                             }
                             else{
                                ScaffoldMessenger.of(context).showSnackBar(

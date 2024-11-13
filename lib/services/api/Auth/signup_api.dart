@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_temp_user.dart';
 import 'package:gym_detector_ios/services/utils/decode_response_data.dart';
+import 'package:gym_detector_ios/services/utils/handle.dart';
 import 'package:gym_detector_ios/services/utils/handle_http_error.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import 'package:gym_detector_ios/widgets/http.dart';
@@ -13,7 +14,7 @@ import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 class SignupApi {
 
 //对指定邮箱发送验证码
-static Future<Map<String,String>> submitEmail(BuildContext context,Map<String,String> args) async {
+static Future<HandleError> submitEmail(BuildContext context,Map<String,String> args) async {
   try {
     // 显示加载对话框
     LoadingDialog.show(context, 'Submitting...');
@@ -31,23 +32,21 @@ static Future<Map<String,String>> submitEmail(BuildContext context,Map<String,St
       //暂时存信息
       LoadingDialog.hide(context);
       CustomSnackBar.showSuccess(context, 'submit Successfully');
-      return data;
+      return HandleError(code:response.statusCode, isError:false, data: data);
     } else {
       LoadingDialog.hide(context);
-      HandleHttpError.handleErrorResponse(context, response.statusCode);
-      return {};
+      return HandleError(code:response.statusCode, isError:true, data: {});
     }
   } catch (e) {
     // 捕获网络异常，如超时或其他错误
     LoadingDialog.hide(context);
-     CustomSnackBar.showFailure(context,'Network Error: Cannot fetch data');
-     return {};
+    return HandleError(code:100, isError:true, data: {});
   }
 }
 
 
 //向后端发邮箱和密码进行注册
-static Future<void> submitRegister(BuildContext context,Map<String,String> args) async {
+static Future<HandleError> submitRegister(BuildContext context,Map<String,String> args) async {
     try {
       LoadingDialog.show(context, 'Rigisting....');
       final response = await customHttpClient.post(
@@ -58,15 +57,15 @@ static Future<void> submitRegister(BuildContext context,Map<String,String> args)
       if (response.statusCode == 200) {
         //清除暂存信息
       GlobalTempUser().clearUser();
-      CustomSnackBar.showSuccess(context, "SignUp Successfully! Please Login");
+      return HandleError(code:response.statusCode, isError:false, data: {});
 
       } else {
         LoadingDialog.hide(context);
-        HandleHttpError.handleErrorResponse(context, response.statusCode);
+        return HandleError(code:response.statusCode, isError:true, data: {});
       }
     } catch (e) {
       LoadingDialog.hide(context);
-      CustomSnackBar.showFailure(context, 'Network Error: Cannot fetch data');
+      return HandleError(code:100, isError:true, data: {});
     }
   }
 
