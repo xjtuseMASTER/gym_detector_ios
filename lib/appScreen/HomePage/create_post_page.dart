@@ -1,7 +1,6 @@
 // 用户发布动态的页面
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:cloudinary_public/cloudinary_public.dart';
@@ -10,11 +9,9 @@ import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import 'package:gym_detector_ios/widgets/http.dart';
-import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 class CreatePostPage extends StatefulWidget {

@@ -3,10 +3,8 @@ import 'package:gym_detector_ios/appScreen/ProfilePage/bodylist_view.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/dynamiclist_view.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/preferences_view.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/bar_widgets/barlist.dart';
-import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/news_widgets/news_page.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/person_widgets/person_card.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
-import 'package:gym_detector_ios/widgets/Leadline_bar.dart';
 class ProfilePage extends StatefulWidget {
   var selected = 0;
   ProfilePage({

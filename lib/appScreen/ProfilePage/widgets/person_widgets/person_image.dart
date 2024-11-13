@@ -1,10 +1,9 @@
 import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:flutter/material.dart';
-import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/person.dart';
+import 'package:gym_detector_ios/services/api/User/changeuser_api.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
-import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -45,52 +44,11 @@ class _PersonImageState extends State<PersonImage> {
         print(response.secureUrl);
         GlobalUser().user!.setAvatar(response.secureUrl);
         print(GlobalUser().user!.avatar);
-        await _uploadProfilePhoto(GlobalUser().user!.user_id, response.url);
+        await ChangeuserApi.uploadProfilePhoto(context, GlobalUser().user!.user_id, response.url);
         LoadingDialog.hide(context);
       } on CloudinaryException catch (e) {
         CustomSnackBar.showFailure(context, 'Network Error!');
       }
-    }
-  }
-
-  // 将secureurl返回给后端
-  Future<void> _uploadProfilePhoto(String user_id, String secureurl) async {
-    try {
-      // 显示加载对话框
-
-      // 发送请求
-      final response = await customHttpClient.get(
-        Uri.parse('${Http.httphead}/user/changeprofile_photo').replace(
-          queryParameters: {
-            'user_id': user_id, // 传入 user_id 参数
-            'sucure_url': secureurl
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        CustomSnackBar.showSuccess(context, 'Upload Successfully');
-      } else {
-        // 请求失败，根据状态码显示不同的错误提示
-        String errorMessage;
-        if (response.statusCode == 404) {
-          errorMessage = 'Resource not found';
-        } else if (response.statusCode == 500) {
-          errorMessage = 'Server error';
-        } else if (response.statusCode == 403) {
-          errorMessage = 'Permission denied';
-        } else {
-          errorMessage = 'Unknown error';
-        }
-
-        // 隐藏加载对话框，显示错误提示框
-        LoadingDialog.hide(context);
-        CustomSnackBar.showFailure(context, errorMessage);
-      }
-    } catch (e) {
-      // 捕获网络异常，如超时或其他错误
-      LoadingDialog.hide(context);
-      CustomSnackBar.showFailure(context, 'Network Error: Cannot upload data');
     }
   }
 

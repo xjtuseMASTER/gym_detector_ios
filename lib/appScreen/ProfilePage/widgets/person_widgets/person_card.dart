@@ -12,8 +12,8 @@ class PersonCard extends StatefulWidget{
   PersonCard({required this.person1,required this.isOneself});
   _PersonCardState createState()=>_PersonCardState();
 }
-
 class _PersonCardState extends State<PersonCard>{
+  bool _isFirstLoad=false;
   Person? person=GlobalUser().getUser();
     //跳转回调
     void _navigateToDetails(BuildContext context) async {
@@ -102,21 +102,37 @@ class _PersonCardState extends State<PersonCard>{
                       radius: 40,
                       backgroundColor: Colors.grey[200],
                       child: ClipOval(
-                        child: CachedNetworkImage(
+                        child: 
+                        CachedNetworkImage(
                           imageUrl: person!.avatar,
                           fit: BoxFit.cover,
                           width: 80,
                           height: 80,
-                          // 加载时显示占位图
-                          placeholder: (context, url) => Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          // 加载失败时显示错误图标
-                          errorWidget: (context, url, error) => const Icon(
-                            Icons.error,
-                            size: 40,
+                          placeholder: (context, url) => _isFirstLoad
+                              ? Center(child: CircularProgressIndicator())
+                              : SizedBox(), // 不显示加载器
+                          imageBuilder: (context, imageProvider) {
+                            // 确保在构建完成后调用 setState
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (_isFirstLoad) {
+                                setState(() {
+                                  _isFirstLoad = false;
+                                });
+                              }
+                            });
+                            return Image(
+                              image: imageProvider,
+                              fit: BoxFit.cover,
+                              height: 205,
+                              width: double.infinity,
+                            );
+                          },
+                          errorWidget: (context, url, error) => Image.asset(
+                            'assets/images/NetworkError.png',
+                            height: 205,
+                            width: double.infinity,
                           ),
-                        ),
+                        )
                       ),
                       )
                 )
