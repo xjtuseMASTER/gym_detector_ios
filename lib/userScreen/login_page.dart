@@ -8,6 +8,7 @@ import 'package:gym_detector_ios/services/utils/handle_http_error.dart';
 import 'package:gym_detector_ios/services/utils/password_util.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, required this.controller});
   final PageController controller;
@@ -53,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Color(0xFF755DC1),
                     fontSize: 27.sp,
                     fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
                  SizedBox(
@@ -147,12 +148,17 @@ class _LoginScreenState extends State<LoginScreen> {
                               'email': _emailController.text, // 传入 user_id 参数
                               'password': PasswordUtil.hashPassword(_passController.text)//密码
                             };
+                         // 显示加载对话框
+                        LoadingDialog.show(context, 'Logining...');
                         final handle=await LoginApi.fetchUserFromBackend(context,queryParameters);
+                        LoadingDialog.hide(context);
                         if (handle.isError == true) {
                           HandleHttpError.handleErrorResponse(context, handle.code);
                         }
                           //多一道检查用户初始化数据的保险
                         if (GlobalUser().user!= null) {
+                          // 登录成功，跳转到主页面
+                             CustomSnackBar.showSuccess(context, "Login Successfully！");
                              Navigator.of(context).pushNamedAndRemoveUntil(
                               '/main',
                               (Route<dynamic> route) => false, // 清空路由栈
@@ -172,7 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: Colors.white,
                           fontSize: 15.sp,
                           fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),

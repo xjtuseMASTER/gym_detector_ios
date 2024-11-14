@@ -52,7 +52,7 @@ class _SingUpScreenState extends State<SingUpScreen> {
                     color: Color(0xFF755DC1),
                     fontSize: 27.sp,
                     fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
                  SizedBox(
@@ -284,7 +284,7 @@ class _SingUpScreenState extends State<SingUpScreen> {
                           color: Colors.white,
                           fontSize: 15.sp,
                           fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gym_detector_ios/module/cache_module/cache_utils/first_post_repository.dart';
+import 'package:gym_detector_ios/module/cache_module/first_post.dart';
+import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/services/api/Post/post_api.dart';
 import 'package:nim_chatkit_ui/chat_kit_client.dart';
 import 'package:nim_contactkit/repo/contact_repo.dart';
@@ -82,17 +85,30 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   @override
-  void initState() {
+  void initState()  {
     super.initState();
+    _futurePosts= _fetchAndCachePosts();
     // 异步获取首次数据
-    _futurePosts = PostApi.fetchMorePosts({'user_id': '1', 'pageNumber': '1'});
-    initUnread();
-    //注册撤回消息监听
-    ChatKitClient.instance.registerRevokedMessage();
-    //设置pushPayload
-    // ChatKitClient.instance.chatUIConfig.getPushPayload = _getPushPayload;
-    //处理native端传递过来的消息
-    _handleMessageFromNative();
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchAndCachePosts() async {
+    try {
+      final posts = await PostApi.fetchMorePosts({
+        'user_id': GlobalUser().user!.user_id,
+        'pageNumber': '1',
+      });
+      // 进行本地缓存
+      await FirstPostRepository.addFirstPost(FirstPost(data: posts));
+      return posts;
+    } catch (e) {
+      // Handle the error, fallback on cached data if available
+      final cachedData = await FirstPostRepository.getFirstPosts();
+      if (cachedData == null ) {
+        return [];
+      } else {
+        return cachedData.data;
+      }
+    }
   }
 
   void _onItemTapped(int index) {
@@ -116,8 +132,7 @@ class _MainScreenState extends State<MainScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator()); // 加载中
           } else if (snapshot.hasError) {
-            return Center(
-                child: Text('Failed to load posts: ${snapshot.error}'));
+            return Center(child: Text('Failed to load posts'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('No posts available'));
           } else {

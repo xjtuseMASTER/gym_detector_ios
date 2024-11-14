@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/Muscledata_view.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/body_widgets/bodydata_page.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/body_widgets/history_upload_page.dart';
-import 'package:gym_detector_ios/module/person.dart';
+import 'package:gym_detector_ios/module/cache_module/person.dart';
 
 class BodylistView extends StatelessWidget {
 

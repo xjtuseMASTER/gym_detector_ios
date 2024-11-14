@@ -1,43 +1,32 @@
 // 与登陆相关的api 管理
 
 import 'dart:convert';
-import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/config.dart';
 import 'package:gym_detector_ios/main.dart';
+import 'package:gym_detector_ios/module/cache_module/cache_utils/user_preferences_repository.dart';
+import 'package:gym_detector_ios/module/cache_module/cache_utils/user_repository.dart';
+import 'package:gym_detector_ios/module/cache_module/user_preferences.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/global_module/global_user_preferences.dart';
-import 'package:gym_detector_ios/module/person.dart';
-import 'package:gym_detector_ios/module/user_preferences.dart';
+import 'package:gym_detector_ios/module/cache_module/person.dart';
 import 'package:gym_detector_ios/services/utils/decode_response_data.dart';
 import 'package:gym_detector_ios/services/utils/handle.dart';
-
-import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import 'package:gym_detector_ios/widgets/http.dart';
-import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'package:netease_corekit_im/im_kit_client.dart';
-import 'package:nim_core/nim_core.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginApi {
   //保存用户信息
-  static Future<void> saveUserData(Person person) async {
-    final prefs = await SharedPreferences.getInstance();
-    //保存登录者id
-    await prefs.setString('user_id', person.user_id);
-    //保存登陆邮箱
-    await prefs.setString('user_email', person.email);
-    // 保存登录时间
-    int currentTime = DateTime.now().millisecondsSinceEpoch;
-    await prefs.setInt('login_time', currentTime);
+  static Future<void> saveUserData(Person person,UserPreferences preferences) async {
+   //进行本地缓存
+   await UserRepository.saveUser(person);  
+   await UserPreferencesRepository.saveUserPreferences(preferences);
   }
 
   // 登录逻辑获取用户信息
   static Future<HandleError> fetchUserFromBackend(
       BuildContext context, Map<String, String> args) async {
     try {
-      // 显示加载对话框
-      LoadingDialog.show(context, 'Logining...');
       // 发送请求
       final response = await customHttpClient.post(
           Uri.parse('${Http.httphead}/auth/login'),
@@ -49,19 +38,18 @@ class LoginApi {
         final jsonResponse = json.decode(decodedBody);
         //保存登陆状态
         final person = Person(
-            user_name: jsonResponse['data']['user_name'] ?? "", // 默认为空字符串
-            selfInfo: jsonResponse['data']['selfIntro'] ?? "", // 默认为空字符串
-            gender: jsonResponse['data']['gender'] ?? "", // 默认为空字符串
+            user_name: jsonResponse['data']['user_name'] ?? "input yōur user name", // 默认为空字符串
+            selfInfo: jsonResponse['data']['selfIntro'] ?? "input yōur self intro", // 默认为空字符串
+            gender: jsonResponse['data']['gender'] ?? "Man", // 默认为空字符串
             avatar: jsonResponse['data']['avatar'] ?? "", // 默认为空字符串
             user_id: jsonResponse['data']['user_id'] ?? "", // 默认为空字符串
             email: jsonResponse['data']['email'] ?? "", // 默认为空字符串
             password: jsonResponse['data']['password'] ?? "", // 默认为空字符串
             likes_num: jsonResponse['data']['likes_num'] ?? 0, // 默认为0
-            birthday: jsonResponse['data']['birthday'] ?? "", // 默认为空字符串
+            birthday: jsonResponse['data']['birthday'] ?? "1999-01-01", // 默认为空字符串
             collects_num: jsonResponse['data']['collects_num'] ?? 0, // 默认为0
             followers_num: jsonResponse['data']['followers_num'] ?? 0 // 默认为0
             );
-        saveUserData(person);
         //保存全局变量
         GlobalUser().setUser(person);
         GlobalUser().setToken(jsonResponse['data']['token']);
@@ -77,16 +65,13 @@ class LoginApi {
           'user_id': GlobalUser().user!.user_id, // 传入 user_id 参数
         });
         GlobalUserPreferences().setUserPreferences(userPreferences);
-        LoadingDialog.hide(context);
-        CustomSnackBar.showSuccess(context, 'Login Successfully');
+        //  缓存用户信息
+        await saveUserData(person, userPreferences);
         return HandleError(code: response.statusCode, isError: false, data: {});
       } else {
-        LoadingDialog.hide(context);
         return HandleError(code: response.statusCode, isError: true, data: {});
       }
     } catch (e) {
-      // 捕获网络异常，如超时或其他错误
-      LoadingDialog.hide(context);
       return HandleError(code: 100, isError: true, data: {});
     }
   }

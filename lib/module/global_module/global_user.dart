@@ -1,7 +1,7 @@
 //全局用户类/只能实例化一次
 //每次登陆后存储，登出时清除
 
-import 'package:gym_detector_ios/module/person.dart';
+import 'package:gym_detector_ios/module/cache_module/person.dart';
 
 class GlobalUser {
   static final GlobalUser _instance = GlobalUser._internal(); // 静态实例

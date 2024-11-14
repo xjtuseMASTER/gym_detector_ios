@@ -49,7 +49,6 @@ class SignupApi {
   static Future<HandleError> submitRegister(
       BuildContext context, Map<String, String> args) async {
     try {
-      LoadingDialog.show(context, 'Rigisting....');
       final response = await customHttpClient.post(
           Uri.parse('${Http.httphead}/auth/register'),
           body: jsonEncode(args));

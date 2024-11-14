@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gym_detector_ios/module/cache_module/cache_utils/user_preferences_repository.dart';
+import 'package:gym_detector_ios/module/cache_module/cache_utils/user_repository.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/global_module/global_user_preferences.dart';
 import 'package:gym_detector_ios/userScreen/main_view.dart';
@@ -88,9 +90,9 @@ class LogoutDialog {
     );
   }
   static Future<void> clearUserData () async{
-    final pres=await SharedPreferences.getInstance();
-    await pres.clear();
     GlobalUser().clearUser();
     GlobalUserPreferences().clearUserPreferences();
+    await UserRepository.logout();
+    await UserPreferencesRepository.clearUserPreferences();
   }
 }

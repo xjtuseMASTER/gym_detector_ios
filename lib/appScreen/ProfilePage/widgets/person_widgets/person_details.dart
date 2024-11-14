@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/person_widgets/person_image.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/person_widgets/person_info.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
-import 'package:gym_detector_ios/module/person.dart';
+import 'package:gym_detector_ios/module/cache_module/person.dart';
 import 'package:gym_detector_ios/widgets/Leadline_bar.dart';
 class PersonDetailsPage extends StatelessWidget {
   final Person person;
