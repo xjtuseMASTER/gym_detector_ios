@@ -43,6 +43,10 @@ dependencies:
 
   netease_corekit_im:
     ">=9.7.3 <10.0.0"
+  nim_contactkit: 
+    ">=9.7.3 <10.0.0"
+  nim_conversationkit:
+    ">=9.7.3 <10.0.0"
   nim_core: ^1.7.4
   path_provider: ^2.1.5
    

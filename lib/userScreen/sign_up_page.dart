@@ -5,6 +5,9 @@ import 'package:gym_detector_ios/module/global_module/global_temp_user.dart';
 import 'package:gym_detector_ios/services/api/Auth/signup_api.dart';
 import 'package:gym_detector_ios/services/utils/checkvalid_utils.dart';
 import 'package:gym_detector_ios/services/utils/handle_http_error.dart';
+import 'package:gym_detector_ios/services/utils/password_util.dart';
+import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 
 class SingUpScreen extends StatefulWidget {
   const SingUpScreen({super.key, required this.controller});
@@ -223,22 +226,35 @@ class _SingUpScreenState extends State<SingUpScreen> {
                           //再判断两遍输入的密码相不相同
                           if(_passController.text==_repassController.text){
                             //再判断密码格式规不规范
-                            if(CheckvalidUtils.isPasswordValid(_passController.text))
-                            {
-                              final handle=await SignupApi.submitEmail(context, {
-                                'email': _emailController.text, // 传入 user_id 参数
+                            if(CheckvalidUtils.isPasswordValid(_passController.text)){
+                                // final handle=await SignupApi.submitEmail(context, {
+                                //   'email': _emailController.text, // 传入 user_id 参数
+                                // });
+                                // if(handle.isError){
+                                //   HandleHttpError.handleErrorResponse(context, handle.code);
+                                // }else{
+                                // final data=handle.data;
+                                // GlobalTempUser().setEmail(_emailController.text);
+                                // GlobalTempUser().setPassword(_passController.text);
+                                // GlobalTempUser().setAuthcode(data['auth_code']!);
+                                // widget.controller.animateToPage(4,
+                                // duration: const Duration(milliseconds: 500),
+                                // curve: Curves.ease);
+                                // }
+                              LoadingDialog.show(context, 'Rigisting....');
+                              final handle=await SignupApi.submitRegister(context,{
+                                "email":_emailController.text,
+                                "password": PasswordUtil.hashPassword(_passController.text)
                               });
                               if(handle.isError){
-                                HandleHttpError.handleErrorResponse(context, handle.code);
+                                  HandleHttpError.handleErrorResponse(context, handle.code);
                               }else{
-                              final data=handle.data;
-                              GlobalTempUser().setEmail(_emailController.text);
-                              GlobalTempUser().setPassword(_passController.text);
-                              GlobalTempUser().setAuthcode(data['auth_code']!);
-                              widget.controller.animateToPage(4,
-                              duration: const Duration(milliseconds: 500),
-                              curve: Curves.ease);
-                              }
+                                  CustomSnackBar.showSuccess(context, "Register Success! Return to login！");
+                                  widget.controller.animateToPage(2,
+                                    duration: const Duration(milliseconds: 500),
+                                    curve: Curves.ease);
+                                    }
+                              LoadingDialog.hide(context);
                             }
                             else{
                                ScaffoldMessenger.of(context).showSnackBar(

@@ -765,7 +765,7 @@ packages:
     source: path
     version: "9.7.3"
   nim_contactkit:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: nim_contactkit
       sha256: a0b5a2c4ea20d4997e10b3ff0d9509928f4d211ae1e42abf28931823af7a78fc
@@ -780,7 +780,7 @@ packages:
     source: path
     version: "9.7.3"
   nim_conversationkit:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: nim_conversationkit
       sha256: a96a524f165025efe001f4f85b46fe6b42f3e8c09aa18e28f55a9d0d28bb0c42

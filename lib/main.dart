@@ -4,8 +4,10 @@ import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-// import 'package:netease_corekit_im/router/imkit_router.dart';
-// import 'package:netease_corekit_im/router/imkit_router_constants.dart';
+import 'package:gym_detector_ios/appScreen/ProfilePage/profile_page.dart';
+import 'package:gym_detector_ios/services/api/Auth/login_api.dart';
+import 'package:netease_corekit_im/router/imkit_router.dart';
+import 'package:netease_corekit_im/router/imkit_router_constants.dart';
 import 'package:gym_detector_ios/services/utils/custom_http_client.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/global_module/global_user_preferences.dart';
@@ -17,6 +19,7 @@ import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'package:nim_chatkit_ui/chat_kit_client.dart';
+import 'package:netease_corekit_im/service_locator.dart';
 import 'package:nim_contactkit_ui/contact_kit_client.dart';
 import 'package:nim_conversationkit_ui/conversation_kit_client.dart';
 import 'package:nim_searchkit_ui/search_kit_client.dart';
@@ -27,10 +30,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // 初始化全局的 CustomHttpClient 实例
 final CustomHttpClient customHttpClient = CustomHttpClient();
-void main() {
+void main() async{
   final PageController _pageController = PageController();
   final cloudinary = CloudinaryPublic('dqfncgtzx', 'FiformAi', cache: false);
-
+  WidgetsFlutterBinding.ensureInitialized();
+  setupLocator();
   runApp(
     MultiProvider(
       providers: [
@@ -61,8 +65,8 @@ class _MyAppState extends State<MyApp> {
     ContactKitClient.init();
     SearchKitClient.init();
 
-    // IMKitRouter.instance.registerRouter(
-    //     RouterConstants.PATH_MINE_INFO_PAGE, (context) => UserInfoPage());
+    IMKitRouter.instance.registerRouter(
+        RouterConstants.PATH_MINE_INFO_PAGE, (context) => ProfilePage(selected: 0));
   }
 
   @override
@@ -193,7 +197,13 @@ class _MyAppState extends State<MyApp> {
 
       return UserPreferences.fromJson(data);
     } else {
-      throw Exception('Failed to load userpreferrences');
+      return UserPreferences(
+          isInApp_Reminder: false,
+          outInApp_Reminder: false,
+          isLightTheme: true,
+          isReleaseVisible: true,
+          isCollectsVisible: true,
+          isLikesVisible: true);
     }
   }
 }
