@@ -1,6 +1,10 @@
 //全局用户偏好设置只能实例化一次
 //每次登陆后存储，登出时清除
-import 'package:gym_detector_ios/module/user_preferences.dart';
+
+
+
+
+import 'package:gym_detector_ios/module/cache_module/user_preferences.dart';
 
 class GlobalUserPreferences {
   static final GlobalUserPreferences _instance = GlobalUserPreferences._internal(); // 静态实例

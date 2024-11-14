@@ -3,8 +3,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
-import 'package:gym_detector_ios/module/person.dart';
+import 'package:gym_detector_ios/module/cache_module/person.dart';
 import 'package:gym_detector_ios/services/api/User/changeuser_api.dart';
+import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 
 
 class PersonInfo extends StatefulWidget {
@@ -128,16 +129,27 @@ class _PersonInfoState extends State<PersonInfo> {
           onPressed: () async{
             if (isEditing) {
               // 提交修改
-              await _submitChanges(context);
-              setState(() {
+              if( _nameController.text.isEmpty||_genderController.text.isEmpty||_signatureController.text.isEmpty||selectedDate.isEmpty)
+              {
+                CustomSnackBar.showFailure(context, "Please fill in all the fields!");
+              }
+              else{
+                await _submitChanges(context);
+                print(selectedDate);
+                setState(() {
                 userName=_nameController.text;
                 gender=_genderController.text;
                 selfInfo=_signatureController.text;
+                isEditing = !isEditing;
               });
+                
+              }
             }
-            setState(() {
-              isEditing = !isEditing;
+            else {
+              setState(() {
+            isEditing = !isEditing;  
             });
+            }
           },
           child: Text(isEditing ? "Save" : "Edit Personal Info"),
         ),

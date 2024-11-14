@@ -5,7 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/person_widgets/person_details.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
-import 'package:gym_detector_ios/module/person.dart';
+import 'package:gym_detector_ios/module/cache_module/person.dart';
 // ignore: must_be_immutable
 class OtherPersonCard extends StatefulWidget{
   Person person1;//不使用

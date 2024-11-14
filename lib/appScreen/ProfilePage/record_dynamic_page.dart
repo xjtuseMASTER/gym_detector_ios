@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
-import 'package:gym_detector_ios/module/person.dart';
+import 'package:gym_detector_ios/module/cache_module/person.dart';
 import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/used_post_gridview.dart';
  import 'package:http/http.dart' as http;

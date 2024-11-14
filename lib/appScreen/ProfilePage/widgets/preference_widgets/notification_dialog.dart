@@ -1,8 +1,9 @@
 // 消息通知弹窗
 
 import 'package:flutter/material.dart';
+import 'package:gym_detector_ios/module/cache_module/user_preferences.dart';
 import 'package:gym_detector_ios/module/global_module/global_user_preferences.dart';
-import 'package:gym_detector_ios/module/user_preferences.dart';
+
 
 class NotificationDialog {
   static void show(BuildContext context) {

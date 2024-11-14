@@ -1,7 +1,7 @@
 // 帖子对象
 
 import 'package:gym_detector_ios/module/comment.dart';
-import 'package:gym_detector_ios/module/person.dart';
+import 'package:gym_detector_ios/module/cache_module/person.dart';
 
 class Post {
   

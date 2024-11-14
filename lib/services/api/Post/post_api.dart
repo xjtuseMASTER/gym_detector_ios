@@ -34,8 +34,7 @@ class PostApi {
       return [];
     }
   } catch (e) {
-    return[];
- 
+    throw (e);
   }
 }
 

@@ -4,7 +4,7 @@ import 'package:gym_detector_ios/appScreen/ProfilePage/record_dynamic_page.dart'
 import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/global_module/global_user_preferences.dart';
-import 'package:gym_detector_ios/module/person.dart';
+import 'package:gym_detector_ios/module/cache_module/person.dart';
 import 'package:gym_detector_ios/widgets/http.dart';
 
 class DynamiclistView extends StatefulWidget {

@@ -5,6 +5,9 @@ import 'package:gym_detector_ios/module/global_module/global_temp_user.dart';
 import 'package:gym_detector_ios/services/api/Auth/signup_api.dart';
 import 'package:gym_detector_ios/services/utils/checkvalid_utils.dart';
 import 'package:gym_detector_ios/services/utils/handle_http_error.dart';
+import 'package:gym_detector_ios/services/utils/password_util.dart';
+import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
+import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 
 class SingUpScreen extends StatefulWidget {
   const SingUpScreen({super.key, required this.controller});
@@ -49,7 +52,7 @@ class _SingUpScreenState extends State<SingUpScreen> {
                     color: Color(0xFF755DC1),
                     fontSize: 27.sp,
                     fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
                  SizedBox(
@@ -225,19 +228,35 @@ class _SingUpScreenState extends State<SingUpScreen> {
                             //再判断密码格式规不规范
                             if(CheckvalidUtils.isPasswordValid(_passController.text))
                             {
-                              final handle=await SignupApi.submitEmail(context, {
-                                'email': _emailController.text, // 传入 user_id 参数
-                              });
-                              if(handle.isError){
+                              //暂时不进行验证码逻辑直接注册即可
+
+                              // final handle=await SignupApi.submitEmail(context, {
+                              //   'email': _emailController.text, // 传入 user_id 参数
+                              // });
+                              // if(handle.isError){
+                              //   HandleHttpError.handleErrorResponse(context, handle.code);
+                              // }else{
+                              // final data=handle.data;
+                              // GlobalTempUser().setEmail(_emailController.text);
+                              // GlobalTempUser().setPassword(_passController.text);
+                              // GlobalTempUser().setAuthcode(data['auth_code']!);
+                              // widget.controller.animateToPage(4,
+                              // duration: const Duration(milliseconds: 500),
+                              // curve: Curves.ease);
+                              // }
+                            LoadingDialog.show(context, 'Rigisting....');
+                            final handle=await SignupApi.submitRegister(context,{
+                              "email":_emailController.text,
+                              "password": PasswordUtil.hashPassword(_passController.text)
+                            });
+                            LoadingDialog.hide(context);
+                            if(handle.isError){
                                 HandleHttpError.handleErrorResponse(context, handle.code);
-                              }else{
-                              final data=handle.data;
-                              GlobalTempUser().setEmail(_emailController.text);
-                              GlobalTempUser().setPassword(_passController.text);
-                              GlobalTempUser().setAuthcode(data['auth_code']!);
-                              widget.controller.animateToPage(4,
-                              duration: const Duration(milliseconds: 500),
-                              curve: Curves.ease);
+                            }else{
+                                CustomSnackBar.showSuccess(context, "Register Success! Return to login！");
+                                widget.controller.animateToPage(2,
+                                  duration: const Duration(milliseconds: 500),
+                                  curve: Curves.ease);
                               }
                             }
                             else{
@@ -268,7 +287,7 @@ class _SingUpScreenState extends State<SingUpScreen> {
                           color: Colors.white,
                           fontSize: 15.sp,
                           fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/appScreen/HomePage/postdetail_page.dart';
-import 'package:gym_detector_ios/module/person.dart';
+import 'package:gym_detector_ios/module/cache_module/person.dart';
 
 class UsedPostGridview extends StatefulWidget {
   final Person person; // 目标用户

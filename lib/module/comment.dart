@@ -1,5 +1,5 @@
 //评论对象
-import 'package:gym_detector_ios/module/person.dart';
+import 'package:gym_detector_ios/module/cache_module/person.dart';
 
 class Comment {
   String? commentId;//评论id

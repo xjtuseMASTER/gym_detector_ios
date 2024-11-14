@@ -1,7 +1,7 @@
 import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
-import 'package:gym_detector_ios/module/person.dart';
+import 'package:gym_detector_ios/module/cache_module/person.dart';
 import 'package:gym_detector_ios/services/api/User/changeuser_api.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';

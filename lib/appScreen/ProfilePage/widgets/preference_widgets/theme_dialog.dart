@@ -1,8 +1,9 @@
 // 主题更换弹窗
 // 提供语言更换窗口
 import 'package:flutter/material.dart';
+import 'package:gym_detector_ios/module/cache_module/user_preferences.dart';
 import 'package:gym_detector_ios/module/global_module/global_user_preferences.dart';
-import 'package:gym_detector_ios/module/user_preferences.dart';
+
 import 'package:gym_detector_ios/provider/theme_provider.dart';
 import 'package:provider/provider.dart';
 

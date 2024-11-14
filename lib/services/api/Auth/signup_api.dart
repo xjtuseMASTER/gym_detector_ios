@@ -48,7 +48,6 @@ static Future<HandleError> submitEmail(BuildContext context,Map<String,String> a
 //向后端发邮箱和密码进行注册
 static Future<HandleError> submitRegister(BuildContext context,Map<String,String> args) async {
     try {
-      LoadingDialog.show(context, 'Rigisting....');
       final response = await customHttpClient.post(
         Uri.parse('${Http.httphead}/auth/register'),
         body: jsonEncode(args)
@@ -60,11 +59,9 @@ static Future<HandleError> submitRegister(BuildContext context,Map<String,String
       return HandleError(code:response.statusCode, isError:false, data: {});
 
       } else {
-        LoadingDialog.hide(context);
         return HandleError(code:response.statusCode, isError:true, data: {});
       }
     } catch (e) {
-      LoadingDialog.hide(context);
       return HandleError(code:100, isError:true, data: {});
     }
   }

@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -7,12 +6,11 @@ import 'package:gym_detector_ios/appScreen/HomePage/feedback_page.dart';
 import 'package:gym_detector_ios/appScreen/HomePage/postdetail_page.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/profile_page.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/preference_widgets/account_security_page.dart';
-import 'package:gym_detector_ios/main.dart';
+import 'package:gym_detector_ios/module/cache_module/cache_utils/first_post_repository.dart';
+import 'package:gym_detector_ios/module/cache_module/first_post.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
-import 'package:gym_detector_ios/module/person.dart';
+import 'package:gym_detector_ios/module/cache_module/person.dart';
 import 'package:gym_detector_ios/services/api/Post/post_api.dart';
-import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
-import 'package:gym_detector_ios/widgets/http.dart';
 
 class HomePage extends StatefulWidget {
   List<Map<String, dynamic>> initialPosts;
@@ -63,6 +61,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
           'pageNumber': PageNumber.toString(), // 确保 pageNumber 为字符串
         };
     List<Map<String, dynamic>> newPosts = await PostApi.fetchNewPosts(context,queryParameters); // 获取更多的数据
+    // 更新本地缓存
+    await FirstPostRepository.addFirstPost(FirstPost(data: newPosts));
+    
     setState(() {
       if(newPosts.isEmpty){
         _posts=_posts;//不刷新
