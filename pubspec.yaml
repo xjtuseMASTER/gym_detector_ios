@@ -11,6 +11,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
   cupertino_icons: ^1.0.2
   flutter_timer_countdown: ^1.0.5 # 倒计时器 
   image_picker: ^1.1.2 # 单图片照片采取器
@@ -30,26 +33,38 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   audioplayers_darwin: 6.0.0
+  file_picker: ^8.0.0
+  audioplayers: ^6.0.0
+  photo_view: ^0.14.0
+  phone_state: ^1.0.3
+  image_gallery_saver: ^2.0.3
+  scroll_to_index: ^3.0.1
+  open_filex: ^4.3.2
+  visibility_detector: ^0.4.0+2
+  super_tooltip: ^1.0.1
+  pull_to_refresh: ^2.0.0
+  azlistview_plus: ^3.0.0
+  lpinyin: ^2.0.3
 
-  #nim——uikits
-  nim_conversationkit_ui: 
-   path: ./plugins/nim_conversationkit_ui
-  nim_chatkit_ui:
-   path: ./plugins/nim_chatkit_ui
-  nim_teamkit_ui: 
-   path: ./plugins/nim_teamkit_ui
-  nim_contactkit_ui: 
-   path: ./plugins/nim_contactkit_ui
-  nim_searchkit_ui: 
-   path: ./plugins/nim_searchkit_ui
-
+  netease_common_ui:
+    ">=9.7.3 <10.0.0"
   netease_corekit_im:
     ">=9.7.3 <10.0.0"
+  netease_corekit:
+    ">=1.2.1 <1.3.0"
+  netease_common: ^1.0.4
+  
+  nim_core: ^1.7.4
   nim_contactkit: 
     ">=9.7.3 <10.0.0"
   nim_conversationkit:
     ">=9.7.3 <10.0.0"
-  nim_core: ^1.7.4
+  nim_chatkit:
+    ">=9.7.3 <10.0.0"
+  nim_teamkit:
+    ">=9.7.3 <10.0.0"
+  nim_searchkit:
+    ">=9.7.3 <10.0.0"
   path_provider: ^2.1.5
    
 
@@ -81,6 +96,8 @@ flutter:
     - assets/bar_images/
     - assets/bodydata_images/
     - assets/logo/
+    - assets/ui_plugins_images/
+
 
 
   fonts:

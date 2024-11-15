@@ -4,11 +4,11 @@ import 'package:gym_detector_ios/module/cache_module/cache_utils/first_post_repo
 import 'package:gym_detector_ios/module/cache_module/first_post.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/services/api/Post/post_api.dart';
-import 'package:nim_chatkit_ui/chat_kit_client.dart';
 import 'package:nim_contactkit/repo/contact_repo.dart';
 import 'package:nim_conversationkit/repo/conversation_repo.dart';
 import 'package:netease_corekit_im/router/imkit_router_factory.dart';
-import 'package:nim_conversationkit_ui/page/conversation_page.dart';
+import '../ui_plugins/nim_chatkit_ui/lib/chat_kit_client.dart';
+import '../ui_plugins/nim_conversationkit_ui/lib/page/conversation_page.dart';
 import 'HomePage/home_page.dart';
 import 'AppPage/app_page.dart';
 import 'ProfilePage/profile_page.dart';

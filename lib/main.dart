@@ -15,14 +15,13 @@ import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/global_module/global_user_preferences.dart';
 import 'package:gym_detector_ios/provider/theme_provider.dart';
 import 'package:gym_detector_ios/userScreen/main_view.dart';
-import 'package:nim_chatkit_ui/chat_kit_client.dart';
-import 'package:netease_corekit_im/service_locator.dart';
-import 'package:nim_contactkit_ui/contact_kit_client.dart';
-import 'package:nim_conversationkit_ui/conversation_kit_client.dart';
-import 'package:nim_searchkit_ui/search_kit_client.dart';
-import 'package:nim_teamkit_ui/team_kit_client.dart';
 import 'package:provider/provider.dart';
-import 'appScreen/main_screen.dart'; // 替换为你的主页面文件路径
+import 'appScreen/main_screen.dart';
+import 'ui_plugins/nim_chatkit_ui/lib/chat_kit_client.dart';
+import 'ui_plugins/nim_contactkit_ui/lib/contact_kit_client.dart';
+import 'ui_plugins/nim_conversationkit_ui/lib/conversation_kit_client.dart';
+import 'ui_plugins/nim_searchkit_ui/lib/search_kit_client.dart';
+import 'ui_plugins/nim_teamkit_ui/lib/team_kit_client.dart'; // 替换为你的主页面文件路径
 
 // 初始化全局的 CustomHttpClient 实例
 final CustomHttpClient customHttpClient = CustomHttpClient();

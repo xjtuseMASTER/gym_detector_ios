@@ -63,7 +63,7 @@ packages:
     source: hosted
     version: "2.11.0"
   audioplayers:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: audioplayers
       sha256: c346ba5a39dc208f1bab55fc239855f573d69b0e832402114bf0b793622adc4d
@@ -119,7 +119,7 @@ packages:
     source: hosted
     version: "4.0.0"
   azlistview_plus:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: azlistview_plus
       sha256: bbf08532db8ba2b9054100f68829e1841b23f3244e54712934f0f192651d8319
@@ -439,7 +439,7 @@ packages:
     source: hosted
     version: "7.0.1"
   file_picker:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: file_picker
       sha256: "16dc141db5a2ccc6520ebb6a2eb5945b1b09e95085c021d9f914f8ded7f1465c"
@@ -524,7 +524,7 @@ packages:
     source: hosted
     version: "2.0.3"
   flutter_localizations:
-    dependency: transitive
+    dependency: "direct main"
     description: flutter
     source: sdk
     version: "0.0.0"
@@ -699,7 +699,7 @@ packages:
     source: hosted
     version: "4.3.0"
   image_gallery_saver:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: image_gallery_saver
       sha256: "0aba74216a4d9b0561510cb968015d56b701ba1bd94aace26aacdd8ae5761816"
@@ -843,7 +843,7 @@ packages:
     source: hosted
     version: "1.3.0"
   lpinyin:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: lpinyin
       sha256: "0bb843363f1f65170efd09fbdfc760c7ec34fc6354f9fcb2f89e74866a0d814a"
@@ -907,7 +907,7 @@ packages:
     source: hosted
     version: "1.0.0"
   netease_common:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: netease_common
       sha256: ec4fc60ab6b60106b715905b98b065ce70f2368d439958384d272a0847b00dd0
@@ -915,7 +915,7 @@ packages:
     source: hosted
     version: "1.0.7"
   netease_common_ui:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: netease_common_ui
       sha256: "8a7c6585e5a48c147f9a7b0688ca2e5781a2352275d2607c57c5ce03e162c5ef"
@@ -923,7 +923,7 @@ packages:
     source: hosted
     version: "9.7.3"
   netease_corekit:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: netease_corekit
       sha256: dbce89daa99f1dbc043b31a83161e8e0fcf9b870c4d0e439cf65f69734024186
@@ -947,19 +947,12 @@ packages:
     source: hosted
     version: "9.7.1"
   nim_chatkit:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: nim_chatkit
       sha256: a3860439db5f97f7953fbf4fe51704155c88f3289ab6a822b99bb25b999e9cd1
       url: "https://pub.dev"
     source: hosted
-    version: "9.7.3"
-  nim_chatkit_ui:
-    dependency: "direct main"
-    description:
-      path: "plugins/nim_chatkit_ui"
-      relative: true
-    source: path
     version: "9.7.3"
   nim_contactkit:
     dependency: "direct main"
@@ -969,13 +962,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "9.7.3"
-  nim_contactkit_ui:
-    dependency: "direct main"
-    description:
-      path: "plugins/nim_contactkit_ui"
-      relative: true
-    source: path
-    version: "9.7.3"
   nim_conversationkit:
     dependency: "direct main"
     description:
@@ -983,13 +969,6 @@ packages:
       sha256: a96a524f165025efe001f4f85b46fe6b42f3e8c09aa18e28f55a9d0d28bb0c42
       url: "https://pub.dev"
     source: hosted
-    version: "9.7.3"
-  nim_conversationkit_ui:
-    dependency: "direct main"
-    description:
-      path: "plugins/nim_conversationkit_ui"
-      relative: true
-    source: path
     version: "9.7.3"
   nim_core:
     dependency: "direct main"
@@ -1032,34 +1011,20 @@ packages:
     source: hosted
     version: "1.0.8"
   nim_searchkit:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: nim_searchkit
       sha256: "7c321dabf743e03bcdf81156182e3e1f5606c646807e4cb832056c86a18fce78"
       url: "https://pub.dev"
     source: hosted
     version: "9.7.3"
-  nim_searchkit_ui:
-    dependency: "direct main"
-    description:
-      path: "plugins/nim_searchkit_ui"
-      relative: true
-    source: path
-    version: "9.7.3"
   nim_teamkit:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: nim_teamkit
       sha256: "1918a8dbeaf4a93e5c387449c9ea68b7dddabbb53e7794c3da2ab36c82cb8c37"
       url: "https://pub.dev"
     source: hosted
-    version: "9.7.3"
-  nim_teamkit_ui:
-    dependency: "direct main"
-    description:
-      path: "plugins/nim_teamkit_ui"
-      relative: true
-    source: path
     version: "9.7.3"
   nm:
     dependency: transitive
@@ -1078,7 +1043,7 @@ packages:
     source: hosted
     version: "2.1.0"
   open_filex:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: open_filex
       sha256: ba425ea49affd0a98a234aa9344b9ea5d4c4f7625a1377961eae9fe194c3d523
@@ -1222,7 +1187,7 @@ packages:
     source: hosted
     version: "6.0.2"
   phone_state:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: phone_state
       sha256: b68ddbde95915400808b14d680d20439a4320212ad13ea9a0962fe833c5b0079
@@ -1230,7 +1195,7 @@ packages:
     source: hosted
     version: "1.0.4"
   photo_view:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: photo_view
       sha256: "8036802a00bae2a78fc197af8a158e3e2f7b500561ed23b4c458107685e645bb"
@@ -1294,7 +1259,7 @@ packages:
     source: hosted
     version: "1.3.0"
   pull_to_refresh:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: pull_to_refresh
       sha256: bbadd5a931837b57739cf08736bea63167e284e71fb23b218c8c9a6e042aad12
@@ -1310,7 +1275,7 @@ packages:
     source: hosted
     version: "0.28.0"
   scroll_to_index:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: scroll_to_index
       sha256: b707546e7500d9f070d63e5acf74fd437ec7eeeb68d3412ef7b0afada0b4f176
@@ -1507,7 +1472,7 @@ packages:
     source: hosted
     version: "1.2.0"
   super_tooltip:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: super_tooltip
       sha256: c9b0f4808c4a9a20354110a9da85790d226c7c529202091c27fdcc4780fa497b
@@ -1651,7 +1616,7 @@ packages:
     source: hosted
     version: "0.5.3"
   visibility_detector:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: visibility_detector
       sha256: dd5cc11e13494f432d15939c3aa8ae76844c42b723398643ce9addb88a5ed420

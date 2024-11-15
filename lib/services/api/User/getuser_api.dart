@@ -9,6 +9,8 @@ import 'package:gym_detector_ios/services/utils/handle_http_error.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
+import 'package:netease_corekit_im/service_locator.dart';
+import 'package:netease_corekit_im/services/contact/contact_provider.dart';
 
 class GetuserApi {
   static bool isFollowed=false;
@@ -18,6 +20,7 @@ class GetuserApi {
       // 获取数据
       final Response = await customHttpClient.get(
           Uri.parse('${Http.httphead}/user/getuser').replace(queryParameters: args));
+      final contact = getIt<ContactProvider>().getContact(args['user_id']!, needRefresh: true);
       if (Response.statusCode == 200) {
         final decodedBody = utf8.decode(Response.bodyBytes);
         final jsonResponse = json.decode(decodedBody);
@@ -35,7 +38,7 @@ class GetuserApi {
             followers_num: jsonResponse['data']['followers_num']);
         isFollowed = jsonResponse['data']['isFollow'];
         
-      return {'person': person, 'isFollowed': isFollowed};
+      return {'person': person, 'isFollowed': isFollowed, 'contact': contact};
       } else {
         return {};
       }
