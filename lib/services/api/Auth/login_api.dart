@@ -14,6 +14,7 @@ import 'package:gym_detector_ios/services/utils/decode_response_data.dart';
 import 'package:gym_detector_ios/services/utils/handle.dart';
 import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:netease_corekit_im/im_kit_client.dart';
+import 'package:nim_core/nim_core.dart';
 
 class LoginApi {
   //保存用户信息

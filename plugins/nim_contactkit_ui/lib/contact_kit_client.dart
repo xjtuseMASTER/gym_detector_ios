@@ -9,7 +9,6 @@ import 'package:netease_corekit_im/model/contact_info.dart';
 import 'package:netease_corekit_im/router/imkit_router.dart';
 import 'package:netease_corekit_im/router/imkit_router_constants.dart';
 import 'package:nim_contactkit/contactkit_client_repo.dart';
-
 import 'l10n/S.dart';
 import 'page/contact_kit_black_list_page.dart';
 import 'page/contact_kit_contact_selector_page.dart';

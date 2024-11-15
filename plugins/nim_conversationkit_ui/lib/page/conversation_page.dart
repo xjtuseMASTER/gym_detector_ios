@@ -3,13 +3,14 @@
 // found in the LICENSE file.
 
 import 'package:netease_common_ui/base/base_state.dart';
-import 'package:netease_corekit_im/router/imkit_router_factory.dart';
 import 'package:nim_conversationkit_ui/conversation_kit_client.dart';
 import 'package:nim_conversationkit_ui/widgets/conversation_list.dart';
 import 'package:nim_conversationkit_ui/widgets/conversation_pop_menu_button.dart';
+import 'package:netease_corekit_im/router/imkit_router_factory.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:netease_common_ui/widgets/no_network_tip.dart';
+import 'package:nim_searchkit_ui/page/search_kit_search_page.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/S.dart';
@@ -77,6 +78,7 @@ class _ConversationPageState extends BaseState<ConversationPage> {
                       IconButton(
                         onPressed: () {
                           goGlobalSearchPage(context);
+                          Navigator.push(context,MaterialPageRoute(builder: (context) => const SearchKitGlobalSearchPage()));
                         },
                         icon: SvgPicture.asset(
                           'images/ic_search.svg',
