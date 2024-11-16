@@ -27,6 +27,10 @@ class HandleHttpError {
       case 400:
         errorMessage='The account or password is incorrect';
         break;
+      case 99:
+        errorMessage = 'IM login failed';
+      case 98:
+        errorMessage = 'IM client init failed';
       default:
         errorMessage = 'Unknown error';
     }

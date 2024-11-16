@@ -11,6 +11,7 @@ import 'package:gym_detector_ios/module/cache_module/first_post.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/cache_module/person.dart';
 import 'package:gym_detector_ios/services/api/Post/post_api.dart';
+import 'package:gym_detector_ios/widgets/no_data_screen.dart';
 import 'package:gym_detector_ios/services/utils/handle.dart';
 import 'package:gym_detector_ios/widgets/networkerror_screen.dart';
 import 'package:gym_detector_ios/widgets/no_data_screen.dart';

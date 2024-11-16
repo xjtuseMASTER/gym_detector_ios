@@ -9,6 +9,8 @@ import 'package:gym_detector_ios/services/utils/handle_http_error.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
+import 'package:netease_corekit_im/service_locator.dart';
+import 'package:netease_corekit_im/services/contact/contact_provider.dart';
 
 class GetuserApi {
   static bool isFollowed=false;
@@ -18,24 +20,25 @@ class GetuserApi {
       // 获取数据
       final Response = await customHttpClient.get(
           Uri.parse('${Http.httphead}/user/getuser').replace(queryParameters: args));
+      final contact = getIt<ContactProvider>().getContact(args['user_id']!, needRefresh: true);
       if (Response.statusCode == 200) {
         final decodedBody = utf8.decode(Response.bodyBytes);
         final jsonResponse = json.decode(decodedBody);
         final person = Person(
-            user_name: jsonResponse['data']['user_name'],
-            selfInfo: jsonResponse['data']['selfInfo'],
-            gender: jsonResponse['data']['gender'],
-            avatar: jsonResponse['data']['avatar'],
-            user_id: jsonResponse['data']['user_id'],
+            user_name: jsonResponse['data']['user_name']??"",
+            selfInfo: jsonResponse['data']['selfInfo']??"",
+            gender: jsonResponse['data']['gender']??"Man",
+            avatar: jsonResponse['data']['avatar']??"",
+            user_id: jsonResponse['data']['user_id']??"",
             password: "???",
-            email: jsonResponse['data']['email'],
-            likes_num: jsonResponse['data']['likes_num'],
-            birthday: jsonResponse['data']['birthday'],
-            collects_num: jsonResponse['data']['collects_num'],
-            followers_num: jsonResponse['data']['followers_num']);
+            email: jsonResponse['data']['email']??"",
+            likes_num: jsonResponse['data']['likes_num']?? 0,
+            birthday: jsonResponse['data']['birthday']??"1999-01-01",
+            collects_num: jsonResponse['data']['collects_num']?? 0,
+            followers_num: jsonResponse['data']['followers_num']?? 0);
         isFollowed = jsonResponse['data']['isFollow'];
         
-      return {'person': person, 'isFollowed': isFollowed};
+      return {'person': person, 'isFollowed': isFollowed, 'contact': contact};
       } else {
         return {};
       }

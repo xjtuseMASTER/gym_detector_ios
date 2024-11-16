@@ -14,6 +14,7 @@ import 'package:gym_detector_ios/services/utils/decode_response_data.dart';
 import 'package:gym_detector_ios/services/utils/handle.dart';
 import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:netease_corekit_im/im_kit_client.dart';
+import 'package:nim_core/nim_core.dart';
 
 class LoginApi {
   //保存用户信息
@@ -54,9 +55,14 @@ class LoginApi {
         GlobalUser().setUser(person);
         GlobalUser().setToken(jsonResponse['data']['token']);
         //登陆云信账号
-        imInit(person.user_id.substring(0,20), person.password);
+        var imInitHandle =
+            await imInit(person.user_id.substring(0, 32), person.password);
+        if (imInitHandle.isError) {
+          return imInitHandle;
+        }
         //获取用户偏好设置信息
-        UserPreferences userPreferences = await fetchUserPreferencesFromBackend({
+        UserPreferences userPreferences =
+            await fetchUserPreferencesFromBackend({
           'user_id': GlobalUser().user!.user_id, // 传入 user_id 参数
         });
         GlobalUserPreferences().setUserPreferences(userPreferences);
@@ -95,30 +101,19 @@ class LoginApi {
   }
 
   /// init depends package for app
-  static Future<void> imInit(String account, String token) async {
+  static Future<HandleError> imInit(String account, String token) async {
     var options = await NIMSDKOptionsConfig.getSDKOptions(IMDemoConfig.AppKey);
-
     var success = await IMKitClient.init(IMDemoConfig.AppKey, options);
-
-     if (success) {
-      print('IMKitClient initialized successfully.');
-      print('Login successful');
+    if (success) {
+      var value = await IMKitClient.loginIM(
+          NIMLoginInfo(account: account, token: token));
+      if (value) {
+        return HandleError(code: 200, isError: false, data: {});
+      } else {
+        return HandleError(code: 98, isError: true, data: {});
+      }
     } else {
-      print('IMKitClient initialization failed.');
-      throw Exception('IM initialization failed.');
+      return HandleError(code: 99, isError: true, data: {});
     }
-
-    // .then((success) {
-    //   if (success) {
-    //     IMKitClient.loginIM(NIMLoginInfo(account: account, token: token))
-    //     .then((value) {
-    //       //返回成功信息？
-    //     });
-    //   } else {
-    //     throw Exception('IM initialization failed.');
-    //   }
-    // }).catchError((e) {
-    //    throw Exception('IM initialization failed with error: ${e.toString()}');
-    // });
   }
 }

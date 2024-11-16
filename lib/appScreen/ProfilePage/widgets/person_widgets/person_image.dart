@@ -6,6 +6,11 @@ import 'package:gym_detector_ios/services/api/User/changeuser_api.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:netease_common_ui/utils/connectivity_checker.dart';
+import 'package:netease_corekit_im/service_locator.dart';
+import 'package:netease_corekit_im/services/login/login_service.dart';
+import 'package:netease_corekit_im/services/user_info/user_info_provider.dart';
+import 'package:nim_core/nim_core.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';
 
@@ -20,12 +25,10 @@ class PersonImage extends StatefulWidget {
 class _PersonImageState extends State<PersonImage> {
   File? _imageFile;
   CloudinaryPublic? cloudinary;
-  @override
-  void initState() {
-    super.initState();
-    cloudinary = Provider.of<CloudinaryPublic>(context,
-        listen: false); // 在 initState 中获取实例
-  }
+
+  late NIMUser userInfo;
+  LoginService loginService = getIt<LoginService>();
+  UserInfoProvider userInfoProvider = getIt<UserInfoProvider>();
 
   // 选择照片并上传
   Future<void> _pickImage(BuildContext context) async {
@@ -41,13 +44,54 @@ class _PersonImageState extends State<PersonImage> {
           CloudinaryFile.fromFile(pickedFile.path,
               resourceType: CloudinaryResourceType.Image),
         );
-        await ChangeuserApi.uploadProfilePhoto(context, GlobalUser().user!.user_id, response.url);
+        GlobalUser().user!.setAvatar(response.secureUrl);
+        await ChangeuserApi.uploadProfilePhoto(context, GlobalUser().user!.user_id, response.secureUrl);
+
+        //修改云信IM账号头像
+        NimCore.instance.nosService
+              .upload(filePath: response.secureUrl, mimeType: 'image/jpeg')
+              .then((value) {
+            if (value.isSuccess && value.data != null) {
+              userInfo.avatar = value.data;
+              _updateInfo(context);
+            }
+          });
         LoadingDialog.hide(context);
       } on CloudinaryException catch (e) {
         CustomSnackBar.showFailure(context, 'Network Error!');
       }
     }
   }
+
+
+  _updateInfo(BuildContext context) async {
+    if (!await haveConnectivity()) {
+      return;
+    }
+    userInfoProvider.updateUserInfo(userInfo).then((value) {
+      if (value.isSuccess) {
+        loginService.getUserInfo();
+      } else {
+        // Fluttertoast.showToast(msg: S.of(context).requestFail);
+        CustomSnackBar.showFailure(context, "修改IM nick失败");
+      }
+    });
+  }
+
+   @override
+  void initState() {
+    super.initState();
+    cloudinary = Provider.of<CloudinaryPublic>(context,
+        listen: false); // 在 initState 中获取实例
+
+    if (loginService.userInfo != null) {
+      userInfo = NIMUser.fromMap(loginService.userInfo!.toMap());
+    } else {
+      userInfo = NIMUser();
+    }
+  }
+
+  
 
   @override
   Widget build(BuildContext context) {

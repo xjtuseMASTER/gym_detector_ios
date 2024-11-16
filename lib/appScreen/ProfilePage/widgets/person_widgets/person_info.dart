@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,7 +5,11 @@ import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/cache_module/person.dart';
 import 'package:gym_detector_ios/services/api/User/changeuser_api.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
-
+import 'package:netease_common_ui/utils/connectivity_checker.dart';
+import 'package:netease_corekit_im/service_locator.dart';
+import 'package:netease_corekit_im/services/login/login_service.dart';
+import 'package:netease_corekit_im/services/user_info/user_info_provider.dart';
+import 'package:nim_core/nim_core.dart';
 
 class PersonInfo extends StatefulWidget {
   final Person person;
@@ -27,6 +30,24 @@ class _PersonInfoState extends State<PersonInfo> {
   late TextEditingController _genderController;
   late TextEditingController _signatureController;
 
+  late NIMUser userInfo;
+  LoginService loginService = getIt<LoginService>();
+  UserInfoProvider userInfoProvider = getIt<UserInfoProvider>();
+
+  _updateInfo(BuildContext context) async {
+    if (!await haveConnectivity()) {
+      return;
+    }
+    userInfoProvider.updateUserInfo(userInfo).then((value) {
+      if (value.isSuccess) {
+        loginService.getUserInfo();
+      } else {
+        // Fluttertoast.showToast(msg: S.of(context).requestFail);
+        CustomSnackBar.showFailure(context, "修改IM nick失败");
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -34,130 +55,144 @@ class _PersonInfoState extends State<PersonInfo> {
     _genderController = TextEditingController(text: widget.person.gender);
     _signatureController = TextEditingController(text: widget.person.selfInfo);
     selectedDate = widget.person.birthday; // 存储选择的日期
-    userName=widget.person.user_name;
-    gender=widget.person.gender;
-    selfInfo=widget.person.selfInfo;
+    userName = widget.person.user_name;
+    gender = widget.person.gender;
+    selfInfo = widget.person.selfInfo;
+
+    if (loginService.userInfo != null) {
+      userInfo = NIMUser.fromMap(loginService.userInfo!.toMap());
+    } else {
+      userInfo = NIMUser();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(25.w),
-      color: Colors.white,
-      child: SingleChildScrollView(  // 新增 SingleChildScrollView
-      child:
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          isEditing//根据一个逻辑变量来控制信息是显示状态还是编辑状态
-              ? TextField(
-                  controller: _nameController,
-                  decoration: InputDecoration(labelText: "Name"),
-                  maxLength: 15,
-                )
-              : Text(
-                  userName,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22,
+        padding: EdgeInsets.all(25.w),
+        color: Colors.white,
+        child: SingleChildScrollView(
+          // 新增 SingleChildScrollView
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              isEditing //根据一个逻辑变量来控制信息是显示状态还是编辑状态
+                  ? TextField(
+                      controller: _nameController,
+                      decoration: InputDecoration(labelText: "Name"),
+                      maxLength: 15,
+                    )
+                  : Text(
+                      userName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                      ),
+                    ),
+              const SizedBox(height: 15),
+              // 信息卡片显示
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15), // 圆角
+                ),
+                elevation: 4, // 阴影
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildInfoRow("Account", widget.person.user_id),
+                      SizedBox(height: 16.h),
+                      _buildInfoRow("Email", widget.person.email),
+                      SizedBox(height: 16.h),
+                      isEditing
+                          ? TextField(
+                              controller: _genderController,
+                              decoration: InputDecoration(labelText: "Gender"),
+                            )
+                          : _buildInfoRow("Gender", gender),
+                      SizedBox(height: 16.h),
+                      isEditing
+                          ? // 日期选择按钮
+                          TextButton(
+                              onPressed: () async {
+                                DateTime? pickedDate = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(2000),
+                                  lastDate: DateTime(2100),
+                                );
+                                if (pickedDate != null) {
+                                  setState(() {
+                                    selectedDate =
+                                        "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+                                  });
+                                }
+                              },
+                              child: Text(
+                                selectedDate.isEmpty
+                                    ? 'chose date'
+                                    : 'Chosed: $selectedDate',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: selectedDate.isEmpty
+                                      ? Colors.blueAccent
+                                      : Colors.green,
+                                ),
+                              ),
+                            )
+                          : _buildInfoRow("Birthday", selectedDate),
+                      SizedBox(height: 16.h),
+                      isEditing
+                          ? TextField(
+                              controller: _signatureController,
+                              decoration:
+                                  InputDecoration(labelText: "Signature"),
+                              maxLength: 30,
+                            )
+                          : _buildInfoRow("Signature", selfInfo),
+                    ],
                   ),
                 ),
-          const SizedBox(height: 15),
-          // 信息卡片显示
-          Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15), // 圆角
-            ),
-            elevation: 4, // 阴影
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildInfoRow("Account", widget.person.user_id),
-                  SizedBox(height: 16.h),
-                  _buildInfoRow("Email", widget.person.email),
-                  SizedBox(height: 16.h),
-                  isEditing
-                      ? TextField(
-                          controller: _genderController,
-                          decoration: InputDecoration(labelText: "Gender"),
-                        )
-                      : _buildInfoRow("Gender", gender),
-                  SizedBox(height: 16.h),
-                  isEditing
-                      ? // 日期选择按钮
-                      TextButton(
-                        onPressed: () async {
-                          DateTime? pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2100),
-                          );
-                          if (pickedDate != null) {
-                            setState(() {
-                              selectedDate = "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
-                            });
-                          }
-                        },
-                        child: Text(
-                          selectedDate.isEmpty ? 'chose date' : 'Chosed: $selectedDate',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: selectedDate.isEmpty ? Colors.blueAccent : Colors.green,
-                          ),
-                        ),
-                      )
-                      : _buildInfoRow("Birthday", selectedDate),
-                  SizedBox(height: 16.h),
-                  isEditing
-                      ? TextField(
-                          controller: _signatureController,
-                          decoration: InputDecoration(labelText: "Signature"),
-                          maxLength: 30,
-                        )
-                      : _buildInfoRow("Signature", selfInfo),
-                ],
               ),
-            ),
+              // 编辑按钮
+              SizedBox(height: 30.h),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    if (isEditing) {
+                      // 提交修改
+                      if (_nameController.text.isEmpty ||
+                          _genderController.text.isEmpty ||
+                          _signatureController.text.isEmpty ||
+                          selectedDate.isEmpty) {
+                        CustomSnackBar.showFailure(
+                            context, "Please fill in all the fields!");
+                      } else {
+                        await _submitChanges(context);
+                        //修改云信账号信息
+                        userInfo.nick = _nameController.text;
+                        _updateInfo(context);
+
+                        setState(() {
+                          userName = _nameController.text;
+                          gender = _genderController.text;
+                          selfInfo = _signatureController.text;
+                          isEditing = !isEditing;
+                        });
+                      }
+                    } else {
+                      setState(() {
+                        isEditing = !isEditing;
+                      });
+                    }
+                  },
+                  child: Text(isEditing ? "Save" : "Edit Personal Info"),
+                ),
+              ),
+            ],
           ),
-          // 编辑按钮
-          SizedBox(height: 30.h),
-          Center(
-        child: ElevatedButton(
-          onPressed: () async{
-            if (isEditing) {
-              // 提交修改
-              if( _nameController.text.isEmpty||_genderController.text.isEmpty||_signatureController.text.isEmpty||selectedDate.isEmpty)
-              {
-                CustomSnackBar.showFailure(context, "Please fill in all the fields!");
-              }
-              else{
-                await _submitChanges(context);
-                print(selectedDate);
-                setState(() {
-                userName=_nameController.text;
-                gender=_genderController.text;
-                selfInfo=_signatureController.text;
-                isEditing = !isEditing;
-              });
-                
-              }
-            }
-            else {
-              setState(() {
-            isEditing = !isEditing;  
-            });
-            }
-          },
-          child: Text(isEditing ? "Save" : "Edit Personal Info"),
-        ),
-      ),
-        ],
-      ),
-      )
-    );
+        ));
   }
 
   // 用于显示信息的行
@@ -180,15 +215,18 @@ class _PersonInfoState extends State<PersonInfo> {
   }
 
   // 提交修改到后端的方法
-  Future<void> _submitChanges(BuildContext context)async {
+  Future<void> _submitChanges(BuildContext context) async {
     Map<String, String> updatedInfo = {
-      "user_id":GlobalUser().user!.user_id,
+      "user_id": GlobalUser().user!.user_id,
       "user_name": _nameController.text,
       "gender": _genderController.text,
       "birthday": selectedDate,
       "selfInfo": _signatureController.text,
     };
-    await ChangeuserApi.submitPersonInfo(context,updatedInfo);
+    await ChangeuserApi.submitPersonInfo(context, updatedInfo);
+    GlobalUser().user!.setUserName(_nameController.text);
+    GlobalUser().user!.setBirthday(selectedDate);
+    GlobalUser().user!.setGender(_genderController.text);
+    GlobalUser().user!.setSelfIntro(_signatureController.text);
   }
-
 }
