@@ -11,9 +11,12 @@ import 'package:gym_detector_ios/module/cache_module/first_post.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/cache_module/person.dart';
 import 'package:gym_detector_ios/services/api/Post/post_api.dart';
+import 'package:gym_detector_ios/services/utils/handle.dart';
+import 'package:gym_detector_ios/widgets/networkerror_screen.dart';
+import 'package:gym_detector_ios/widgets/no_data_screen.dart';
 
 class HomePage extends StatefulWidget {
-  List<Map<String, dynamic>> initialPosts;
+  HandleError initialPosts;
  _HomePageState createState()=>_HomePageState();
  HomePage({required this.initialPosts});
 }
@@ -25,11 +28,13 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
   bool _isLoadingMore = false;//是否加载
   bool _isRefreshing = false;//是否刷新
   bool _isFirstLoad = true;
+  bool isGetdata=true;
 
   @override
   void initState() {
     super.initState();
-    _posts=widget.initialPosts;
+    _posts=widget.initialPosts.data['data'];
+    isGetdata=widget.initialPosts.isError;
     _scrollController.addListener(_onScroll);
   }
    @override
@@ -137,7 +142,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
 
    @override
   Widget build(BuildContext context) {
-    print(widget.initialPosts.length);
     super.build(context); 
     return Scaffold(
       appBar: AppBar(
@@ -287,10 +291,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
       ),
       body: 
       Stack(
-      children: [  
-      widget.initialPosts.isEmpty
-          ? Center(child: CircularProgressIndicator())
-          // : SquarePostView(initialPosts: widget.initialPosts, person: user,fetchMorePosts: fetchMorePosts,fetchNewPosts: fetchNewPosts,),//瀑布流展示widget
+      children: [
+        _posts.isEmpty?
+        (isGetdata? NoDataScreen(message: " No one's posted yet. Grab the first！"):NetworkErrorScreen())
           :RefreshIndicator(
               onRefresh: () async {
                 await _refreshPosts(context);

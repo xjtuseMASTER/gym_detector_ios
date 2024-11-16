@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/appScreen/AppPage/upload_page.dart';
 import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/services/utils/decode_response_data.dart';
+import 'package:gym_detector_ios/services/utils/handle.dart';
 import 'package:gym_detector_ios/services/utils/handle_http_error.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import 'package:gym_detector_ios/widgets/http.dart';
@@ -15,7 +16,7 @@ import 'package:image_picker/image_picker.dart';
 
 class PostApi {
   // 首次获取新的帖子数据
-  static Future<List<Map<String, dynamic>>> fetchMorePosts(Map<String, String> args) async {
+  static Future<HandleError> fetchMorePosts(Map<String, String> args) async {
   try {
     final response = await customHttpClient.get(
       Uri.parse('${Http.httphead}/post/stream').replace(
@@ -26,14 +27,14 @@ class PostApi {
     if (response.statusCode == 200) {
       // Extract the data part
       final List<dynamic> postList = DecodeResponseData.transfer_to_Map(response);
-      return postList.map((post) => post as Map<String, dynamic>).toList();
+      final post=postList.map((post) => post as Map<String, dynamic>).toList();
+      return HandleError(code: 200, isError: false, data: {'data':post,'msg':"No one's posted yet. Grab the first！"});
     } else {
-      // Throw an exception for non-200 status codes
-      throw Exception('Failed to fetch posts, status code: ${response.statusCode}');
+      return HandleError(code: response.statusCode, isError: true, data: {'data':[],'msg':"Network Error"});
+      
     }
   } catch (e) {
-    // Re-throw the exception to be caught in the calling function
-    throw Exception('Error fetching posts: $e');
+    return HandleError(code: 100, isError: true, data: {'data':[],'msg':"Network Error"});
   }
 }
 
