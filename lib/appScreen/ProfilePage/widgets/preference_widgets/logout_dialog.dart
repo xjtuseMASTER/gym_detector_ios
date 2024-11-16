@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/module/cache_module/cache_utils/first_post_repository.dart';
@@ -9,7 +8,7 @@ import 'package:gym_detector_ios/module/global_module/global_user_preferences.da
 import 'package:gym_detector_ios/services/api/Auth/logout_api.dart';
 import 'package:gym_detector_ios/services/utils/handle_http_error.dart';
 import 'package:gym_detector_ios/userScreen/main_view.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 
 class LogoutDialog {
   static show(BuildContext context) {
@@ -65,6 +64,7 @@ class LogoutDialog {
                   MaterialPageRoute(builder: (context) => MainView()),
                   (Route<dynamic> route) => false, // 清空导航栈
                 );
+                CustomSnackBar.showSuccess(context, "Logout successfully！");
                 }
               },
               style: ElevatedButton.styleFrom(

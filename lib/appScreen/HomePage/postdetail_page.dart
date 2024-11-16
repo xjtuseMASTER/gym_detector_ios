@@ -1,6 +1,7 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gym_detector_ios/appScreen/HomePage/others_profile_page.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/profile_page.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
@@ -507,7 +508,7 @@ class _DetailPageState extends State<DetailPage> {
                                                       child: Text(isExpandedList[
                                                               index]
                                                           ? 'Pick up'
-                                                          : 'Expand ${replies.length} ',
+                                                          : '${replies.length} more',
                                                           overflow: TextOverflow.ellipsis,
                                                           ),
                                                     ),

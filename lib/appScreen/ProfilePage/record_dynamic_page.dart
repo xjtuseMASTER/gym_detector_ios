@@ -155,7 +155,7 @@ class _RecordDynamicPageState extends State<RecordDynamicPage>{
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => DetailPage(postId: post['postId'], authorId: post['authorId']),
+                                      builder: (context) => DetailPage(postId: post['postId'], authorId: post['autherId']),
                                     ),
                                   );
                                 },
