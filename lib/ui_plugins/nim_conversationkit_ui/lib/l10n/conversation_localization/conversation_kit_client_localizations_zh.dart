@@ -13,7 +13,7 @@ class ConversationKitClientLocalizationsZh extends ConversationKitClientLocaliza
   ConversationKitClientLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get conversationTitle => '云信IM';
+  String get conversationTitle => 'FitFormAI';
 
   @override
   String get createAdvancedTeamSuccess => '成功创建高级群';

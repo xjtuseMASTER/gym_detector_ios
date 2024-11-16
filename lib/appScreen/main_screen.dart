@@ -28,6 +28,7 @@ class _MainScreenState extends State<MainScreen> {
   int chatUnreadCount = 0;
   int contactUnreadCount = 0;
   late Future<List<Map<String, dynamic>>> _futurePosts; // 异步获取帖子数据
+  List<Map<String, dynamic>> posts = []; //实际帖子列表
 
   initUnread() {
     ConversationRepo.getMsgUnreadCount().then((value) {
@@ -84,34 +85,28 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  @override
-  void initState()  {
-    super.initState();
-    _futurePosts= _fetchAndCachePosts();
-    // 异步获取首次数据
-  }
 
   Future<List<Map<String, dynamic>>> _fetchAndCachePosts() async {
-  try {
-    final posts = await PostApi.fetchMorePosts({
-      'user_id': GlobalUser().user!.user_id,
-      'pageNumber': '1',
-    });
-    
-    // Cache the fetched data locally
-    await FirstPostRepository.addFirstPost(FirstPost(data: posts));
-    return posts;
-  } catch (e) {
-    // Handle the error by falling back on cached data if available
-    final cachedData = await FirstPostRepository.getFirstPosts();
-    
-    if (cachedData == null) {
-      return [];
-    } else {
-      return cachedData.data;
+    try {
+      final posts = await PostApi.fetchMorePosts({
+        'user_id': GlobalUser().user!.user_id,
+        'pageNumber': '1',
+      });
+
+      // Cache the fetched data locally
+      await FirstPostRepository.addFirstPost(FirstPost(data: posts));
+      return posts;
+    } catch (e) {
+      // Handle the error by falling back on cached data if available
+      final cachedData = await FirstPostRepository.getFirstPosts();
+
+      if (cachedData == null) {
+        return [];
+      } else {
+        return cachedData.data;
+      }
     }
   }
-}
 
   void _onItemTapped(int index) {
     setState(() {
@@ -127,20 +122,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _futurePosts,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator()); // 加载中
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Failed to load posts'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No posts available'));
-          } else {
-            // 成功获取到数据后，展示页面
-            final List<Map<String, dynamic>> posts = snapshot.data!;
-            final List<Widget> _pages = [
+    final List<Widget> pages = [
               HomePage(initialPosts: posts),
               AppPage(),
               ConversationPage(
@@ -152,10 +134,8 @@ class _MainScreenState extends State<MainScreen> {
               ),
               ProfilePage(selected: 0),
             ];
-            return _pages[_selectedIndex];
-          }
-        },
-      ),
+    return Scaffold(
+      body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,

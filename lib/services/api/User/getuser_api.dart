@@ -25,17 +25,17 @@ class GetuserApi {
         final decodedBody = utf8.decode(Response.bodyBytes);
         final jsonResponse = json.decode(decodedBody);
         final person = Person(
-            user_name: jsonResponse['data']['user_name'],
-            selfInfo: jsonResponse['data']['selfInfo'],
-            gender: jsonResponse['data']['gender'],
-            avatar: jsonResponse['data']['avatar'],
-            user_id: jsonResponse['data']['user_id'],
+            user_name: jsonResponse['data']['user_name']??"",
+            selfInfo: jsonResponse['data']['selfInfo']??"",
+            gender: jsonResponse['data']['gender']??"Man",
+            avatar: jsonResponse['data']['avatar']??"",
+            user_id: jsonResponse['data']['user_id']??"",
             password: "???",
-            email: jsonResponse['data']['email'],
-            likes_num: jsonResponse['data']['likes_num'],
-            birthday: jsonResponse['data']['birthday'],
-            collects_num: jsonResponse['data']['collects_num'],
-            followers_num: jsonResponse['data']['followers_num']);
+            email: jsonResponse['data']['email']??"",
+            likes_num: jsonResponse['data']['likes_num']?? 0,
+            birthday: jsonResponse['data']['birthday']??"1999-01-01",
+            collects_num: jsonResponse['data']['collects_num']?? 0,
+            followers_num: jsonResponse['data']['followers_num']?? 0);
         isFollowed = jsonResponse['data']['isFollow'];
         
       return {'person': person, 'isFollowed': isFollowed, 'contact': contact};

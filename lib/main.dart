@@ -17,6 +17,7 @@ import 'package:gym_detector_ios/provider/theme_provider.dart';
 import 'package:gym_detector_ios/userScreen/main_view.dart';
 import 'package:provider/provider.dart';
 import 'appScreen/main_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'ui_plugins/nim_chatkit_ui/lib/chat_kit_client.dart';
 import 'ui_plugins/nim_contactkit_ui/lib/contact_kit_client.dart';
 import 'ui_plugins/nim_conversationkit_ui/lib/conversation_kit_client.dart';
@@ -26,6 +27,7 @@ import 'ui_plugins/nim_teamkit_ui/lib/team_kit_client.dart'; // 替换为你的�
 // 初始化全局的 CustomHttpClient 实例
 final CustomHttpClient customHttpClient = CustomHttpClient();
 void main() async{
+  await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
   final PageController _pageController = PageController();
   final cloudinary = CloudinaryPublic('dqfncgtzx', 'FiformAi', cache: false);

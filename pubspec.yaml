@@ -14,6 +14,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
+  flutter_dotenv: ^5.0.2
   cupertino_icons: ^1.0.2
   flutter_timer_countdown: ^1.0.5 # 倒计时器 
   image_picker: ^1.1.2 # 单图片照片采取器
@@ -89,6 +90,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - .env
     - assets/images/
     - assets/gymplan_images/
     - assets/user_images/

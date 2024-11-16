@@ -11,6 +11,7 @@ import 'package:gym_detector_ios/module/cache_module/first_post.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/cache_module/person.dart';
 import 'package:gym_detector_ios/services/api/Post/post_api.dart';
+import 'package:gym_detector_ios/widgets/no_data_screen.dart';
 
 class HomePage extends StatefulWidget {
   List<Map<String, dynamic>> initialPosts;
@@ -288,9 +289,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
       body: 
       Stack(
       children: [  
-      widget.initialPosts.isEmpty
-          ? Center(child: CircularProgressIndicator())
-          // : SquarePostView(initialPosts: widget.initialPosts, person: user,fetchMorePosts: fetchMorePosts,fetchNewPosts: fetchNewPosts,),//瀑布流展示widget
+      widget.initialPosts.isEmpty?
+      NoDataScreen(message: "No one's posted yet.Grab the first!")
           :RefreshIndicator(
               onRefresh: () async {
                 await _refreshPosts(context);

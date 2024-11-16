@@ -158,14 +158,7 @@ class _OthersProfilePageState extends State<OthersProfilePage> {
                           children: [
                             GestureDetector(
                                 onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => ChatPage(
-                                              // sessionId: contact.user.userId!,
-                                              sessionId: "651b293e1e224be5b4cc9bfffb537f14",
-                                              sessionType:
-                                                  NIMSessionType.p2p)));
+                                 
                                 },
                                 child: LeadlineBar(
                                     geticon: Icons.person,
@@ -213,7 +206,7 @@ class _OthersProfilePageState extends State<OthersProfilePage> {
               ),
               // 在 DynamiclistView 下方添加新的内容
               Visibility(
-                visible: isFriended,
+                visible: isFriend,
                 child: 
                 Align(
                 alignment: Alignment.bottomCenter,
@@ -225,7 +218,15 @@ class _OthersProfilePageState extends State<OthersProfilePage> {
                       width: 329.w,
                       height: 56.h,
                       child: ElevatedButton(
-                        onPressed: () async {},
+                        onPressed: () async {
+                           Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ChatPage(
+                                              sessionId: contact.user.userId!,
+                                              sessionType:
+                                                  NIMSessionType.p2p)));
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromARGB(255, 162, 139, 226),
                         ),

@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gym_detector_ios/main.dart';
 import 'package:gym_detector_ios/module/global_module/global_temp_user.dart';
 import 'package:gym_detector_ios/services/utils/decode_response_data.dart';
@@ -52,18 +53,31 @@ class SignupApi {
       final response = await customHttpClient.post(
           Uri.parse('${Http.httphead}/auth/register'),
           body: jsonEncode(args));
-
+      // final data = DecodeResponseData.transfer_to_Map(response);
+      // //云信IM账号注册(放后端了)
+      // final imResponse = await customHttpClient.post(
+      //     Uri.parse('https://api.netease.im/nimserver/user/create.action'),
+      //     headers:{
+      //       "AppKey": dotenv.env['YUNXIN_APPKEY']?? '',
+      //       "Content-Type": "application/x-www-form-urlencoded"
+      //     },
+      //     body: jsonEncode({
+      //       'accid': data["userId"],
+      //       'token': data["token"],
+      //     })
+      //     );
+      // if (imResponse.statusCode != 200){
+      //     return HandleError(code: 97, isError: true, data: {});
+      // }
       if (response.statusCode == 200) {
         //清除暂存信息
         // GlobalTempUser().clearUser();
         
         return HandleError(code: response.statusCode, isError: false, data: {});
       } else {
-        LoadingDialog.hide(context);
         return HandleError(code: response.statusCode, isError: true, data: {});
       }
     } catch (e) {
-      LoadingDialog.hide(context);
       return HandleError(code: 100, isError: true, data: {});
     }
   }

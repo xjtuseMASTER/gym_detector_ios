@@ -13,7 +13,7 @@ class NoDataScreen extends StatelessWidget {
         children: [
           const Icon(
             Icons.weekend, // 沙发图标
-            size: 50,
+            size: 80,
             color: Colors.grey,
           ),
           SizedBox(height: 10),
