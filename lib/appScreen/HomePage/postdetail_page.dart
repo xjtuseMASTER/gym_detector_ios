@@ -726,23 +726,23 @@ class _DetailPageState extends State<DetailPage> {
                           PostApi.replyToPost(context,body).then((result) {
                             if (mounted) {
                               CommentId=result;
+                              setState(() {
+                            commentlist.insert(
+                                0, generateComment(replyController.text,result));
+                          });
                               Navigator.pop(context);
                             }
-                          });
-                          setState(() {
-                            commentlist.insert(
-                                0, generateComment(replyController.text,CommentId));
                           });
                         } else {
                           PostApi.replyToComment(context, body).then((result) {
                             if (mounted) {
                               CommentId=result;
-                              Navigator.pop(context);
-                            }
-                          });
-                          setState(() {
+                               setState(() {
                             commentlist[index]['replies'].insert(0,
                                 generateReply(replyController.text, replyTo,CommentId));
+                          });
+                              Navigator.pop(context);
+                            }
                           });
                         }
                         Navigator.of(context).pop(); // 确保使用的是弹窗的 context
