@@ -23,19 +23,21 @@ import 'package:netease_corekit_im/services/login/login_service.dart';
 import 'package:netease_corekit_im/services/message/nim_chat_cache.dart';
 import 'package:netease_corekit_im/services/team/team_provider.dart';
 import 'package:nim_core/nim_core.dart';
+import '../../../../nim_chatkit_ui/lib/view/page/chat_pin_page.dart';
 import '../../l10n/S.dart';
 import '../../view/pages/team_kit_manage_page.dart';
 import '../../view/pages/team_kit_member_list_page.dart';
 import '../../view/pages/team_kit_team_info_page.dart';
+import '../../../../nim_chatkit_ui/lib/view/page/chat_search_page.dart';
 import 'package:provider/provider.dart';
 
 import '../../team_kit_client.dart';
 import '../../view_model/team_setting_view_model.dart';
 
 class TeamSettingPage extends StatefulWidget {
-  const TeamSettingPage(this.teamId, {Key? key}) : super(key: key);
-
   final String teamId;
+  TeamSettingPage({required this.teamId});
+
 
   @override
   State<StatefulWidget> createState() => _TeamSettingPageState();
@@ -257,12 +259,13 @@ class _TeamSettingPageState extends State<TeamSettingPage> {
           ),
           trailing: const Icon(Icons.keyboard_arrow_right_outlined),
           onTap: () {
-            Navigator.pushNamed(context, RouterConstants.PATH_CHAT_PIN_PAGE,
-                arguments: {
-                  'sessionId': widget.teamId,
-                  'sessionType': NIMSessionType.team,
-                  'chatTitle': teamMember.team.name ?? '',
-                });
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ChatPinPage(
+                        sessionId: widget.teamId,
+                        sessionType: NIMSessionType.team,
+                        chatTitle: teamMember.team.name ?? '',)));
           },
         ),
         ListTile(
@@ -272,8 +275,14 @@ class _TeamSettingPageState extends State<TeamSettingPage> {
           ),
           trailing: const Icon(Icons.keyboard_arrow_right_outlined),
           onTap: () {
-            Navigator.pushNamed(context, RouterConstants.PATH_CHAT_SEARCH_PAGE,
-                arguments: {'teamId': widget.teamId});
+            // Navigator.pushNamed(context, RouterConstants.PATH_CHAT_SEARCH_PAGE,
+            //     arguments: {'teamId': widget.teamId});
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ChatSearchPage(
+                          teamId:  widget.teamId
+                        )));
           },
         ),
         if (getIt<TeamProvider>().isGroupTeam(teamMember.team)) ...[

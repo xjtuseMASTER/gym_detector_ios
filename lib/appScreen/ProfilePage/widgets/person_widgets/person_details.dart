@@ -7,52 +7,12 @@ import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/person_widgets/pe
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/module/cache_module/person.dart';
 import 'package:gym_detector_ios/widgets/Leadline_bar.dart';
-import 'package:netease_common_ui/utils/connectivity_checker.dart';
-import 'package:netease_corekit_im/service_locator.dart';
-import 'package:netease_corekit_im/services/login/login_service.dart';
-import 'package:netease_corekit_im/services/user_info/user_info_provider.dart';
-import 'package:nim_core/nim_core.dart';
-class PersonDetailsPage extends StatefulWidget {
+class PersonDetailsPage extends StatelessWidget {
   final Person person;
   const PersonDetailsPage({
     Key? key,
     required this.person,
   }) : super(key: key);
-  @override
-  State<StatefulWidget> createState() => _PersonDetailsPageState();
-}
-
-
-class _PersonDetailsPageState extends State<PersonDetailsPage> {
-  LoginService loginService = getIt<LoginService>();
-  UserInfoProvider userInfoProvider = getIt<UserInfoProvider>();
-  late NIMUser userInfo;
-  
-  _updateInfo() async {
-    if (!await haveConnectivity()) {
-      return;
-    }
-    userInfoProvider.updateUserInfo(userInfo).then((value) {
-      if (value.isSuccess) {
-        loginService.getUserInfo();
-        // _backToPage();
-      } else {
-        // Fluttertoast.showToast(msg: S.of(context).requestFail);
-      }
-    });
-  }
-
-
-  @override
-  void initState() {
-    super.initState();
-    if (loginService.userInfo != null) {
-      userInfo = NIMUser.fromMap(loginService.userInfo!.toMap());
-    } else {
-      userInfo = NIMUser();
-    }
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -96,5 +56,4 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
       ),
     );
   }
-}
 }

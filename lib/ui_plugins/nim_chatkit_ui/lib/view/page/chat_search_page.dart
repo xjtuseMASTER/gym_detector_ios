@@ -16,12 +16,12 @@ import '../../helper/chat_message_user_helper.dart';
 import 'package:nim_core/nim_core.dart';
 
 import '../../chat_kit_client.dart';
+import '../../../../nim_chatkit_ui/lib/view/page/chat_page.dart';
 import '../../l10n/S.dart';
 
 class ChatSearchPage extends StatefulWidget {
-  const ChatSearchPage(this.teamId, {Key? key}) : super(key: key);
-
   final String teamId;
+  ChatSearchPage({required this.teamId});
 
   @override
   State<ChatSearchPage> createState() => _ChatSearchPageState();
@@ -50,7 +50,6 @@ class ChatSearchResult extends StatelessWidget {
               ),
               SvgPicture.asset(
                 'assets/ui_plugins_images/ic_list_empty.svg',
-                 
               ),
               const SizedBox(
                 height: 18,
@@ -67,13 +66,23 @@ class ChatSearchResult extends StatelessWidget {
               ChatMessage item = searchResult![index];
               return InkWell(
                 onTap: () {
-                  Navigator.pushNamedAndRemoveUntil(context,
-                      RouterConstants.PATH_CHAT_PAGE, ModalRoute.withName('/'),
-                      arguments: {
-                        'sessionId': teamId,
-                        'sessionType': NIMSessionType.team,
-                        'anchor': item.nimMessage
-                      });
+                  // Navigator.pushNamedAndRemoveUntil(context,
+                  //     RouterConstants.PATH_CHAT_PAGE, ModalRoute.withName('/'),
+                  //     arguments: {
+                  //       'sessionId': teamId,
+                  //       'sessionType': NIMSessionType.team,
+                  //       'anchor': item.nimMessage
+                  //     });
+
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChatPage(
+                            sessionId: teamId,
+                            sessionType: NIMSessionType.team,
+                            anchor: item.nimMessage),
+                      ),
+                      (route) => true);
                 },
                 child: SearchItem(item, keyword),
               );

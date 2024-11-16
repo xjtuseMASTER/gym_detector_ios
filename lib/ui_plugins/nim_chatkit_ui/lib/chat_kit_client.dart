@@ -243,10 +243,10 @@ class ChatKitClient {
               anchor:
                   IMKitRouter.getArgumentFormMap<NIMMessage>(context, 'anchor'),
             ));
-    IMKitRouter.instance.registerRouter(
-        RouterConstants.PATH_CHAT_SEARCH_PAGE,
-        (context) => ChatSearchPage(
-            IMKitRouter.getArgumentFormMap<String>(context, 'teamId')!));
+    // IMKitRouter.instance.registerRouter(
+    //     RouterConstants.PATH_CHAT_SEARCH_PAGE,
+    //     (context) => ChatSearchPage(
+    //         IMKitRouter.getArgumentFormMap<String>(context, 'teamId')!));
 
     IMKitRouter.instance.registerRouter(
         RouterConstants.PATH_CHAT_PIN_PAGE,

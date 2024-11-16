@@ -22,10 +22,10 @@ class TeamKitClient {
 
   static init() {
     TeamKitClientRepo.init();
-    IMKitRouter.instance.registerRouter(
-        RouterConstants.PATH_TEAM_SETTING_PAGE,
-        (context) => TeamSettingPage(
-            IMKitRouter.getArgumentFormMap<String>(context, 'teamId')!));
+    // IMKitRouter.instance.registerRouter(
+    //     RouterConstants.PATH_TEAM_SETTING_PAGE,
+    //     (context) => TeamSettingPage(
+    //         IMKitRouter.getArgumentFormMap<String>(context, 'teamId')!));
 
     XKitReporter().register(moduleName: 'TeamUIKit', moduleVersion: '9.7.3');
   }

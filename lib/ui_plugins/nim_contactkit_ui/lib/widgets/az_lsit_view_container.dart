@@ -58,7 +58,8 @@ class _AZListViewContainerState extends State<AZListViewContainer> {
                 color: widget.textColor ?? CommonColors.color_333333),
           ),
           SizedBox(
-            height: 8,
+            //按钮越界fixd
+            height: 7,
           ),
           Container(
             height: 1,

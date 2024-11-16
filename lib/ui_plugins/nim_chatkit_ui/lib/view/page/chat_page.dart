@@ -29,6 +29,7 @@ import '../../view/chat_kit_message_list/item/chat_kit_message_item.dart';
 import '../../view/chat_kit_message_list/pop_menu/chat_kit_pop_actions.dart';
 import '../../view/page/chat_setting_page.dart';
 import '../../view_model/chat_view_model.dart';
+import '../../../../nim_teamkit_ui/lib/view/pages/team_kit_setting_page.dart';
 import 'package:nim_core/nim_core.dart';
 import 'package:provider/provider.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
@@ -443,11 +444,11 @@ class ChatPageState extends BaseState<ChatPage> with RouteAware {
                                   }
                                 } else if (widget.sessionType ==
                                     NIMSessionType.team) {
-                                  Navigator.pushNamed(context,
-                                      RouterConstants.PATH_TEAM_SETTING_PAGE,
-                                      arguments: {
-                                        'teamId': widget.sessionId
-                                      }).then((value) {
+                                   Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => TeamSettingPage(teamId: widget.sessionId)))
+                                      .then((value) {
                                     if (value == true) {
                                       Navigator.pop(context);
                                     }

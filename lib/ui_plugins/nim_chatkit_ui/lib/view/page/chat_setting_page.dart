@@ -20,6 +20,9 @@ import 'package:nim_core/nim_core.dart';
 import 'package:yunxin_alog/yunxin_alog.dart';
 
 import '../../chat_kit_client.dart';
+import '../../../../nim_chatkit_ui/lib/view/page/chat_page.dart';
+import '../../../../nim_chatkit_ui/lib/view/page/chat_pin_page.dart';
+import '../../../../nim_contactkit_ui/lib/page/contact_kit_contact_selector_page.dart';
 import '../../l10n/S.dart';
 
 class ChatSettingPage extends StatefulWidget {
@@ -73,8 +76,16 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
           ),
           GestureDetector(
             onTap: () {
-              goToContactSelector(context,
-                      mostCount: 198, filter: [userId], returnContact: true)
+              // goToContactSelector(context,
+              //         mostCount: 198, filter: [userId], returnContact: true)
+              Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>ContactKitSelectorPage(
+                              mostSelectedCount: 198,
+                              filterUsers: [userId],
+                              returnContact: true
+                            )))
                   .then((contacts) {
                 if (contacts is List<ContactInfo> && contacts.isNotEmpty) {
                   // add current friend
@@ -93,14 +104,24 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
                         content: 'create team ${teamResult?.toMap()}');
                     if (teamResult != null && teamResult.team != null) {
                       // pop and jump
-                      Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          RouterConstants.PATH_CHAT_PAGE,
-                          ModalRoute.withName(RouterConstants.PATH_CHAT_PAGE),
-                          arguments: {
-                            'sessionId': teamResult.team!.id!,
-                            'sessionType': NIMSessionType.team,
-                          });
+                      // Navigator.pushNamedAndRemoveUntil(
+                      //     context,
+                      //     RouterConstants.PATH_CHAT_PAGE,
+                      //     ModalRoute.withName(RouterConstants.PATH_CHAT_PAGE),
+                      //     arguments: {
+                      //       'sessionId': teamResult.team!.id!,
+                      //       'sessionType': NIMSessionType.team,
+                      //     });
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatPage(
+                            sessionId: teamResult.team!.id!,
+                            sessionType: NIMSessionType.team,
+                          ),
+                        ),
+                        (route) => true,
+                      );
                     }
                   });
                 }
@@ -108,7 +129,6 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
             },
             child: SvgPicture.asset(
               'assets/ui_plugins_images/ic_member_add.svg',
-               
               height: 42,
               width: 42,
             ),
@@ -130,12 +150,19 @@ class _ChatSettingPageState extends State<ChatSettingPage> {
           ),
           trailing: const Icon(Icons.keyboard_arrow_right_outlined),
           onTap: () {
-            Navigator.pushNamed(context, RouterConstants.PATH_CHAT_PIN_PAGE,
-                arguments: {
-                  'sessionId': userId,
-                  'sessionType': NIMSessionType.p2p,
-                  'chatTitle': widget.contactInfo.getName()
-                });
+            // Navigator.pushNamed(context, RouterConstants.PATH_CHAT_PIN_PAGE,
+            //     arguments: {
+            //       'sessionId': userId,
+            //       'sessionType': NIMSessionType.p2p,
+            //       'chatTitle': widget.contactInfo.getName()
+            //     });
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ChatPinPage(
+                        sessionId: userId,
+                        sessionType: NIMSessionType.p2p,
+                        chatTitle: widget.contactInfo.getName())));
           },
         ),
         ListTile(
