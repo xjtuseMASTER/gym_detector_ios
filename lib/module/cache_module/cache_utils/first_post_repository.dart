@@ -25,4 +25,8 @@ class FirstPostRepository {
   static Future<void> addFirstPost(FirstPost firstPost) async {
     await _box.put(0, firstPost);  // 直接使用之前打开的盒子
   }
+   static Future<void> clear() async {
+    final box = Hive.box<FirstPost>(boxName);
+    await box.delete(0); // 删除固定的 key
+  }
 }

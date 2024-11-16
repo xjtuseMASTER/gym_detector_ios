@@ -189,10 +189,6 @@ class _PersonInfoState extends State<PersonInfo> {
       "selfInfo": _signatureController.text,
     };
     await ChangeuserApi.submitPersonInfo(context,updatedInfo);
-    GlobalUser().user!.setUserName(_nameController.text);
-    GlobalUser().user!.setBirthday(selectedDate);
-    GlobalUser().user!.setGender(_genderController.text);
-    GlobalUser().user!.setSelfIntro(_signatureController.text);
   }
 
 }

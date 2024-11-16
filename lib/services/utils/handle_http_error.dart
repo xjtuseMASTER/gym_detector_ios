@@ -18,6 +18,9 @@ class HandleHttpError {
         break;
       case 100:
         errorMessage = 'Network error';
+      case 429:
+        errorMessage = 'Too many requests';
+        break;
       default:
         errorMessage = 'Unknown error';
     }

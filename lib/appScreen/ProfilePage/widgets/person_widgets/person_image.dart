@@ -41,9 +41,6 @@ class _PersonImageState extends State<PersonImage> {
           CloudinaryFile.fromFile(pickedFile.path,
               resourceType: CloudinaryResourceType.Image),
         );
-        print(response.secureUrl);
-        GlobalUser().user!.setAvatar(response.secureUrl);
-        print(GlobalUser().user!.avatar);
         await ChangeuserApi.uploadProfilePhoto(context, GlobalUser().user!.user_id, response.url);
         LoadingDialog.hide(context);
       } on CloudinaryException catch (e) {

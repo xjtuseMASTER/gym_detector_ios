@@ -26,24 +26,26 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _fetchAndCachePosts() async {
-    try {
-      final posts = await PostApi.fetchMorePosts({
-        'user_id': GlobalUser().user!.user_id,
-        'pageNumber': '1',
-      });
-      // 进行本地缓存
-      await FirstPostRepository.addFirstPost(FirstPost(data: posts));
-      return posts;
-    } catch (e) {
-      // Handle the error, fallback on cached data if available
-      final cachedData = await FirstPostRepository.getFirstPosts();
-      if (cachedData == null ) {
-        return [];
-      } else {
-        return cachedData.data;
-      }
+  try {
+    final posts = await PostApi.fetchMorePosts({
+      'user_id': GlobalUser().user!.user_id,
+      'pageNumber': '1',
+    });
+    
+    // Cache the fetched data locally
+    await FirstPostRepository.addFirstPost(FirstPost(data: posts));
+    return posts;
+  } catch (e) {
+    // Handle the error by falling back on cached data if available
+    final cachedData = await FirstPostRepository.getFirstPosts();
+    
+    if (cachedData == null) {
+      return [];
+    } else {
+      return cachedData.data;
     }
   }
+}
 
   void _onItemTapped(int index) {
     setState(() {

@@ -19,7 +19,7 @@ class HomePage extends StatefulWidget {
 }
 class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
   final Person user =GlobalUser().getUser()!;
-  int PageNumber=2;//页码
+  int PageNumber=1;//页码
   List<Map<String, dynamic>> _posts = []; // 保存获取到的数据作为真正的数据源
   ScrollController _scrollController = ScrollController();
   bool _isLoadingMore = false;//是否加载
@@ -55,37 +55,41 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
     setState(() {
       _isRefreshing = true;
     });
-    PageNumber++;
     final queryParameters= {
           'user_id': GlobalUser().user!.user_id,
-          'pageNumber': PageNumber.toString(), // 确保 pageNumber 为字符串
+          'pageNumber': '1', // 确保 pageNumber 为字符串
         };
     List<Map<String, dynamic>> newPosts = await PostApi.fetchNewPosts(context,queryParameters); // 获取更多的数据
-    // 更新本地缓存
-    await FirstPostRepository.addFirstPost(FirstPost(data: newPosts));
-    
-    setState(() {
       if(newPosts.isEmpty){
         _posts=_posts;//不刷新
+        setState(() {
+           _isRefreshing = false;
+        });
       }
       else{
-       List<Map<String, dynamic>> temp_list=[];
+       List<Map<String, dynamic>> temp_list=_posts;
        //做一遍去重遍历
        for(var newPost in newPosts){
         bool postExits=_posts.any((post)=>post['postId']==newPost['postId']);
         if(!postExits)
         {
-          temp_list.add(newPost);
+          temp_list.insert(0, newPost);
         }
        }
-      _posts = temp_list; // 刷新时替换数据
+       // 更新本地缓存
+      await FirstPostRepository.addFirstPost(FirstPost(data: newPosts));
+       setState(() {
+         _posts = temp_list;
+          _isRefreshing = false;
+        
+      });
       }
-      _isRefreshing = false;
-    });
+    
   }
 
   // 上拉加载更多功能
   Future<void> _loadMorePosts(BuildContext context) async {
+    
     if (_isLoadingMore) return; // 防止重复请求
     setState(() {
       _isLoadingMore = true;
@@ -96,24 +100,38 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
           'pageNumber': PageNumber.toString(), // 确保 pageNumber 为字符串
         };
     List<Map<String, dynamic>> morePosts = await PostApi.fetchNewPosts(context,queryParameters); // 获取更多的数据
-    setState(() {
+    //如果没有更多的帖子
+    if(morePosts.isEmpty){
+      setState(() {
+        _isLoadingMore = false;
+        _posts=_posts;
+      });
+    }else{
+    //如果有更多的帖子
+    List<Map<String, dynamic>> temp_list=_posts;
       // 遍历新的帖子列表
       for (var newPost in morePosts) {
-        // 判断 _posts 列表中是否已经存在相同 postId 的帖子
-        bool postExists = _posts.any((post) => post['postId'] == newPost['postId']);
-        
-        // 如果帖子不存在，则将其加入 _posts 列表
-        if (!postExists) {
-          _posts.add(newPost);
+          // 判断 _posts 列表中是否已经存在相同 postId 的帖子
+          bool postExists = _posts.any((post) => post['postId'] == newPost['postId']);
+          
+          // 如果帖子不存在，则将其加入 _posts 列表的前面
+          if (!postExists) {
+            temp_list.add(newPost); // 将新帖子添加到列表的后面
+          }
         }
-      }
-      _isLoadingMore = false;
-    });
+      setState(() {
+        _posts = temp_list;
+        _isLoadingMore = false;
+      });
+
+    }
+      
   }
   // 监听滚动事件，判断是否需要加载更多
-  void _onScroll() {
-    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !_isLoadingMore) {
-      _loadMorePosts(context); // 当滚动到底部时加载更多
+  void _onScroll()async {
+    if ((_scrollController.position.pixels >= 
+        _scrollController.position.maxScrollExtent - 50) && !_isLoadingMore) {
+      await _loadMorePosts(context);
     }
   }  
 
@@ -289,7 +307,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
                 itemBuilder: (context, index) {
                   if (index == _posts.length && _isLoadingMore) {
                     // 显示加载指示器
-                    return Center(child: CircularProgressIndicator());
+                    return Center();
                   }
 
                   final post = _posts[index]; // 当前帖子数据
