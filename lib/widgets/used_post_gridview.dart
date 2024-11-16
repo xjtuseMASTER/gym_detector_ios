@@ -1,3 +1,6 @@
+
+//废弃
+
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/appScreen/HomePage/postdetail_page.dart';
 import 'package:gym_detector_ios/module/cache_module/person.dart';

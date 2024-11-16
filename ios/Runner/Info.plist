@@ -6,10 +6,12 @@
 	<true/>
 	<key>CFBundleAllowMixedLocalizations</key>
 	<true/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>云信IM(flutter)</string>
+	<string>FitformAi.2.1.1</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -47,6 +49,10 @@
 	<string>访问相册，用于图片保存</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>访问相册,用于发送图片消息</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library so that you can upload your profile picture</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

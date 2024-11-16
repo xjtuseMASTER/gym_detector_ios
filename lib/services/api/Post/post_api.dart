@@ -15,26 +15,25 @@ import 'package:image_picker/image_picker.dart';
 
 class PostApi {
   // 首次获取新的帖子数据
-  static Future<List<Map<String, dynamic>>> fetchMorePosts(Map<String,String> args) async {
-   try {
-    // 发送请求
+  static Future<List<Map<String, dynamic>>> fetchMorePosts(Map<String, String> args) async {
+  try {
     final response = await customHttpClient.get(
-        Uri.parse('${Http.httphead}/post/stream').replace(
-          queryParameters: args,
-        ),
-      ).timeout(Duration(seconds: 30));
+      Uri.parse('${Http.httphead}/post/stream').replace(
+        queryParameters: args,
+      ),
+    ).timeout(Duration(seconds: 30));
 
     if (response.statusCode == 200) {
-      // 请求成功
-      //  提取 data 部分
-    final List<dynamic> postList = DecodeResponseData.transfer_to_Map(response);
-    return postList.map((post) => post as Map<String, dynamic>).toList();
-    } 
-    else{
-      return [];
+      // Extract the data part
+      final List<dynamic> postList = DecodeResponseData.transfer_to_Map(response);
+      return postList.map((post) => post as Map<String, dynamic>).toList();
+    } else {
+      // Throw an exception for non-200 status codes
+      throw Exception('Failed to fetch posts, status code: ${response.statusCode}');
     }
   } catch (e) {
-    throw (e);
+    // Re-throw the exception to be caught in the calling function
+    throw Exception('Error fetching posts: $e');
   }
 }
 
@@ -215,6 +214,38 @@ static Future<List<Map<String, dynamic>>> fetchNewPosts(BuildContext context,Map
       return '';
     }
   }
+  //获取指定用户的历史上传/收藏/点赞数据
+  static Future<List<Map<String, dynamic>>> fetchUsedPosts(int index,Map<String,String> args) async {
+  final responseJson;
+  if(index==0){
+    //拿去喜欢的数据
+    responseJson = await customHttpClient.get(Uri.parse('${Http.httphead}/post_like/see_like').replace(queryParameters:args)
+        ).timeout(const Duration(seconds: 30));
+  }
+  else if(index==1)
+  {
+    //拿去发布数据
+    responseJson = await customHttpClient.get(Uri.parse('${Http.httphead}/post/mypost').replace(queryParameters:args),
+        ).timeout(const Duration(seconds: 30));
+  }  
+  else{
+    //拿去收藏数据
+    responseJson = await customHttpClient.get(Uri.parse('${Http.httphead}/post_collect/mycollect').replace(queryParameters:args),
+        ).timeout(const Duration(seconds: 30));
+  }
+  // 检查请求是否成功
+  if (responseJson.statusCode==200) {
+    final decodedBody = utf8.decode(responseJson.bodyBytes); 
+    final jsonResponse = json.decode(decodedBody);
+    // 获取 postList
+    final List<dynamic> postList = jsonResponse['data'];
+    // 转换为 List<Map<String, dynamic>>
+    return postList.map((post) => post as Map<String, dynamic>).toList();
+  } else {
+    return [];
+  }
+
+}
 
 
 }

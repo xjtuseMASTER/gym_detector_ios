@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:ffi';
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,6 +8,7 @@ import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import 'package:gym_detector_ios/widgets/http.dart';
 import 'package:gym_detector_ios/widgets/loading_dialog.dart';
+import 'package:gym_detector_ios/widgets/networkerror_screen.dart';
 import 'package:http/http.dart' as http;
 
 class BodydataPage extends StatefulWidget {
@@ -16,23 +16,36 @@ class BodydataPage extends StatefulWidget {
   _BodydataPageState createState() => _BodydataPageState();
 }
 
-class _BodydataPageState extends State<BodydataPage>  with AutomaticKeepAliveClientMixin{
+class _BodydataPageState extends State<BodydataPage>  {
   int selectedIndex = 0; // 控制当前选中的数据类型
   final List<String> categories = ['Present Height :', 'Present Weight :', 'Present vital capacity :', 'Present BFR :'];
   final List<String> Choices= ['Upload Your Height data', 'upload your Weight data', 'upload your vital capacity', 'upload your BFR'];
   final List<String> categories_description = ['Your Height Trend', 'Your Weight Trend', 'Your vital capacity Trend', 'Your BFR Trend'];
   final List<String> units = ['Cm', 'Kg', 'Cc', '%'];
-  late List<int> heightList;//身高数据
-  late List<int> weightList;//体重数据
-  late List<int> bodyFatRateList;//体脂率数据
-  late List<int> vitalCapacityList;//肺活量数据
-  List<List<int>>  bodyData=[];
-   @override
-  bool get wantKeepAlive => true; // 确保页面状态保持
+  late List<double> heightList;//身高数据
+  late List<double> weightList;//体重数据
+  late List<double> bodyFatRateList;//体脂率数据
+  late List<double> vitalCapacityList;//肺活量数据
+  late Future<List<List<double>>> _bodyData;//所有数据
+   List<List<double>> bodyData=[];
 
+  @override
+  void initState() {
+    _bodyData= fetchBodyDataSequentially();
+    _bodyData.then((value){
+      bodyData=value;
+      return value;
+     
+    });
+
+  }
+
+
+  
    
   // 异步依次获取四个接口的数据
-  Future<bool> fetchBodyDataSequentially() async {
+  Future<List<List<double>>> fetchBodyDataSequentially() async {
+    List<List<double>>  bodyData=[];
     try {
       // 获取身高数据
       final heightResponse = await customHttpClient.get(
@@ -42,9 +55,11 @@ class _BodydataPageState extends State<BodydataPage>  with AutomaticKeepAliveCli
           }
         )
       );
+
       if (heightResponse.statusCode == 200) {
         heightList = _parseData(heightResponse.body, 'heightList');
         bodyData.add(heightList);
+        print(11111);
       } else {
         bodyData.add([0,0,0,0,0]);
         CustomSnackBar.showSuccess(context, "You haven't uploaded any data！");
@@ -97,9 +112,9 @@ class _BodydataPageState extends State<BodydataPage>  with AutomaticKeepAliveCli
         throw Exception('Failed to fetch body fat rate data');
       }
 
-      return true; // 数据加载成功
+      return bodyData ;// 数据加载成功
     } catch (e) {
-      return false;
+      return [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
     }
   }
 
@@ -190,15 +205,14 @@ class _BodydataPageState extends State<BodydataPage>  with AutomaticKeepAliveCli
 }
 
   // 解析数据
-  List<int> _parseData(String responseBody, String key) {
+  List<double> _parseData(String responseBody, String key) {
     final jsonResponse = json.decode(responseBody);
     final data = jsonResponse['data'][key];
-    return List<int>.from(data); // 将数据转换为List<double>
+    return List<double>.from(data); // 将数据转换为List<double>
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); 
     return Scaffold(
        appBar: AppBar(
         leading: IconButton(
@@ -219,14 +233,13 @@ class _BodydataPageState extends State<BodydataPage>  with AutomaticKeepAliveCli
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: FutureBuilder<bool>(
-        future: fetchBodyDataSequentially(),  // 异步顺序加载数据
+      body: FutureBuilder<List<List<double>>>(
+        future: _bodyData,  // 异步顺序加载数据
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator()); // 加载中
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error loading data: ${snapshot.error}')); // 错误处理
-          } else if (snapshot.hasData && snapshot.data == true) {
+          } 
+          else if (snapshot.hasData) {
             return  Scaffold(
           body: Column(
         children: [
@@ -381,7 +394,7 @@ class _BodydataPageState extends State<BodydataPage>  with AutomaticKeepAliveCli
       ),
     );
           } else {
-            return Center(child: Text('Failed to load data')); // 如果数据加载失败，显示错误提示
+            return NetworkErrorScreen(); // 如果数据加载失败，显示错误提示
           }
         },
       ),
@@ -573,7 +586,7 @@ class _BodydataPageState extends State<BodydataPage>  with AutomaticKeepAliveCli
                         await _handleSubmit(selectedDate, inputData, selectedIndex);
                         Navigator.pop(context);  // 关闭弹窗
                         setState((){
-                           bodyData[selectindex].add(int.parse(inputData));//暂时整数，后续再改
+                           bodyData[selectindex].add(double.parse(inputData));//暂时整数，后续再改
                         });
                       } else {
                         setState(() {

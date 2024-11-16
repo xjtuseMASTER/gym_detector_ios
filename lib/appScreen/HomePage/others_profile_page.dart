@@ -1,6 +1,8 @@
 // 点击头像查看别人的个人主页
 import 'dart:async';
 
+import 'dart:isolate';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/dynamiclist_view.dart';
@@ -21,6 +23,7 @@ import 'package:nim_core/nim_core.dart';
 import '../../ui_plugins/nim_chatkit_ui/lib/view/page/chat_page.dart';
 import '../../ui_plugins/nim_contactkit_ui/lib/l10n/S.dart';
 
+import 'package:gym_detector_ios/widgets/networkerror_screen.dart';
 // ignore: must_be_immutable
 class OthersProfilePage extends StatefulWidget {
   final bool isOneself = false;
@@ -111,6 +114,7 @@ class _OthersProfilePageState extends State<OthersProfilePage> {
       }
     });
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -199,32 +203,55 @@ class _OthersProfilePageState extends State<OthersProfilePage> {
                   ),
                 ),
                 OtherPersonCard(person1: person),
-                BarList(
-                  selected: selected,
-                  callback: (int index) {
-                    setState(() {
-                      selected = index;
-                    });
-                  },
+              SizedBox(height: 30.h),
+              // 直接放置 IndexedStack，而不包裹在 Expanded 中
+              Expanded(
+                child: DynamiclistView(
+                  getperson: person,
                   isOneself: false,
                 ),
-                Expanded(
-                    child: IndexedStack(
-                  index: selected,
-                  children: [
-                    // 显示第一个选项的内容
-                    DynamiclistView(getperson: person, isOneself: false),
-                  ],
-                )),
-                
-              ],
-            );
-          } else {
-            return const Center(
-                child: Text('Failed to load data')); // 如果数据加载失败，显示错误提示
-          }
-        },
-      ),
-    );
-  }
+              ),
+              // 在 DynamiclistView 下方添加新的内容
+              Visibility(
+                visible: isFriended,
+                child: 
+                Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 70.h),  // 设置底部距离
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.all(Radius.circular(10.r)),
+                    child: SizedBox(
+                      width: 329.w,
+                      height: 56.h,
+                      child: ElevatedButton(
+                        onPressed: () async {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 162, 139, 226),
+                        ),
+                        child: Text(
+                          'Send Message',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15.sp,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              )
+                )
+            ],
+          );
+        } else {
+          return NetworkErrorScreen();
+        }
+      },
+    ),
+  );
+}
+
 }

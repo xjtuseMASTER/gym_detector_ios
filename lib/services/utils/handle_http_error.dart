@@ -18,6 +18,15 @@ class HandleHttpError {
         break;
       case 100:
         errorMessage = 'Network error';
+      case 429:
+        errorMessage = 'Too many requests';
+        break;
+      case 519:
+        errorMessage='Your account has been logged in elsewhere';
+        break;
+      case 400:
+        errorMessage='The account or password is incorrect';
+        break;
       case 99:
         errorMessage = 'IM login failed';
       case 98:

@@ -25,7 +25,8 @@ import 'ui_plugins/nim_teamkit_ui/lib/team_kit_client.dart'; // 替换为你的�
 
 // 初始化全局的 CustomHttpClient 实例
 final CustomHttpClient customHttpClient = CustomHttpClient();
-void main() async {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
   final PageController _pageController = PageController();
   final cloudinary = CloudinaryPublic('dqfncgtzx', 'FiformAi', cache: false);
   await UserRepository.init(); // 添加这行

@@ -1,10 +1,13 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gym_detector_ios/appScreen/HomePage/others_profile_page.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/profile_page.dart';
 import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/services/api/Post/post_api.dart';
+import 'package:gym_detector_ios/widgets/networkerror_screen.dart';
+import 'package:gym_detector_ios/widgets/no_data_screen.dart';
 
 class DetailPage extends StatefulWidget {
   final String postId; //帖子Id
@@ -16,8 +19,8 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   late Future<Map<String, dynamic>> _postFuture;
-  late Future<List<Map<String, dynamic>>> _commentlist;
-  late Future<Map<String, dynamic>> _combinedFuture;
+  Map<String,dynamic> post={};
+  late Future<List<Map<String, dynamic>>> _commentsFuture;
   List<Map<String, dynamic>> commentlist = [];
   bool isCollect = false; // 收藏状态
   bool isFavorite = false; //点赞状态
@@ -28,27 +31,35 @@ class _DetailPageState extends State<DetailPage> {
   bool _isFirstLoad = true;
   // 控制回复的展开/收起
   List<bool> isExpandedList = [];
-
+  //数据集结果
+  final results=[];
   @override
   void initState() {
     super.initState();
     _postFuture = PostApi.fetchPostData({
             'post_id': widget.postId,
             'user_id': GlobalUser().user!.user_id
-          }); // 初始化时启动异步加载数据
-    _commentlist = PostApi.fetchCommentData({'post_id': widget.postId});
-    _combinedFuture = combineFutures();
-    _commentlist.then((commentList) {
-      isExpandedList = List<bool>.filled(
-            commentList.length, false,
-            growable: true);
+          });
+    _postFuture.then((post_result){
+      post=post_result;
+      return post_result;
     });
+    isExpandedList = List<bool>.filled(
+            10000, false,
+            growable: true);
+    _commentsFuture = PostApi.fetchCommentData({'post_id': widget.postId}).then((comments) {
+      setState(() {
+        commentlist = comments;  // 设置初始的评论数据
+      });
+      return comments;
+    });
+   
   }
 
   //计算评论数量
-  int getCommentNumber() {
-    int temp = commentlist.length;
-    for (var comment in commentlist) {
+  int getCommentNumber(List<Map<String,dynamic>> cl) {
+    int temp = cl.length;
+    for (var comment in cl) {
       temp += (comment['replies'].length as int);
     }
     return temp;
@@ -91,38 +102,20 @@ class _DetailPageState extends State<DetailPage> {
     };
   }
   
-  //合成同一个异步数据集
-
-  Future<Map<String, dynamic>> combineFutures() async {
-    // 使用 Future.wait 同时等待 _postFuture 和 _commentlist 完成
-    final results = await Future.wait([
-      _postFuture,
-      _commentlist,
-    ]);
-    // 将结果组合成一个 Map
-    return {
-      'post': results[0], // _postFuture 的结果
-      'commentList': results[1], // _commentlist 的结果
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder<Map<String, dynamic>>(
-        future: _combinedFuture,
+        future: _postFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Failed to load post data'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No data found'));
-          } else {
-            final combinedData = snapshot.data!;
-            final post = combinedData['post'];
-            final commentlist = combinedData['commentList'];
-
+          } 
+          else if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty|| snapshot.data!['postId'] == null) {
+            return NetworkErrorScreen();
+          } 
+          //数据加载正常
+          else {
             return Scaffold(
               appBar: AppBar(
                 backgroundColor: const Color.fromARGB(255, 220, 179, 235),
@@ -164,7 +157,7 @@ class _DetailPageState extends State<DetailPage> {
                     ),
                     SizedBox(width: 10),
                     Text(
-                      post['authorName'],
+                      post['authorName']==null?'None':post['authorName'],
                       style: const TextStyle(
                         color: Colors.black,
                         fontFamily: 'Poppins',
@@ -282,22 +275,20 @@ class _DetailPageState extends State<DetailPage> {
                                         scale: scale, // 根据 scale 调整大小
                                         child: IconButton(
                                           icon: Icon(
-                                            isFavorite
+                                            post['isLike']
                                                 ? Icons.favorite
                                                 : Icons
                                                     .favorite_border, // 根据状态显示图标
                                             color: Colors.red,
                                           ),
                                           onPressed: () async {
-                                            await PostApi.operateFavorite(context,isFavorite, {
+                                            await PostApi.operateFavorite(context,post['isLike'], {
                                                 'user_id': GlobalUser().user!.user_id, // 传入 user_id 参数
                                                 'post_id': widget.postId
                                               });
                                             setState(() {
-                                              isFavorite =
-                                                  !isFavorite; // 切换点赞状态
                                               favorite_iconScale =
-                                                  1.7; // 设置放大效果
+                                                  3; // 设置放大效果
                                             });
                                             // 动画结束后将图标缩回原始大小
                                             Future.delayed(
@@ -306,6 +297,8 @@ class _DetailPageState extends State<DetailPage> {
                                               setState(() {
                                                 favorite_iconScale =
                                                     1.3; // 缩回原始大小
+                                                post['isLike']?post['likesNum']--:post['likesNum']++;
+                                                post['isLike']=!post['isLike'];
                                               });
                                             });
                                           },
@@ -313,9 +306,7 @@ class _DetailPageState extends State<DetailPage> {
                                       );
                                     },
                                   ),
-                                  Text(isFavorite
-                                      ? quantityCarry(post['likesNum'] + 1)
-                                      : quantityCarry(post['likesNum'])),
+                                  Text( quantityCarry(post['likesNum'])),
                                 ],
                               ),
                               SizedBox(width: 5),
@@ -335,20 +326,19 @@ class _DetailPageState extends State<DetailPage> {
                                         scale: scale, // 根据 scale 调整大小
                                         child: IconButton(
                                           icon: Icon(
-                                            isCollect
+                                            post['isCollect']
                                                 ? Icons.star
                                                 : Icons.star_border, // 根据状态显示图标
                                             color: Colors.yellow,
                                           ),
                                           onPressed: () async {
                                             //上传后端处理逻辑
-                                            await PostApi.operateCollect(context,isCollect, {
+                                            await PostApi.operateCollect(context,  post['isCollect'], {
                                               'user_id': GlobalUser().user!.user_id, // 传入 user_id 参数
                                               'post_id': widget.postId
                                             });
                                             setState(() {
-                                              isCollect = !isCollect; // 切换点赞状态
-                                              collect_iconScale = 1.7; // 设置放大效果
+                                              collect_iconScale = 3; // 设置放大效果
                                             });
                                             // 动画结束后将图标缩回原始大小
                                             Future.delayed(
@@ -357,6 +347,8 @@ class _DetailPageState extends State<DetailPage> {
                                               setState(() {
                                                 collect_iconScale =
                                                     1.3; // 缩回原始大小
+                                                post['isCollect']? post['collectsNum']--:post['collectsNum']++;
+                                                 post['isCollect']=!  post['isCollect'];
                                               });
                                             });
                                           },
@@ -364,9 +356,7 @@ class _DetailPageState extends State<DetailPage> {
                                       );
                                     },
                                   ),
-                                  Text(isCollect
-                                      ? quantityCarry(post['collectsNum'] + 1)
-                                      : quantityCarry(post['collectsNum'])),
+                                  Text(quantityCarry(post['collectsNum'])),
                                 ],
                               ),
                               SizedBox(width: 5),
@@ -389,15 +379,13 @@ class _DetailPageState extends State<DetailPage> {
                                           context, body, true, -1, "");
                                     },
                                   ),
-                                  Text(quantityCarry(getCommentNumber())),
-                                  SizedBox(width: 25),
                                   Text(post['creatTime'].substring(0,16))
                                 ],
                               ),
                             ],
                           ),
                           const Divider(),
-                          Text(
+                          const Text(
                             'Comments',
                             style: TextStyle(
                               color: Color(0xFF755DC1),
@@ -406,7 +394,23 @@ class _DetailPageState extends State<DetailPage> {
                             ),
                           ),
                           // Comments section
-                         Column(
+                          FutureBuilder<List<Map<String, dynamic>>>(
+                            future: _commentsFuture,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                // 当异步任务正在加载时，显示加载指示器
+                                return const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircularProgressIndicator(),
+                                    SizedBox(height: 16),
+                                  ],
+                                );
+                              } else if (snapshot.hasData ) {
+                              if(commentlist.length==0)
+                              {return NoDataScreen(message: 'No comments yet. Be the first to comment!',);}
+                              else{
+                              return  Column(
                               children: [
                                 ListView.builder(
                                   shrinkWrap: true,
@@ -434,8 +438,7 @@ class _DetailPageState extends State<DetailPage> {
                                             },
                                             child: CircleAvatar(
                                               radius: 25,
-                                              backgroundImage: comment[
-                                                          'authorAvatar'].isEmpty
+                                              backgroundImage: (comment['authorAvatar'] == null || comment['authorAvatar'].isEmpty)
                                                   ? const AssetImage(
                                                           'assets/images/NullPhoto.png')
                                                       as ImageProvider
@@ -505,7 +508,7 @@ class _DetailPageState extends State<DetailPage> {
                                                       child: Text(isExpandedList[
                                                               index]
                                                           ? 'Pick up'
-                                                          : 'Expand ${replies.length} ',
+                                                          : '${replies.length} more',
                                                           overflow: TextOverflow.ellipsis,
                                                           ),
                                                     ),
@@ -547,18 +550,12 @@ class _DetailPageState extends State<DetailPage> {
                                                               ),
                                                             );
                                                           },
-                                                          child: CircleAvatar(
-                                                            backgroundImage: reply[
-                                                                        'authorAvatar'] ==
-                                                                    ''
-                                                                ? const AssetImage(
-                                                                        'assets/images/NullPhoto.png')
-                                                                    as ImageProvider
-                                                                : NetworkImage(
-                                                                        reply[
-                                                                            'authorAvatar'])
-                                                                    as ImageProvider,
-                                                          )),
+                                                          child:  CircleAvatar(
+                                                          backgroundImage: (reply['authorAvatar'] == null || reply['authorAvatar'] == '')
+                                                              ? const AssetImage('assets/images/NullPhoto.png') as ImageProvider
+                                                              : NetworkImage(reply['authorAvatar'])as ImageProvider,
+                                                        ),
+                                                        ),
                                                       title: Row(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
@@ -672,7 +669,16 @@ class _DetailPageState extends State<DetailPage> {
                                   },
                                 ),
                               ],
-                            ),
+                            );
+                              }
+                              } else {
+                                // 如果请求成功并且数据不为空，显示内容
+                                return NetworkErrorScreen();
+                              }
+                            },
+                          )
+                          //评论区
+
                         ],
                       ),
                     ),
@@ -726,7 +732,6 @@ class _DetailPageState extends State<DetailPage> {
                           setState(() {
                             commentlist.insert(
                                 0, generateComment(replyController.text,CommentId));
-                            isExpandedList.add(false);
                           });
                         } else {
                           PostApi.replyToComment(context, body).then((result) {

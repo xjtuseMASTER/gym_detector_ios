@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/main.dart';
+import 'package:gym_detector_ios/module/cache_module/cache_utils/user_repository.dart';
+import 'package:gym_detector_ios/module/global_module/global_user.dart';
 import 'package:gym_detector_ios/services/utils/handle_http_error.dart';
 import 'package:gym_detector_ios/widgets/custom_snackbar.dart';
 import 'package:gym_detector_ios/widgets/http.dart';
@@ -22,8 +24,13 @@ class ChangeuserApi {
     );
 
     if (response.statusCode == 200) {
-      LoadingDialog.hide(context);
-      CustomSnackBar.showSuccess(context, 'Upload Successfully！');
+    LoadingDialog.hide(context);
+    CustomSnackBar.showSuccess(context, 'Upload Successfully！');
+    GlobalUser().user!.setUserName(args['user_name']!);
+    GlobalUser().user!.setBirthday(args['birthday']!);
+    GlobalUser().user!.setGender(args['gender']!);
+    GlobalUser().user!.setSelfIntro(args['selfInfo']!);
+      UserRepository.updateUser(GlobalUser().user!);
     } else {
       LoadingDialog.hide(context);
       HandleHttpError.handleErrorResponse(context, response.statusCode);
@@ -52,6 +59,8 @@ class ChangeuserApi {
 
       if (response.statusCode == 200) {
         CustomSnackBar.showSuccess(context, 'Upload Successfully');
+        GlobalUser().user!.setAvatar( secureurl);
+        UserRepository.updateUser(GlobalUser().user!);
       } else {
         // 隐藏加载对话框，显示错误提示框
         LoadingDialog.hide(context);
