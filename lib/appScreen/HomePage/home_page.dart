@@ -66,6 +66,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
           'pageNumber': '1', // 确保 pageNumber 为字符串
         };
     List<Map<String, dynamic>> newPosts = await PostApi.fetchNewPosts(context,queryParameters); // 获取更多的数据
+    if (_isRefreshing) {return;} // 如果已经在刷新，直接返回
       if(newPosts.isEmpty){
         _posts=_posts;//不刷新
         setState(() {
@@ -74,14 +75,14 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
       }
       else{
        List<Map<String, dynamic>> temp_list=_posts;
-       //做一遍去重遍历
-       for(var newPost in newPosts){
-        bool postExits=_posts.any((post)=>post['postId']==newPost['postId']);
-        if(!postExits)
-        {
-          temp_list.insert(0, newPost);
-        }
-       }
+      // 使用 Set 去重
+      Set<String> existingPostIds = _posts.map((post) => post['postId'] as String).toSet();
+          for (var newPost in newPosts) {
+            if (!existingPostIds.contains(newPost['postId'])) {
+              temp_list.insert(0, newPost);
+              existingPostIds.add(newPost['postId']);
+            }
+          }
        // 更新本地缓存
       await FirstPostRepository.addFirstPost(FirstPost(data: newPosts));
        setState(() {
