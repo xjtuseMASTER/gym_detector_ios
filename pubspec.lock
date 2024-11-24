@@ -230,6 +230,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.1"
+  carp_serializable:
+    dependency: transitive
+    description:
+      name: carp_serializable
+      sha256: "39f7d315f49fecd4b7eddfa3c1a08b9416ae3c640dc888de5f798246bcc2d38e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   characters:
     dependency: transitive
     description:
@@ -536,6 +544,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_markdown:
+    dependency: "direct main"
+    description:
+      name: flutter_markdown
+      sha256: "999a4e3cb3e1532a971c86d6c73a480264f6a687959d4887cb4e2990821827e4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.4+2"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -642,6 +658,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.0.1"
+  health:
+    dependency: "direct main"
+    description:
+      name: health
+      sha256: "01d6318b2d813d4b87044f9adb5a588f672acd176434ac380259d28de1f321a4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "11.1.0"
   hive:
     dependency: "direct main"
     description:
@@ -866,6 +890,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.2-main.4"
+  markdown:
+    dependency: transitive
+    description:
+      name: markdown
+      sha256: ef2a1298144e3f985cc736b22e0ccdaf188b5b3970648f2d9dc13efd1d9df051
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.2.2"
   matcher:
     dependency: transitive
     description:
@@ -1139,7 +1171,7 @@ packages:
     source: hosted
     version: "2.3.0"
   permission_handler:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: permission_handler
       sha256: "18bf33f7fefbd812f37e72091a15575e72d5318854877e0e4035a24ac1113ecb"
@@ -1575,6 +1607,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  video_compress:
+    dependency: "direct main"
+    description:
+      name: video_compress
+      sha256: "5b42d89f3970c956bad7a86c29682b0892c11a4ddf95ae6e29897ee28788e377"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.3"
   video_player:
     dependency: "direct main"
     description:

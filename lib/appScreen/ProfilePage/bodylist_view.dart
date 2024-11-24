@@ -1,6 +1,7 @@
 //个人主页身体数据页面的导航栏
 import 'package:flutter/material.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/Muscledata_view.dart';
+import 'package:gym_detector_ios/appScreen/ProfilePage/healthDashboard_view.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/body_widgets/bodydata_page.dart';
 import 'package:gym_detector_ios/appScreen/ProfilePage/widgets/body_widgets/history_upload_page.dart';
 import 'package:gym_detector_ios/module/cache_module/person.dart';
@@ -43,7 +44,7 @@ class BodylistView extends StatelessWidget {
             {
               //跳转到Muscledata
               Navigator.push(context,
-               MaterialPageRoute(builder: (context)=>MuscledataView())
+               MaterialPageRoute(builder: (context)=>const HealthDashboardView())
                );
             }
             else{

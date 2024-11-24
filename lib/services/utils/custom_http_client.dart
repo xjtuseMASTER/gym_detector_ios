@@ -10,7 +10,7 @@ class CustomHttpClient extends http.BaseClient {
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
-     const timeout = Duration(seconds: 30);
+     const timeout = Duration(seconds: 60);
     // 添加全局的 headers
     request.headers.addAll({
       'Accept': 'application/json',

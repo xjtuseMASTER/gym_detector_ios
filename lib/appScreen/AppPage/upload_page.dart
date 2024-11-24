@@ -13,6 +13,7 @@ import 'package:gym_detector_ios/widgets/loading_dialog.dart';
 import 'package:gym_detector_ios/widgets/persentageload_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:video_compress/video_compress.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:video_player/video_player.dart';
@@ -39,6 +40,7 @@ class _UploadPage extends State<UploadPage> {
   File? _video;
   bool isSelectedVideo = false; // 是否选择了正确的视频
   String? videoThumbnailPath;
+ String pic_url = '';
 
   @override
   void initState() {
@@ -47,40 +49,131 @@ class _UploadPage extends State<UploadPage> {
         listen: false); // 在 initState 中获取实例
   }
 
-  // 从相册选择视频上传
-  Future<void> _pickVideo() async {
-    final XFile? selectedVideo =
-        await _picker.pickVideo(source: ImageSource.gallery);
+  // // 从相册选择视频上传
+  // Future<void> _pickVideo() async {
+  //   final XFile? selectedVideo =
+  //       await _picker.pickVideo(source: ImageSource.gallery);
+
+  //   if (selectedVideo != null) {
+  //     VideoPlayerController videoController =
+  //         VideoPlayerController.file(File(selectedVideo.path));
+  //     await videoController.initialize();
+  //     final videoDuration = videoController.value.duration;
+
+  //     if (videoDuration.inSeconds > 60) {
+  //       CustomSnackBar.showFailure(
+  //           context, 'Please select a video under one minute！');
+  //       return;
+  //     }
+
+  //     setState(() {
+  //       isSelectedVideo = true;
+  //       _video = File(selectedVideo.path);
+  //     });
+
+  //     final String? videoThumbnail = await VideoThumbnail.thumbnailFile(
+  //       video: _video!.path,
+  //       imageFormat: ImageFormat.JPEG,
+  //       maxWidth: 256,
+  //       quality: 50,
+  //     );
+
+  //     setState(() {
+  //       videoThumbnailPath = videoThumbnail;
+  //     });
+  //   }
+  // }
+   // 显示选择对话框
+  Future<void> _showPickOptions() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Select from Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickVideo(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.videocam),
+                title: const Text('Record Video'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickVideo(ImageSource.camera);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // 从相册或相机选择视频
+  Future<void> _pickVideo(ImageSource source) async {
+    final XFile? selectedVideo = await _picker.pickVideo(source: source);
 
     if (selectedVideo != null) {
-      VideoPlayerController videoController =
-          VideoPlayerController.file(File(selectedVideo.path));
-      await videoController.initialize();
-      final videoDuration = videoController.value.duration;
-
-      if (videoDuration.inSeconds > 60) {
-        CustomSnackBar.showFailure(
-            context, 'Please select a video under one minute！');
-        return;
-      }
-
-      setState(() {
-        isSelectedVideo = true;
-        _video = File(selectedVideo.path);
-      });
-
-      final String? videoThumbnail = await VideoThumbnail.thumbnailFile(
-        video: _video!.path,
-        imageFormat: ImageFormat.JPEG,
-        maxWidth: 256,
-        quality: 50,
-      );
-
-      setState(() {
-        videoThumbnailPath = videoThumbnail;
-      });
+      await _handleSelectedVideo(selectedVideo);
     }
   }
+
+
+  
+// 处理选择的视频
+Future<void> _handleSelectedVideo(XFile video) async {
+  // 如果是相机拍摄的视频，进行压缩
+  if (video.path.contains('Camera')) {
+    // 开始压缩，调整分辨率和帧率
+    final MediaInfo? compressedVideo = await VideoCompress.compressVideo(
+      video.path,
+      quality: VideoQuality.LowQuality, // 设置低质量
+      deleteOrigin: false, // 保留原视频
+    );
+
+    if (compressedVideo != null) {
+      setState(() {
+        _video = File(compressedVideo.path!);
+        isSelectedVideo = true;
+      });
+    }
+  } else {
+    setState(() {
+      _video = File(video.path);
+      isSelectedVideo = true;
+    });
+  }
+
+  // 视频缩略图生成
+  final String? videoThumbnail = await VideoThumbnail.thumbnailFile(
+    video: _video!.path,
+    imageFormat: ImageFormat.JPEG,
+    maxWidth: 256,
+    quality: 50,
+  );
+
+  setState(() {
+    videoThumbnailPath = videoThumbnail;
+  });
+
+  // 检查视频时长
+  VideoPlayerController videoController =
+      VideoPlayerController.file(File(_video!.path));
+  await videoController.initialize();
+  final videoDuration = videoController.value.duration;
+
+  if (videoDuration.inSeconds > 60) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Please select a video under one minute!')),
+    );
+    return;
+  }
+}
 
   Future<void> _handleSubmit(BuildContext context, String userId) async {
     if (_video == null) return;
@@ -107,16 +200,17 @@ class _UploadPage extends State<UploadPage> {
               'caption': 'An example upload in chunks',
             },
           ),
-          chunkSize: 5000000, // 分块大小5MB
+          chunkSize: 10000000, // 分块大小5MB
         );
-
+          // 使用 replaceFirst
+         pic_url = res!.secureUrl.replaceFirst(RegExp(r'\.mov$'), '.jpg');
         // 删除视频和缩略图文件以释放资源
         _cleanupFiles();
-
+        LoadingDialog.hide(context);
         if (res?.secureUrl == null) {
           throw Exception('Upload failed: No secure URL received');
         }
-
+        LoadingDialog.show(context, 'Analyzing video...');
         // 不要隐藏 LoadingDialog 太早
         if (context.mounted) {
           final response = await customHttpClient
@@ -142,7 +236,7 @@ class _UploadPage extends State<UploadPage> {
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
-                        VideoAnalysisPage(analysisList: analysisList)));
+                        VideoAnalysisPage(analysisList: analysisList,pic_url: pic_url,)));
           } else {
             _handleErrorResponse(context, response.statusCode);
           }
@@ -246,7 +340,7 @@ class _UploadPage extends State<UploadPage> {
             ),
             SizedBox(height: 30.h),
             GestureDetector(
-              onTap: () => _pickVideo(),
+              onTap: () => _showPickOptions(),
               child: DottedBorder(
                 color: Colors.grey,
                 strokeWidth: 2,
