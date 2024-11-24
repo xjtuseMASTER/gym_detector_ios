@@ -28,7 +28,7 @@ class AppPage extends StatelessWidget {
               child: ListView(
                 children: [
                   // 9 个图片
-                  for (int index = 0; index < 9; index++)
+                  for (int index = 0; index < 5; index++)
                     GestureDetector(
                       onTap: () {
                         // 点击图片时跳转到详情页面

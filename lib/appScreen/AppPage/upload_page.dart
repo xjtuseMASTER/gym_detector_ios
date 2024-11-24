@@ -27,14 +27,11 @@ class UploadPage extends StatefulWidget {
 class _UploadPage extends State<UploadPage> {
   CloudinaryPublic? cloudinary; // 云端上传器
   final List<String> names = [
-    'Pull-ups',
-    'Push up',
-    'Squat',
-    'Deadlift',
-    'Plank',
-    'bench press',
-    'Sit up',
-    'Dumbbell fly'
+    'pull_up',
+    'push_up',
+    'deep_squat',
+    'set_ups',
+    'plank'
   ];
   final _picker = ImagePicker();
   File? _video;
@@ -219,7 +216,7 @@ Future<void> _handleSelectedVideo(XFile video) async {
                     .replace(queryParameters: {
                   'user_id': userId,
                   'video_url': res?.secureUrl,
-                  'app_id': widget.index.toString(),
+                  'app_id': names[widget.index],
                 }),
               )
               .timeout(const Duration(seconds: 30));
@@ -236,13 +233,15 @@ Future<void> _handleSelectedVideo(XFile video) async {
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
-                        VideoAnalysisPage(analysisList: analysisList,pic_url: pic_url,)));
+                        VideoAnalysisPage(analysisList: analysisList,ishistory: false,)));
           } else {
+            LoadingDialog.hide(context);  
             _handleErrorResponse(context, response.statusCode);
           }
         }
       } catch (uploadError) {
         if (context.mounted) {
+          LoadingDialog.hide(context);  
           CustomSnackBar.showFailure(
               context, 'Upload failed: ${uploadError.toString()}');
         }
@@ -250,6 +249,7 @@ Future<void> _handleSelectedVideo(XFile video) async {
       }
     } catch (e) {
       if (context.mounted) {
+        LoadingDialog.hide(context);  
         CustomSnackBar.showFailure(context, 'Network Error: ${e.toString()}');
       }
     }

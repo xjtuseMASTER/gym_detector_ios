@@ -44,7 +44,7 @@ class BodylistView extends StatelessWidget {
             {
               //跳转到Muscledata
               Navigator.push(context,
-               MaterialPageRoute(builder: (context)=>const HealthDashboardView())
+               MaterialPageRoute(builder: (context)=> MuscledataView())
                );
             }
             else{

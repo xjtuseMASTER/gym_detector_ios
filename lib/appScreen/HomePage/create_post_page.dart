@@ -185,6 +185,7 @@ Future<void> _handleRelease(BuildContext context) async {
       // 处理返回的数据
       final jsonResponse = json.decode(response.body);
       post_id = jsonResponse['data']['postId'];
+      NewPost['post_id'] = post_id;
       print('数据获取成功');
       LoadingDialog.hide(context);
       CustomSnackBar.showSuccess(context, 'Release Successfully！');

@@ -3,12 +3,12 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 
 class VideoAnalysisPage extends StatefulWidget {
   final List<Map<String, dynamic>> analysisList;
-  final String pic_url;
+  final bool ishistory;
 
   const VideoAnalysisPage({
     Key? key,
     required this.analysisList,
-    required this.pic_url,
+    required this.ishistory,
   }) : super(key: key);
 
   @override
@@ -36,15 +36,19 @@ class _VideoAnalysisPageState extends State<VideoAnalysisPage> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: ListView.builder(
+      body: 
+      widget.analysisList.length==0?
+      Center(child: Text('You do the best!',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),)):
+      ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: widget.analysisList.length,
         itemBuilder: (context, index) {
           final item = widget.analysisList[index];
           return VideoAnalysisCard(
-            picUrl: widget.pic_url,
+            picUrl: item['frame'],
             error: item['error'],
             advice: item['advice'],
+            ishistory: widget.ishistory,
           );
         },
       ),
@@ -57,12 +61,14 @@ class VideoAnalysisCard extends StatefulWidget {
   final String picUrl;
   final String error;
   final String advice;
+  final bool ishistory;
 
   const VideoAnalysisCard({
     Key? key,
     required this.picUrl,
     required this.error,
     required this.advice,
+    required this.ishistory,
   }) : super(key: key);
 
   @override
@@ -72,20 +78,26 @@ class VideoAnalysisCard extends StatefulWidget {
 class _VideoAnalysisCardState extends State<VideoAnalysisCard> {
   String displayedText = ""; // 当前显示的文本
   int charIndex = 0; // 当前显示的字符索引
+  bool isTextGenerated = false; // 标记文本是否已经生成
 
   @override
   void initState() {
     super.initState();
-    _startStreaming(widget.advice); // 开始逐字显示 advice
+    if (!isTextGenerated) {
+      _startStreaming(widget.advice); // 开始逐字显示 advice
+      isTextGenerated = true; // 标记文本已经生成
+    }
   }
 
   void _startStreaming(String fullText) async {
     while (charIndex < fullText.length) {
-      await Future.delayed(const Duration(milliseconds: 50)); // 每50ms显示一个字符
-      setState(() {
-        displayedText += fullText[charIndex]; // 逐字符添加
-        charIndex++;
-      });
+      await Future.delayed(const Duration(milliseconds: 10)); // 每50ms显示一个字符
+      if (mounted) {
+        setState(() {
+          displayedText += fullText[charIndex]; // 逐字符添加
+          charIndex++;
+        });
+      }
     }
   }
 
@@ -128,6 +140,13 @@ class _VideoAnalysisCardState extends State<VideoAnalysisCard> {
             ),
           ),
           const SizedBox(height: 8),
+          widget.ishistory?
+           MarkdownBody(
+                    data: widget.advice,
+                    styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+                      p: const TextStyle(fontSize: 16, color: Colors.black87),
+                    ),
+                  ):
           MarkdownBody(
             data: displayedText, // 渲染流式文本
             styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(

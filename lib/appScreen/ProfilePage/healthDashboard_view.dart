@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:health/health.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-
 class HealthDashboardView extends StatefulWidget {
   const HealthDashboardView({Key? key}) : super(key: key);
 
@@ -13,99 +12,140 @@ class HealthDashboardView extends StatefulWidget {
 }
 
 class _HealthDashboardState extends State<HealthDashboardView> {
-  final Health _health = Health(); // Health 插件实例
+  final Health _health = Health();
   List<HealthDataPoint> _healthDataList = [];
   bool _isLoading = true;
+  bool _hasPermissions = false;
+  String? _error;
 
-  // 获取平台相关的数据类型
-  static final types = [
-    HealthDataType.WEIGHT,
-    HealthDataType.STEPS,
-    HealthDataType.HEIGHT,
-    HealthDataType.BLOOD_GLUCOSE,
-    HealthDataType.WORKOUT,
-    HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
-    HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
-    // Uncomment this line on iOS - only available on iOS
-    // HealthDataType.AUDIOGRAM
-  ];
-
-  List<HealthDataAccess> get permissions => types.map((type) {
-        // iOS 平台上部分数据仅支持读取权限
-        if ([
-          HealthDataType.WALKING_HEART_RATE,
-          HealthDataType.ELECTROCARDIOGRAM,
-          HealthDataType.HIGH_HEART_RATE_EVENT,
-          HealthDataType.LOW_HEART_RATE_EVENT,
-        ].contains(type)) {
-          return HealthDataAccess.READ;
-        }
-        return HealthDataAccess.READ_WRITE;
-      }).toList();
+  // 只获取基础且通用的数据类型
+  static final List<HealthDataType> types = Platform.isIOS 
+    ? [
+        HealthDataType.STEPS,
+        HealthDataType.WEIGHT,
+        HealthDataType.HEIGHT,
+      ]
+    : [
+        HealthDataType.STEPS,
+        HealthDataType.WEIGHT,
+        HealthDataType.HEIGHT,
+      ];
 
   @override
   void initState() {
     super.initState();
-    _configureHealthPlugin();
-    _initializeHealthData();
-  }
-
-  void _configureHealthPlugin() {
-    // 配置 Health 插件
-    _health.configure();
-  }
-
-  Future<void> _initializeHealthData() async {
-    // 请求权限并获取健康数据
-    await authorize();
-    await fetchData();
-    setState(() {
-      _isLoading = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeHealth();
     });
   }
 
-  Future<void> authorize() async {
-    // 请求权限
-    await Permission.activityRecognition.request();
-    await Permission.location.request();
-
-    bool? hasPermissions = await _health.hasPermissions(types, permissions: permissions);
-
-    if (hasPermissions == null || !hasPermissions) {
-      bool authorized = await _health.requestAuthorization(
-        types,
-        permissions: permissions,
-      );
-
-      if (!authorized) {
-        debugPrint("授权失败");
-        return;
+  // 初始化健康数据
+  Future<void> _initializeHealth() async {
+    try {
+      // 配置health插件
+      bool isConfigured = await _health.hasPermissions(types) ?? false;
+      if (!isConfigured) {
+        _hasPermissions = await _requestHealthPermissions();
+      } else {
+        _hasPermissions = true;
       }
-    }
 
-    debugPrint("授权成功");
+      if (_hasPermissions) {
+        await _fetchHealthData();
+      } else {
+        setState(() {
+          _error = "未获得健康数据访问权限";
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _error = "初始化失败: $e";
+        _isLoading = false;
+      });
+    }
   }
 
-  Future<void> fetchData() async {
-    final now = DateTime.now();
-    final yesterday = now.subtract(const Duration(days: 1));
-
+  // 请求健康数据权限
+  Future<bool> _requestHealthPermissions() async {
     try {
+      if (Platform.isAndroid) {
+        final status = await Permission.activityRecognition.request();
+        if (status.isDenied) return false;
+      }
+      
+      return await _health.requestAuthorization(types);
+    } catch (e) {
+      debugPrint("请求权限失败: $e");
+      return false;
+    }
+  }
+
+  // 获取健康数据
+  Future<void> _fetchHealthData() async {
+    try {
+      final now = DateTime.now();
+      final yesterday = now.subtract(const Duration(days: 7)); // 获取一周的数据
+
       List<HealthDataPoint> healthData = await _health.getHealthDataFromTypes(
         types: types,
         startTime: yesterday,
         endTime: now,
       );
 
-      healthData = _health.removeDuplicates(healthData);
+      if (mounted) {
+        setState(() {
+          _healthDataList = _health.removeDuplicates(healthData);
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = "获取数据失败: $e";
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
-      setState(() {
-        _healthDataList = healthData;
-      });
+  // 将健康数据点转换为可读文本
+  String _getReadableValue(HealthDataPoint point) {
+    if (point.type == HealthDataType.STEPS) {
+      return "${point.value} 步";
+    } else if (point.type == HealthDataType.WEIGHT) {
+      return "${point.value} kg";
+    } else if (point.type == HealthDataType.HEIGHT) {
+      return "${point.value} cm";
+    }
+    return point.value.toString();
+  }
 
-      debugPrint("获取到的健康数据：${healthData.length} 条");
-    } catch (error) {
-      debugPrint("获取数据失败：$error");
+  // 获取数据类型对应的图标
+  IconData _getIconForType(HealthDataType type) {
+    switch (type) {
+      case HealthDataType.STEPS:
+        return Icons.directions_walk;
+      case HealthDataType.WEIGHT:
+        return Icons.monitor_weight;
+      case HealthDataType.HEIGHT:
+        return Icons.height;
+      default:
+        return Icons.health_and_safety;
+    }
+  }
+
+  // 获取数据类型的显示名称
+  String _getTypeDisplayName(HealthDataType type) {
+    switch (type) {
+      case HealthDataType.STEPS:
+        return "步数";
+      case HealthDataType.WEIGHT:
+        return "体重";
+      case HealthDataType.HEIGHT:
+        return "身高";
+      default:
+        return type.toString();
     }
   }
 
@@ -113,77 +153,101 @@ class _HealthDashboardState extends State<HealthDashboardView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Health Dashboard'),
+        title: const Text('健康数据'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _hasPermissions ? () {
+              setState(() {
+                _isLoading = true;
+                _error = null;
+              });
+              _fetchHealthData();
+            } : null,
+          ),
+        ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ListView.builder(
-                itemCount: _healthDataList.length,
-                itemBuilder: (context, index) {
-                  final data = _healthDataList[index];
-                  return Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          // 数据类型图标
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.all(12),
-                            child: Icon(
-                              Icons.health_and_safety, // 健康数据通用图标
-                              size: 32,
-                              color: Colors.blue,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          // 数据展示
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  data.type.toString(),
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Value: ${data.value}',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                                Text(
-                                  'Date: ${data.dateFrom.toLocal()}',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[500],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Colors.red,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              _error!,
+              style: const TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_healthDataList.isEmpty) {
+      return const Center(
+        child: Text(
+          '暂无健康数据',
+          style: TextStyle(fontSize: 16),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _fetchHealthData,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _healthDataList.length,
+        itemBuilder: (context, index) {
+          final data = _healthDataList[index];
+          return Card(
+            elevation: 2,
+            margin: const EdgeInsets.only(bottom: 12),
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundColor: Colors.blue.withOpacity(0.1),
+                child: Icon(
+                  _getIconForType(data.type),
+                  color: Colors.blue,
+                ),
+              ),
+              title: Text(
+                _getTypeDisplayName(data.type),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              subtitle: Text(
+                '时间: ${data.dateFrom.toLocal().toString().split('.')[0]}',
+                style: const TextStyle(fontSize: 12),
+              ),
+              trailing: Text(
+                _getReadableValue(data),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
               ),
             ),
+          );
+        },
+      ),
     );
   }
 }
